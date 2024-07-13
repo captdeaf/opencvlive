@@ -86,7 +86,7 @@ function template(tplname, contents) {
       }
     }
   }
-  setupClicks(tpl);
+  setupActions(tpl);
   return tpl.children;
 }
 
@@ -97,62 +97,55 @@ function templateReplace(el, tplname, contents) {
   return el;
 }
 
-function showFloater(name, body, foot) {
+function showFloater(title, bodytpl, children) {
+  const body = template(bodytpl, children);
   const floater = template('floater', {
-    '.name': name,
+    '.name': title,
     '.body': body,
-    '.foot': foot,
   });
 
   appendChildren(get('#floats'), floater);
 }
 
-const ON_CLICKS = {};
-
-function addOnClick(name, func) {
-  ON_CLICKS[name] = func;
+function getParentWith(el, sel) {
+  while (el) {
+    if (el.matches(sel)) return el;
+    el = el.parentElement;
+  }
+  alertUser("Unable to find parent with selector", sel);
+  return undefined;
 }
 
-function setupClicks(el) {
-  // Add onclick events to all elements with data-click.
-  const all = el.querySelectorAll('[data-click]');
-  for (const clicky of all) {
-    if (clicky.dataset.click && clicky.dataset.click !== '') {
-      clicky.onclick = function(evt) {
-        ON_CLICKS[clicky.dataset.click](clicky, evt);
-      }
+function closeFloaterFor(el) {
+  el = getParentWith(el, '.floater');
+  if (el) el.parentElement.removeChild(el);
+}
+
+const TRIGGERS = {};
+
+function addTrigger(name, func) {
+  TRIGGERS[name] = func;
+}
+
+function trigger(name, ...args) {
+  if (name) {
+    if (Object.keys(TRIGGERS).indexOf(name) < 0) {
+        alertUser("Unknown Trigger:", name);
     }
+    TRIGGERS[name](...args);
   }
-  return el;
+}
+
+function deleteParent(el) {
+  el = getParentWith(el, '[data-delete]');
+  if (el) el.parentElement.removeChild(el);
 }
 
 // Basic click functionality
-addOnClick('deleteparent', (el, evt) => {
-  while (el && el.dataset.delete !== 'true') {
-    el = el.parentElement;
-  }
-  if (el) {
-    el.parentElement.removeChild(el);
-  }
+addTrigger('deleteparent', (el, evt) => {
+  deleteParent(el);
 });
 
-addOnClick('closeparent', (el, evt) => {
-  while (el && el.dataset.close !== 'true') {
-    el = el.parentElement;
-  }
-  if (el) {
-    el.style.display = 'none';
-  }
-});
-
-addOnClick('closeme', (el, evt) => {
+addTrigger('closeme', (el, evt) => {
   el.style.display = 'none';
-});
-
-addOnClick('uploadImage', (el, evt) => {
-  alertUser(
-    "Okay let's talk about uploading images.",
-    "Whaddaya wanna do?",
-    "Multiline?"
-  );
 });

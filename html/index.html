@@ -10,6 +10,7 @@
     <!-- PLCheat style and script. -->
     <link rel="stylesheet" type="text/css" href="styles.css" />
     <script type="text/javascript" src="util.js"></script>
+    <script type="text/javascript" src="actions.js"></script>
     <script type="text/javascript" src="simple.js"></script>
     <script type="text/javascript" src="scripts.js"></script>
   </head>
@@ -89,6 +90,10 @@
       <div id="blockcol">
         <h3>Blocks Available</h3>
         <p>(Click &amp; Drag)</p>
+        <div class="block block-active drag-start drag-me" data-click="showUploadDialog" data-help="Upload a file image">
+          <h3>Add Image</h3>
+          <img src="loadimage.png">
+        </div>
       </div>
       <div id="main">
       </div>
@@ -100,7 +105,7 @@
 
       For toolbox, block selection:
       <div id="block-selector-template">
-        <div class="block" draggable="true">
+        <div class="block block-selector" draggable="true">
           <h3 draggable="false"></h3>
           <img draggable="false"/>
         </div>
@@ -110,27 +115,27 @@
       <div id="block-active-template">
       </div>
 
+      <div id="upload-template">
+        <div class="file-select" data-upload="/uploadImage">
+          <input type="file" name="image" multiple>
+          <button class="submit" data-click="submitUpload">Upload Image</button>
+        </div>
+      </div>
+
       <div id="floater-template">
-        <div class="floater" data-delete="true">
-          <h3><span class="name"></span><div class="closer" data-click="deleteparent">X</div></h3>
+        <div class="floater drag-me" data-drag="move" data-delete="true">
+          <h3 class="drag-start"><span class="name"></span><div class="closer" data-click="deleteparent">X</div></h3>
           <div class="body"></div>
-          <div class="foot"></div>
         </div>
       </div>
 
       On load or reset, main:
       <div id="main-template">
-        <div>
-          <section id="root">
-            <div class="block-selector" class="block" data-click="uploadImage" data-help="Upload a file image">
-              <h3>Add Image</h3>
-              <img src="loadimage.png">
-            </div>
-          </section>
-        </div>
       </div>
     </div>
     <div id="floats">
+    </div>
+    <div id="localfiles">
     </div>
     <script type="text/javascript">
       (function() {
