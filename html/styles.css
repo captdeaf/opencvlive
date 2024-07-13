@@ -1,0 +1,272 @@
+/* cheatsheet.css, styles for plcheat */
+
+/* Major UI elements */
+#sheet {
+  width: 100vw;
+  background-color: #fff;
+  color: #000;
+  display: flex;
+  flex-flow: row;
+  min-height: 0;
+  height: 100%;
+}
+
+#blockcol {
+  position: relative;
+  display: inline-block;
+  top: 0;
+  flex: 0 0 content;
+  min-width: 13em;
+  max-width: 13em;
+  height: 100%;
+  overflow-x: scroll;
+  overflow-y: scroll;
+
+  background-color: lightyellow;
+  border-right: 2px solid black;
+  padding: 0.4em;
+}
+
+#block-selection {
+  display: flex;
+  flex-wrap: wrap;
+  flex-flow: row;
+}
+
+.block-selector {
+  display: inline-div;
+  flex: 0 0 auto;
+  position: relative;
+  width: 5em;
+  height: 5em;
+  border: 1px solid gray;
+  background-color: #ddf;
+}
+
+.block-selector h3 {
+  font-size: 10px;
+  display: block;
+  position: absolute;
+  top: 0.1em;
+  left: 0.25em;
+  height: 1.4em;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin: 0;
+}
+
+.dialog {
+  position: fixed;
+  top: 10em;
+  left: 50%;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.floater {
+  position: fixed;
+  top: 10em;
+  left: 50%;
+  background-color: #efe;
+  color: black;
+  border: 2px solid #eef;
+  z-index: 1000;
+  width: 30%;
+  min-width: 12em;
+  max-width: 30em;
+  min-height: 4em;
+
+  display: flex;
+  flex-flow: column;
+}
+
+.floater h3 {
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  height: 1.5em;
+  border-bottom: 1px solid black;
+  margin: 0.25em 0 0 0;
+  padding: 0;
+}
+
+.floater h3 span {
+  position: absolute;
+  left: 0.5em;
+}
+
+.floater h3 .closer {
+  position: absolute;
+  font-size: 80%;
+  color: red;
+  right: 0.25em;
+  top: 0;
+}
+
+.floater .body {
+  min-height: 4em;
+  flex: 1 1 auto;
+}
+
+.floater .foot {
+  flex: 1 1 content;
+}
+
+#user-alert {
+  padding: 1em;
+  background-color: #eee;
+  color: black;
+  border: 2px solid red;
+  z-index: 1000;
+}
+
+#user-alert p {
+  display: block;
+}
+
+.block-selector img {
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4em;
+  width: 100%;
+}
+
+#root {
+  flex: 0 0 auto;
+}
+
+#main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column;
+}
+
+#main section {
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-evenly;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+/* Minor UI elements */
+.cvstyle {
+  background-color: #ddd;
+  color: #222;
+}
+
+body {
+  font-size: 90%;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-flow: column;
+}
+
+span.quote {
+  font-style: italic;
+  color: #cc6600;
+  font-weight: bold;
+}
+
+#head {
+  padding: 1em 1em 0em 1em;
+  flex: 0 0 content;
+  border-bottom: 2px solid black;
+  display: flex;
+  flex-flow: column;
+}
+
+#topbar {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-flow: row;
+}
+
+#topbar #title {
+  cursor: pointer;
+  flex: 0 0 content;
+  display: inline-block;
+  margin-right: 1em;
+  font-size: 150%;
+  font-weight: bold;
+  height: 100%;
+  color: #ff8c00;
+  text-stroke: 1px #cc5900;
+  -webkit-text-stroke: 1px #cc5900;
+  -webkit-text-fill-color: #ff8c00;
+}
+
+#topbar #title #qmark {
+  font-weight: bold;
+  bottom: 0.5em;
+  right: 1em;
+  font-size: 50%;
+  -webkit-text-stroke: 0px blue;
+  -webkit-text-fill-color: blue;
+}
+
+#topbar .link {
+  position: relative;
+  flex: 0 0 content;
+  display: inline-block;
+  height: 100%;
+  font-size: 88%;
+  bottom: 0px;
+}
+
+#topbar div {
+  position: relative;
+  bottom: 0;
+  margin-right: 2em;
+  bottom: 0;
+  text-decoration: none;
+  cursor: pointer;
+  color: blue;
+}
+
+#topbar-filler {
+  flex: 1 1 auto;
+}
+
+#about {
+  position: absolute;
+  z-index: 1000;
+  top: 5em;
+  left: 5em;
+  width: 80vw;
+  max-width: 40em;
+  text-wrap: auto;
+  display: inline-block;
+  padding: 0.5em 1em 1em 1em;
+  border: 5px solid #363;
+  background-color: #eee;
+  overflow-y: scroll;
+}
+
+#about .toggle-about {
+  cursor: pointer;
+  position: absolute;
+  font-weight: bold;
+  top: 0.5em;
+  right: 1em;
+  color: blue;
+}
+
+#about p {
+  text-indent: 2em;
+}
+
+[data-click] {
+  cursor: pointer;
+}
