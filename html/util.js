@@ -47,6 +47,14 @@ function appendChildren(el, children) {
   return el;
 }
 
+function pauseEvent(e){
+    if(e.stopPropagation) e.stopPropagation();
+    if(e.preventDefault) e.preventDefault();
+    e.cancelBubble=true;
+    e.returnValue=false;
+    return false;
+}
+
 function alertUser(...all) {
   const paras = [];
   const alerter = get('#user-alert');
@@ -65,6 +73,13 @@ function alertUser(...all) {
     }
   }
   alerter.style.display = 'block';
+}
+
+function cloneElement(el) {
+  // This version is a deep clone that also calls enableActions.
+  const ret = el.cloneNode(true);
+  enableActions(EL('div', ret));
+  return ret;
 }
 
 function template(tplname, contents) {
@@ -86,7 +101,7 @@ function template(tplname, contents) {
       }
     }
   }
-  setupActions(tpl);
+  enableActions(tpl);
   return tpl.children;
 }
 
@@ -121,31 +136,38 @@ function closeFloaterFor(el) {
   if (el) el.parentElement.removeChild(el);
 }
 
-const TRIGGERS = {};
-
-function addTrigger(name, func) {
-  TRIGGERS[name] = func;
-}
-
-function trigger(name, ...args) {
-  if (name) {
-    if (Object.keys(TRIGGERS).indexOf(name) < 0) {
-        alertUser("Unknown Trigger:", name);
-    }
-    TRIGGERS[name](...args);
-  }
-}
-
 function deleteParent(el) {
   el = getParentWith(el, '[data-delete]');
   if (el) el.parentElement.removeChild(el);
 }
 
-// Basic click functionality
-addTrigger('deleteparent', (el, evt) => {
-  deleteParent(el);
-});
+function elementContains(par, child) {
+  let pr = par.getBoundingClientRect();
+  let cr = child.getBoundingClientRect();
 
-addTrigger('closeme', (el, evt) => {
-  el.style.display = 'none';
-});
+  if ((cr.top < pr.top) || (cr.bottom > pr.bottom) ||
+      (cr.left < pr.left) || (cr.right > pr.right)) {
+    return null;
+  }
+  return par;
+}
+
+function elementsContain(pars, child) {
+  for (const par of pars) {
+    const pr = elementContains(par, child);
+    if (pr) return pr;
+  }
+  return null;
+}
+
+const INITIALIZERS = [];
+
+function addInitializer(func) {
+  INITIALIZERS.push(func);
+}
+
+function callInitializers() {
+  for (const init of INITIALIZERS) {
+    init();
+  }
+}

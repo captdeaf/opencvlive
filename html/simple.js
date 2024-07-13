@@ -35,7 +35,16 @@ function addToggle(attr, stateKey, defaultState, callback) {
   }
 }
 
-function setupAbout() {
+// Basic click functionality
+addTrigger('deleteparent', (el, evt) => {
+  deleteParent(el);
+});
+
+addTrigger('closeme', (el, evt) => {
+  el.style.display = 'none';
+});
+
+addInitializer(function() {
   const desc = get('#about');
   const toggles = getAll('.toggle-about');
 
@@ -52,4 +61,4 @@ function setupAbout() {
   for (const toggle of toggles) {
     toggle.onclick = toggleAbout;
   }
-}
+});

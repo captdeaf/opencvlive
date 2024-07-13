@@ -8,10 +8,6 @@ function resetMain() {
   templateReplace(get('#main'), 'main');
 }
 
-function setupToolbox() {
-
-}
-
 async function uploadAsync(path, formData, cb) {
   await fetch(path, {
     method: "POST",
@@ -57,8 +53,6 @@ addTrigger('showUploadDialog', function(el, evt) {
 });
 
 function setupUI() {
-  setupAbout();
-  setupToolbox();
-  setupActions(get('body'));
+  callInitializers();
   resetMain();
 }

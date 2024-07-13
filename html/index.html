@@ -12,6 +12,7 @@
     <script type="text/javascript" src="util.js"></script>
     <script type="text/javascript" src="actions.js"></script>
     <script type="text/javascript" src="simple.js"></script>
+    <script type="text/javascript" src="dragndrop.js"></script>
     <script type="text/javascript" src="scripts.js"></script>
   </head>
   <body>
@@ -87,12 +88,18 @@
       </div>
     </div>
     <div id="sheet">
-      <div id="blockcol">
+      <div id="toolbox">
         <h3>Blocks Available</h3>
         <p>(Click &amp; Drag)</p>
-        <div class="block block-active drag-start drag-me" data-click="showUploadDialog" data-help="Upload a file image">
-          <h3>Add Image</h3>
-          <img src="loadimage.png">
+        <div id="block-selection">
+            <div class="block block-active drag-start drag-me" data-drag="trigger" data-drag_target="#main" data-drag_drop="showUploadDialog" data-help="Upload a file image">
+              <h3>Upload Image</h3>
+              <img src="loadimage.png">
+            </div>
+            <div class="block block-active drag-start drag-me" data-drag="trigger" data-drag_target="#main" data-drag_drop="showUploadedDialog" data-help="Pick uploaded files">
+              <h3>Pick Image</h3>
+              <img src="pickimage.png">
+            </div>
         </div>
       </div>
       <div id="main">
@@ -115,6 +122,13 @@
       <div id="block-active-template">
       </div>
 
+      <div id="uploaded-template">
+        <div class="file-select">
+          <input type="select" name="image" multiple>
+          <button class="submit" data-click="submitUpload">Already-uploaded images</button>
+        </div>
+      </div>
+
       <div id="upload-template">
         <div class="file-select" data-upload="/uploadImage">
           <input type="file" name="image" multiple>
@@ -133,8 +147,6 @@
       <div id="main-template">
       </div>
     </div>
-    <div id="floats">
-    </div>
     <div id="localfiles">
     </div>
     <script type="text/javascript">
@@ -142,5 +154,6 @@
         setupUI();
       })();
     </script>
+    <div id="floats"></div>
   </body>
 </html>
