@@ -17,6 +17,7 @@
     <script type="text/javascript" src="ui.js"></script>
     <script type="text/javascript" src="helpers.js"></script>
     <script type="text/javascript" src="dragndrop.js"></script>
+    <script type="text/javascript" src="keys.js"></script>
     <script type="text/javascript" src="scripts.js"></script>
   </head>
   <body>
@@ -111,7 +112,7 @@
         <div class="collection-scroll" data-hover="scrollup" data-target="#block-selection">&uarr;</div>
         <div class="collection" id="block-selection">
           <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadDialog" data-help="Upload a file image">
-            <img src="loadimage.png">
+            <img src="loadimage.png" data-name="Upload blah">
             <span>Upload blah</span>
           </div>
           <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
@@ -144,6 +145,8 @@
     <div style="display:none;" id="templates">
       We use get('#templateid').cloneNode().children to fetch the templates.
       Any text before or after it is just comments.
+
+      Toolbox library images.
       <div id="template-library-image">
         <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="addImage">
           <img>
@@ -151,17 +154,20 @@
         </div>
       </div>
 
+      Basic floating dialog
       <div id="template-floater">
-        <div class="dialog drag-me" data-drag="reposition" data-drag-target="!float">
-          <h3 class="drag-start"></h3>
+        <div class="dialog drag-me floater" data-drag="reposition" data-drag-target="!float">
+          <h3 class="drag-start name"></h3>
           <span class="closer" data-onclick="remove" data-target=".floater">X</span>
           <div class="body"></div>
         </div>
       </div>
 
+      Large pictures. Not the largest, but those open in new tabs.
+      <div id="template-large-image"><h3 class="large-image-name"></h3><img class="large-image"/></div>
+
       On load or reset, main:
-      <div id="template-main">
-      </div>
+      <div id="template-main"></div>
     </div>
     <div id="floats">
     </div>

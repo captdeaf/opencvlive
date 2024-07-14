@@ -25,12 +25,16 @@ span.quote {
   left: 15%;
   z-index: 900;
   min-width: 20em;
-  max-width: 25em;
-  width: 20vw;
+  max-width: 45em;
   background-color: #fee;
   border: 3px solid black;
   padding: 0.5em;
   border-radius: 8px;
+}
+
+.dialog img {
+  max-width: 43em;
+  max-height: 43em;
 }
 
 .dialog h3 {

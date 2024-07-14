@@ -37,9 +37,12 @@ function rebuildLibrary(paths) {
     const pane = template('library-image', (tpl) => {
       const img = get('img', tpl);
       const span = get('span', tpl);
+      const name = basename(path);
 
       img.src = path;
-      span.innerText = basename(path);
+      img.dataset.onclick = 'showLargeImage';
+      img.dataset.displayName = name;
+      span.innerText = name;
     });
     appendChildren(library, pane);
   }
@@ -111,6 +114,12 @@ addTrigger('uploadFileChange', (el, evt) => {
       }
   )
 });
+
+addTrigger('showLargeImage', function(img) {
+  showFloater(img.dataset.displayName, 'large-image', (el) => {
+    get('img', el).src = img.src;
+  });
+})
 
 addInitializer(() => {
   resetMain();
