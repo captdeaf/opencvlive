@@ -1,0 +1,109 @@
+/* main.css
+ *
+ * Major UI element separation for cvlive.
+ **/
+
+#sheet {
+  width: 100vw;
+  background-color: #fff;
+  color: #000;
+  display: flex;
+  flex-flow: row;
+  min-height: 0;
+  height: 100%;
+}
+
+#main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column;
+}
+
+body {
+  font-size: 90%;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-flow: column;
+}
+
+#head {
+  padding: 0em 0em 0em 0em;
+  flex: 0 0 content;
+  border-bottom: 2px solid black;
+  display: flex;
+  flex-flow: column;
+}
+
+#topbar {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-flow: row;
+}
+
+#topbar #title {
+  cursor: pointer;
+  flex: 0 0 content;
+  display: inline-block;
+  margin-right: 1em;
+  font-size: 150%;
+  font-weight: bold;
+  height: 100%;
+  color: #ff8c00;
+  text-stroke: 1px #cc5900;
+  -webkit-text-stroke: 1px #cc5900;
+  -webkit-text-fill-color: #ff8c00;
+}
+
+#topbar #title #qmark {
+  font-weight: bold;
+  bottom: 0.5em;
+  right: 1em;
+  font-size: 50%;
+  -webkit-text-stroke: 0px blue;
+  -webkit-text-fill-color: blue;
+}
+
+#topbar div {
+  position: relative;
+  bottom: 0;
+  margin-right: 2em;
+  bottom: 0;
+  text-decoration: none;
+  cursor: pointer;
+  color: blue;
+}
+
+#topbar-filler {
+  flex: 1 1 auto;
+}
+
+#about {
+  position: absolute;
+  z-index: 1000;
+  top: 5em;
+  left: 5em;
+  width: 80vw;
+  max-width: 40em;
+  text-wrap: auto;
+  display: inline-block;
+  padding: 0.5em 1em 1em 1em;
+  border: 5px solid #363;
+  background-color: #eee;
+  overflow-y: scroll;
+}
+
+#about .toggle-about {
+  cursor: pointer;
+  position: absolute;
+  font-weight: bold;
+  top: 0.5em;
+  right: 1em;
+  color: blue;
+}
+
+#about p {
+  text-indent: 2em;
+}

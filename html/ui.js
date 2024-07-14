@@ -63,7 +63,7 @@ addTrigger('toggle', (el, evt) => {
   }
 });
 
-// On click, remove either this element, or a parent element
+// On click, hide either this element, or a parent element
 // matching the data-target selector.
 addTrigger('hide', (el, evt) => {
   const sel = el.dataset.target;

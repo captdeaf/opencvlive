@@ -140,7 +140,7 @@ function addMouseDrag(element) {
   function cleanUp() {
     if (method === 'reposition') return;
     element.style.visibility = 'visible';
-    dragged.parentElement.removeChild(dragged);
+    removeElement(dragged);
     dragged = null;
   }
 

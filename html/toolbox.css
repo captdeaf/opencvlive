@@ -1,0 +1,77 @@
+/* Toolbox styles for what's on the left side
+ **/
+
+#toolbox {
+  position: relative;
+  display: inline-block;
+  top: 0;
+  flex: 0 0 content;
+  min-width: 13em;
+  max-width: 13em;
+  height: 100%;
+  overflow-x: scroll;
+  overflow-y: scroll;
+
+  background-color: lightyellow;
+  border-right: 2px solid black;
+  padding: 0.4em;
+}
+
+#toolbox .collection {
+  display: flex;
+  flex-wrap: wrap;
+  flex-flow: row;
+  justify-content: flex-start;
+}
+
+/* Headers for the collections */
+#toolbox h3 {
+  display: block;
+  top: 0.1em;
+  left: 0.25em;
+  height: 1.4em;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin: 0;
+}
+
+#toolbox p {
+  font-size: 10px;
+  display: block;
+  top: 0.1em;
+  left: 0.25em;
+  height: 1.4em;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin: 0;
+}
+
+.item {
+  margin-right: 0.5em;
+  display: block;
+  flex: 0 0 auto;
+  position: relative;
+  max-width: 5em;
+  max-height: 8em;
+  border: 1px solid gray;
+  border-radius: 5px;
+  background-color: #ddf;
+  text-align: center;
+}
+
+.item img {
+  aspect-ratio: 1 / 1;
+  width: 95%;
+  margin-top: 5px;
+  border-color: none;
+}
+
+.item span {
+  display: block;
+  width: 100%;
+  font-size: 70%;
+  overflow: hidden;
+  margin-bottom: 0.5em;
+}

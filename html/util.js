@@ -70,7 +70,7 @@ function cloneElement(el) {
 
 // DOM/QoL: Remove an element from its parent.
 function removeElement(el) {
-  el.parentElement.remove(el);
+  el.parentElement.removeChild(el);
 }
 
 // DOM/QoL: Replace an element within its parent. Order not kept.
@@ -98,7 +98,7 @@ function findParent(el, sel) {
 function template(tplname, contents) {
   const origtpl = get('#template-' + tplname);
   const tpl = origtpl.cloneNode(true);
-  if (contents) {
+  if (typeof(contents) === 'object') {
     for (const [sel, children] of Object.entries(contents)) {
       if (children) {
         const pars = getAll(sel, tpl);
@@ -107,7 +107,10 @@ function template(tplname, contents) {
         }
       }
     }
+  } else if (typeof(contents) === 'function') {
+    contents(tpl);
   }
+
   // NOCOMPAT: Enable trigger actions on children of this element.
   enableTriggers(tpl);
   return tpl.children;
@@ -119,6 +122,13 @@ function templateReplace(el, tplname, contents) {
   el.innerHTML = '';
   appendChildren(el, eltpl);
   return el;
+}
+
+// QoL: basename("path/to/foo.img") -> "foo"
+function basename(path) {
+  const m = path.match(/([^\./]+)\.(\w+)?/);
+  if (m) return m[1];
+  return path;
 }
 
 // QoL: Cross-browser 'break out of this event stack'

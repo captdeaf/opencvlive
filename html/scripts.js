@@ -8,14 +8,24 @@ function resetMain() {
   templateReplace(get('#main'), 'main');
 }
 
+async function easyFetch(path, opts, cbs) {
+  let promise = fetch(path, opts);
+  promise = promise.then((resp) => resp.json())
+  if (cbs.complete)
+    promise = promise.then(cbs.complete);
+
+  await promise;
+}
+
 async function uploadAsync(path, formData, cb) {
-  await fetch(path, {
+  let promise = fetch(path, {
     method: "POST",
     body: formData
   });
-  if (cb) {
-    cb();
-  }
+  if (cb)
+    promise = promise.then(cb);
+
+  await promise;
 }
 
 addTrigger('submitUpload', function(el, evt) {
@@ -48,10 +58,34 @@ addTrigger('submitUpload', function(el, evt) {
   });
 });
 
+function rebuildLibrary(paths) {
+  const library = get('#library');
+  console.log(paths);
+  for (const path of paths) {
+    const pane = template('library-image', (tpl) => {
+      const img = get('img', tpl);
+      const span = get('span', tpl);
+
+      img.src = path;
+      span.innerText = basename(path);
+    });
+    appendChildren(library, pane);
+  }
+}
+
+function refreshLibrary() {
+  easyFetch("/uploads", {}, {
+    complete: (resp) => {
+      rebuildLibrary(resp);
+    }
+  });
+}
+
 addTrigger('showUploadDialog', (el, evt) => {
   showFloater('Upload an Image', 'upload');
 });
 
 addInitializer(() => {
   resetMain();
+  refreshLibrary();
 });

@@ -2,13 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>OpenCV - Live image manipulation.</title>
+    <title>OpenCVLive - Live image manipulation.</title>
     <!-- From: highlightjs.org -->
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-    <!-- PLCheat style and script. -->
+    <!-- OpenCVLive style and script. -->
+    <link rel="stylesheet" type="text/css" href="main.css" />
     <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link rel="stylesheet" type="text/css" href="toolbox.css" />
+
     <script type="text/javascript" src="util.js"></script>
     <script type="text/javascript" src="triggers.js"></script>
     <script type="text/javascript" src="ui.js"></script>
@@ -78,7 +81,11 @@
         highlighting for our python code examples.
       </p>
     </div>
+    <!-- -->
     <div id="user-alert" class="dialog" style="display: none;" data-onclick="hide" data-target="#user-alert"></div>
+    <div id="upload-dialog" class="dialog" style="display: none;">
+      <div id="upload-closer" data-onclick="hide" data-target="#upload-dialog" class="toggle">&lt;close&gt;</div>
+    </div>
     <div id="head" class="cvstyle">
       <div id="topbar">
         <div id="title" class="toggle-about" data-onclick="toggle" data-target="#about">OpenCVLive&nbsp;<span id="qmark">(About)</span></div>
@@ -87,20 +94,23 @@
     </div>
     <div id="sheet">
       <div id="toolbox">
-        <h3>Library</h3>
-        <button data-click="showUploadFloater">Upload</button>
-        <div id="library"></div>
+        <h3>
+          Library
+          <button data-onclick="showUploadFloater">Upload</button>
+        </h3>
+        <hr/>
+        <div class="collection" id="library"></div>
         <h3>Blocks Available</h3>
         <p>(Click &amp; Drag)</p>
-        <div id="block-selection">
-            <div class="block block-active drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadDialog" data-help="Upload a file image">
-              <h3>Upload Image</h3>
-              <img src="loadimage.png">
-            </div>
-            <div class="block block-active drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
-              <h3>Pick Image</h3>
-              <img src="pickimage.png">
-            </div>
+        <div class="collection" id="block-selection">
+          <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadDialog" data-help="Upload a file image">
+            <img src="loadimage.png">
+            <span>Upload blah</span>
+          </div>
+          <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
+            <img src="pickimage.png">
+            <span>Pick blah</span>
+          </div>
         </div>
       </div>
       <div id="main">
@@ -110,19 +120,6 @@
     <div style="display:none;" id="templates">
       We use get('#templateid').cloneNode().children to fetch the templates.
       Any text before or after it is just comments.
-
-      For toolbox, block selection:
-      <div id="template-block-selector">
-        <div class="block block-selector">
-          <h3></h3>
-          <img/>
-        </div>
-      </div>
-
-      Active blocks in main:
-      <div id="template-block-active">
-      </div>
-
       <div id="template-uploaded">
         <div class="file-select">
           <input type="select" name="image" multiple>
@@ -130,10 +127,10 @@
         </div>
       </div>
 
-      <div id="template-upload">
-        <div class="file-select" data-upload="/uploadImage">
-          <input type="file" name="image" multiple>
-          <button class="submit" data-onclick="submitUpload">Upload Image</button>
+      <div id="template-library-image">
+        <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="addImage">
+          <img>
+          <span></span>
         </div>
       </div>
 
@@ -151,7 +148,7 @@
       <div id="template-main">
       </div>
     </div>
-    <div id="localfiles">
+    <div id="floats">
     </div>
     <script type="text/javascript">
       (function() {
@@ -159,6 +156,5 @@
         enableTriggers(get('document'))
       })();
     </script>
-    <div id="floats"></div>
   </body>
 </html>
