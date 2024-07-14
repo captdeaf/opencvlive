@@ -12,7 +12,22 @@ cwd = os.getcwd()
 if cwd not in sys.path:
     sys.path.append(cwd)
 
-from cvlib.flaskapp import app
+####################################
+#
+# Initialize app and import all the effects and routes for opencvlive
+#
+####################################
+
+from applib.flaskapp import app
+
+from cvlib import EF
+
+####################################
+#
+# Main: parse args, launch a browser if requested, and start the app.
+#
+####################################
+
 
 def main():
     parser = argparse.ArgumentParser(

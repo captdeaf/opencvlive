@@ -1,21 +1,116 @@
-# cwlib/effects.py # # This is a collection of OpenCV2's effects to help with normalizing
-# a camera frame to find arucos.
+# effects.py
 #
-# Primary way to use this:
+####################################
 #
-# applyEffects(frame, 'grayscale')
-# applyEffects(frame, ['grayscale', 'brighten:30'])
+# This is a collection of OpenCV2's effects, as well as descriptions, and extra
+# information to allow "pathing" through effects to work.
+#
+#   "pathing" examples:
+#      - Expects GRAYSCALE, auto-convert COLOR to grayscale, and vice versa.
+#      - Expects either and outputs the same kind: ANY -> SAME
+#      - Expects multiple and outputs a single one? ... I'm not there yet.
+#
+# (I also find some of cv2's function names, setups, calls, etc. confusing, so
+# this is a wrapper around those.)
+#
+# These effect wrappers can be used in two ways:
+#
+####
+#
+# Directly, just as wrappers for cv2
+#
+#  from effects import EF, Effects
+#
+#  grayscale = Effects.grayscale(frame)
+#  redscale = Effects.grayToColor(frame, EF.RED)
+#
+####
+#
+# Lazily, using a messy list, and exact same internal code.
+#
+# Lazy apply always starts with a copy unless you pass
+# copy=False. It should never modify the image you pass to it. Though any
+# images passed as arguments (e.g: EF.merge(otherImage)) don't have that copy.
+#
+# from effects import EF
+#
+# cleanup = [
+#   EF.blur(3),
+#   EF.threshold(low=128, method=cv.THRESH_BINARY),
+# ]
+# 
+# EF.apply(frame, [
+#   EF.grayscale(),
+#   cleanup,
+#   EF.grayTocolor(EF.RED),
+#   EF.invert(),
+#   EF.merge(otherFrame),
+#   EF.writeOn("Completed!");
+# ])
+#
+# Chains 'frame' through all the above calls and returns the image.
 #
 # Some effects are dependent on image type.
 #   e.g: 'grayscale' expects an image with depth 3, returning an image with depth 1
+#
+####################################
 
 import cv2 as cv
 import numpy as np
 import inspect
 
+####################################
+#
+# Handy mini-library of util stuff
+#
+####################################
+
+# Flatten weird-dimensional arrays. e.g: ['hi', ['foo', 'bar'], 'baz'] flattens
+# to ['hi', 'foo', 'bar', 'baz'].
+# This is primarily for letting us combo different effects.
+#
+# cleanup = [EF.this(), EF.that(), EF.other]
+# red = EF.apply(frame, EF.colorToGray(EF.RED), cleanup, EF.grayToColor(EF.RED))
+# green = EF.apply(frame, EF.colorToGray(EF.GREEN), cleanup, EF.grayToColor(EF.GREEN))
+
+def flatten(mess):
+    stack = []
+
+    def recurse(ary):
+        if type(ary) != list:
+            stack.append(ary)
+            return
+        for i in ary:
+            recurse(i)
+
+    recurse(mess)
+    return stack
+
+###################################
+#
+# EF is a container for CONSTANT values, which is used for both direct and lazy
+# calls.
+#
+####################################
 class EF(object):
+    BLUE   = 0
+    GREEN  = 1
+    RED    = 2
+
+    BGR = "bgr"
+    GRAYSCALE = "grayscale"
+    ANY = "any"
+    SAME = "same"
+
+class Effects(object):
     pass
 
+####################################
+#
+# Lazy Caller lets us chain a bunch of effects and apply them as groups, or
+# just call them later, or make it an easy call chain.
+#
+####################################
 class LazyCaller(object):
     def __init__(self, func, args, kwargs, cfrom, cto):
         self.func = func
@@ -24,28 +119,25 @@ class LazyCaller(object):
         self.channelfrom = cfrom
         self.channelto = cto
 
-BGR = "bgr"
-GRAYSCALE = "grayscale"
-ANY = "any"
-SAME = "same"
-
 def register(channelfrom, channelto):
     def registerfunc(func):
         def lazyApply(*args, **kwargs):
             return LazyCaller(func, args, kwargs, channelfrom, channelto)
 
+        setattr(EF, func.__name__, func)
         setattr(EF, func.__name__, lazyApply)
 
         return func
 
     return registerfunc
 
-def applyEffects(frame, *all_effects):
+def applyEffects(image, *all_effects, copy=True):
     channel = BGR
-    if len(frame.shape) == 2:
+    if len(image.shape) == 2:
         channel = GRAYSCALE
-
-    image = frame.copy()
+   
+    if copy:
+        image = image.copy()
 
     for effect in all_effects:
         if effect.channelfrom != channel and effect.channelfrom != ANY:
@@ -64,117 +156,9 @@ def applyEffects(frame, *all_effects):
 
     return image
 
+def isColor(image):
+    return image.shape == 3
+
+EF.isColor = isColor
+EF.register = register
 EF.apply = applyEffects
-
-@register(GRAYSCALE, GRAYSCALE)
-def adaptiveThreshold(frame, cmax=255, invert=False, gaussian=True, blockSize=11, weight=2):
-    method = cv.ADAPTIVE_THRESH_MEAN_C
-    if gaussian:
-        method = cv.ADAPTIVE_THRESH_GAUSSIAN_C
-    target = cv.THRESH_BINARY
-    if invert:
-        target = cv.THRESH_BINARY_INV
-    return cv.adaptiveThreshold(frame, cmax, method, target, blockSize, weight)
-
-@register(GRAYSCALE, GRAYSCALE)
-def threshold(frame, low=128, high=255, otsu=False, invert=False):
-    method = cv.THRESH_BINARY
-    if invert:
-        method = cv.THRESH_BINARY_INV
-    if otsu:
-        method |= cv.THRESH_OTSU
-    _, ret = cv.threshold(frame, low, high, method)
-    return ret
-
-@register(ANY, GRAYSCALE)
-def grayscale(image):
-    if len(image.shape) == 2:
-        return image
-    return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
-@register(ANY, BGR)
-def colorize(image, channel=None):
-    if len(image.shape) == 2:
-        return cv.cvtColor(image, cv.COLOR_GRAY2BGR)
-    return image
-
-@register(BGR, BGR)
-def pluckColor(image, channel):
-    if channel != 0:
-        image[:,:,0] = 0
-    if channel != 1:
-        image[:,:,1] = 0
-    if channel != 2:
-        image[:,:,2] = 0
-    return image
-
-@register(ANY, SAME)
-def blur(frame, amount):
-    return cv.medianBlur(frame, amount)
-
-@register(ANY, BGR)
-def writeOn(frame, text, xpct=0.2, ypct=0.8, color=[0, 255, 255], size=4,
-            font=cv.FONT_HERSHEY_SIMPLEX, weight=10):
-
-    if text is None or len(text) == 0:
-        return frame
-
-    colored = colorize(frame)
-    height, width, _ = colored.shape
-
-    calcx = int(width * xpct)
-    calcy = int(height * ypct)
-    font = cv.FONT_HERSHEY_SIMPLEX
-
-    colored = cv.putText(colored, text, (calcx, calcy), font, size, color, weight)
-    return colored
-
-@register(ANY, SAME)
-def removeBG(frame, bgr, learningRate = 0):
-    return bgr.apply(frame, learningRate = learningRate)
-
-@register(BGR, GRAYSCALE)
-def color2gray(image, channel):
-    return image[:,:,channel]
-
-@register(GRAYSCALE, BGR)
-def gray2color(image, channel):
-    shape = image.shape + (3,)
-    colored = np.zeros(shape, dtype="uint8")
-    colored[:,:,channel] = image
-    return colored
-
-@register(ANY, SAME)
-def subtract(image, sub):
-    return cv.subtract(image, sub)
-
-@register(ANY, SAME)
-def blend(image, second, alpha, gamma=0.0):
-    return cv.addWeighted(image, 1.0-alpha, second, alpha, gamma)
-
-@register(BGR, SAME)
-def brighten(image, pct):
-    hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    h, s, v = cv.split(hsv)
-
-    v[:] *= pct
-    v[v > 255] = 255
-
-    newhsv = cv.merge((h, s, v))
-    return cv.cvtColor(newhsv, cv.COLOR_HSV2BGR)
-
-@register(ANY, SAME)
-def cutPoly(image, pts):
-    mask = np.zeros(image.shape[:2], dtype="uint8")
-    cv.fillPoly(mask, pts, 1)
-
-    if len(image.shape) > 2:
-        image[mask == 0] = [0, 0, 0]
-    else:
-        image[mask == 0] = 0
-    
-    return image
-
-@register(ANY, SAME)
-def invert(image):
-    return 255 - image
