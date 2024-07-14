@@ -1,8 +1,29 @@
-// actions.js
+// dragndrop.js
 //
-// Helper functions for OpenCVLive that aid actions for various UI elements.
+/////////////////////////////////////
+//
+// This implements a mouse click+drag feature. It is right now only used for
+// Drag & Drop, but would support other purposes.
+//
+// Drag & Drop in JS.
+//
+// Different types of "drag"s:
+//     "trigger" (drags clone, clears, calls callback)
+//     "point" (draws line, clears, calls callback)
+//     "copy" (drags clone, copies into new parent, and calls callback)
+//     "move"  (hides orig, drags clone, moves original, and calls callback)
+//     "reposition" (drags orig, and calls callback)
+//
+//  This converts all elements with "[data-drag]": <div data-drag="copy">.
+//
+//  If there are any sub-elements with "drag-start" class, they will be the
+//  mousedown start for DnD. (e.g: title bars of windows). If not, the main
+//  [data-drag] element is considered the mousedown start.
+//
+/////////////////////////////////////
 
-// Current mouse action
+// Current mouse action. Yes, it's a global. Because I only want exactly
+// one thing DnD'd at a time.
 let MOUSE = {
   actions: {},
   started: false,
@@ -11,40 +32,62 @@ let MOUSE = {
   time: new Date().getTime(),
 };
 
-const MOUSE_TIMEOUT = 200;
+// This is for any non-drag events that want mouse. I'll probably use it
+// for some interesting features.
+let MOUSE_POS = { 'x': 0, 'y': 0 };
 
+// Just in case it's a click and not a mousedown, how long do we wait?
+// This is in milliseconds.
+const MOUSE_TIMEOUT = 100;
+
+// Is this still the same DnD we started with?
 function isMouseOkay() {
   if (MOUSE.target === undefined) return false;
   return ((new Date().getTime()) - MOUSE.time) > MOUSE_TIMEOUT;
 }
 
+// startMouseAction is triggered by onmousedown on an element.  It
+// re-instantiates MOUSE with its information, so it can check again once the
+// dragging actually starts. In case of click-click-drag.
+//
+// It actually isn't tied to DnD. actions can be anything related to mouse
+// down+move+release, not just DnD.
 function startMouseAction(evt, actions) {
   if (isMouseOkay()) return;
   if (evt.which != 1) return;
 
-  const began = new Date().getTime();
-  MOUSE.actions = actions;
-  MOUSE.started = false;
-  MOUSE.target = evt.target;
-  MOUSE.time = began;
-  MOUSE.pos = getMousePos(evt);
+  const mymouse = {
+    "actions": actions,
+    "started": false,
+    "target": evt.target,
+    "time": new Date().getTime(),
+    "pos": getMousePos(evt),
+  };
+
+  MOUSE = mymouse;
 
   if (actions.begin) { actions.begin(); }
   if (actions.start) {
     setTimeout(function() {
-      if (MOUSE.time == began) {
-        MOUSE.actions.start()
-        MOUSE.started = true;
+      if (mymouse.time == mymouse.time) {
+        mymouse.actions.start()
+        mymouse.started = true;
       }
     }, MOUSE_TIMEOUT);
   }
+  // Override event so we don't trigger other things.
   return pauseEvent(evt);
 }
 
+// Given an event, where is the mouse?
 function getMousePos(evt) {
   return {'x': evt.clientX, 'y': evt.clientY};
 }
 
+// This is actually an override to document.onmousemove.  We always track the
+// position in MOUSE_POS. But also update MOUSE.pos (current mouse event)
+//
+// If there is an active MOUSE action, then trigger its update.
 function moveMouseAction(evt) {
   MOUSE.pos = getMousePos(evt);
 
@@ -55,6 +98,8 @@ function moveMouseAction(evt) {
   return pauseEvent(evt);
 }
 
+// End the mouse action. Either mouse up, or mouse left the document.
+// This is also an override of document.onleave and document.onmouseup
 function endMouseAction(evt) {
   if (MOUSE.actions && MOUSE.actions.end && isMouseOkay()) {
     MOUSE.actions.end(evt);
@@ -65,12 +110,9 @@ function endMouseAction(evt) {
   }
 }
 
-function copyDragStylesTo(from, to) {
-  for (const sname of ["display", "position", "top", "left"]) {
-    to[sname] = from[sname];
-  }
-}
-
+// When you drag an element around, and release, if we want it inside and
+// relative top+left to a parent element, this calculates the offset location
+// from parent position.
 function getRelativePosition(par, child) {
   const pr = par.getBoundingClientRect();
   const cr = child.getBoundingClientRect();
@@ -80,19 +122,20 @@ function getRelativePosition(par, child) {
   };
 }
 
+// This is called with an element that wants to be DnD-able. Most likely using
+// the triggers from addTriggerFunction('[data-drag]', addMouseDrag);
 function addMouseDrag(element) {
   // We're dealing with two elements here:
-  // class=drag-me - the whole thing that's dragged.
-  // class=drag-start - The element that's clickable.
-  // They may be the same element.
+  // class=drag-start - The element that's clickable. If no subelement with this,
+  // elment is considered to have it.
   //
   // addMouseDrag() is called on the dragged element.
   
   const callbacks = {};
 
-  callbacks.start = element.dataset['drag_start'];
-  callbacks.move = element.dataset['drag_move'];
-  callbacks.end = element.dataset['drag_drop'];
+  callbacks.start = element.dataset.dragStart;
+  callbacks.move = element.dataset.dragMove;
+  callbacks.end = element.dataset.dragDrop;
 
   const actions = {};
 
@@ -103,23 +146,20 @@ function addMouseDrag(element) {
   let yOffset = 0;
 
   // drag=... - triggers on drop:
-  //   "trigger" (drags clone, clears, calls callback)
-  //   "point" (draws line, clears, calls callback)
-  //   "copy" (drags clone, copies into new parent, and calls callback)
-  //   "move"  (hides orig, drags clone, moves original into new parent, and calls callback)
-  const method = element.dataset['drag'];
+  const method = element.dataset.drag;
 
   // The copy being dragged.
   let dragged = null;
   let targetElements = [element.parentElement];
 
-  if (element.dataset['drag_target'] === '!float') {
+  if (element.dataset.dragTarget === '!float') {
     targetElements = null;
-  } else if (element.dataset['drag_target']) {
-    targetElements = getAll(element.dataset['drag_target']);
+  } else if (element.dataset.dragTarget) {
+    targetElements = getAll(element.dataset.dragTarget);
   }
 
   function cleanUp() {
+    if (method === 'reposition') return;
     element.style.visibility = 'visible';
     dragged.parentElement.removeChild(dragged);
     dragged = null;
@@ -140,7 +180,11 @@ function addMouseDrag(element) {
       return;
     }
 
-    dragged = element.cloneNode(true);
+    if (method !== 'reposition') {
+      dragged = element.cloneNode(true);
+    } else {
+      dragged = element;
+    }
     appendChildren(get('#floats'), dragged);
 
     if (method === 'move') {
@@ -171,7 +215,7 @@ function addMouseDrag(element) {
 
     // Case: can only drag to specific targets.
     if (targetElements !== null) {
-      newParent = elementsContain(targetElements, dragged);
+      newParent = containingElement(targetElements, dragged);
     }
 
     if (!newParent) {
@@ -181,8 +225,10 @@ function addMouseDrag(element) {
 
     const newPos = getRelativePosition(newParent, dragged);
 
+    trigger(callbacks.end, element, MOUSE.pos, newParent, newPos);
+
     if (method === 'move') {
-      if (element.parentElement != newParent) {
+      if (newParent && element.parentElement != newParent) {
         element.parentElement.removeChild(element);
         newParent.appendChild(element);
       }
@@ -195,16 +241,13 @@ function addMouseDrag(element) {
       newParent.appendChild(clone);
     }
 
-    trigger(callbacks.end, element, MOUSE.pos, newParent, newPos);
-
     cleanUp();
   };
 
-  let starters = [];
-  if (element.classList.contains('drag-start')) {
+  let starters = getAll('.drag-start', element);
+
+  if (!starters || starters.length == 0) {
     starters = [element];
-  } else {
-    starters = element.querySelectorAll('.drag-start');
   }
 
   for (const starter of Object.values(starters)) {
@@ -212,11 +255,15 @@ function addMouseDrag(element) {
   }
 }
 
+// On launch for all elements, and on creating new elements, add DnD to any
+// <element data-drag="..."> elements.
+addTriggerFunction('[data-drag]', addMouseDrag);
+
+// We depend on overriding onmouseup, onmouseleave, onmousemove, so do that on
+// startup.
 addInitializer(function() {
   // Override all non-button mouse actions 
-  document.onmouseleave  = function() {
-    endMouseAction;
-  };
+  document.onmouseleave = endMouseAction;
   document.onmouseup   = endMouseAction;
   document.onmousemove = moveMouseAction;
 });

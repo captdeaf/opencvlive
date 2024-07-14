@@ -1,16 +1,30 @@
 // util.js
 //
-// Helper functions for OpenCVLive that don't directly impact
-// the UI or functionality.
+/////////////////////////////////////
+//
+// Utility functions
+//
+// Limited to DOM manipulation, QoL, Storage, Templates, etc.
+//
+// Ideally this should be transferrable between projects without a change.
+// If a function doesn't, it'll be tagged NOCOMPAT
+//
+/////////////////////////////////////
 
-function getAll(identifier) {
-  return document.querySelectorAll(identifier);
+// QoL: get(selector, parent=document)
+function get(identifier, par) {
+  if (!par) par = document
+  return par.querySelector(identifier);
 }
 
-function get(identifier) {
-  return document.querySelector(identifier);
+// QoL: getAll(selector, parent=document)
+function getAll(identifier, par) {
+  if (!par) par = document
+  return par.querySelectorAll(identifier);
 }
 
+// Storage: getSaved and setSaved: For local storage. Good for remembering UI
+//          toggles and the like.
 function getSaved(name, otherwise) {
   const val = localStorage.getItem(name);
   if (val === null) {
@@ -25,16 +39,15 @@ function setSaved(name, val) {
   return val;
 }
 
+// DOM: Make elements. EL('div', EL('span', "Text here"));
 function EL(name, ...children) {
   const ret = document.createElement(name);
   appendChildren(ret, children)
   return ret;
 }
 
+// DOM: Populate an element w/ children, but accepting more types of 'children'
 function appendChildren(el, children) {
-  // el.append(children) doesn't work if
-  // children is an HTMLCollection. This works
-  // regardless.
   if (children.append) {
     el.append(children);
   } else if (typeof(children) == 'string') {
@@ -47,82 +60,30 @@ function appendChildren(el, children) {
   return el;
 }
 
-function pauseEvent(e){
-    if(e.stopPropagation) e.stopPropagation();
-    if(e.preventDefault) e.preventDefault();
-    e.cancelBubble=true;
-    e.returnValue=false;
-    return false;
-}
-
-function alertUser(...all) {
-  const paras = [];
-  const alerter = get('#user-alert');
-  alerter.innerHTML = '';
-  for (msgs of all) {
-    if (msgs.join) {
-      for (const msg of msgs) {
-        appendChildren(alerter,
-          EL('p', msg)
-        );
-      }
-    } else {
-      appendChildren(alerter,
-        EL('p', msgs)
-      );
-    }
-  }
-  alerter.style.display = 'block';
-}
-
+// DOM/QoL: cloneElement is a deep clone that also calls enableActions.
 function cloneElement(el) {
-  // This version is a deep clone that also calls enableActions.
   const ret = el.cloneNode(true);
+  // NOCOMPAT: Enable trigger actions on children of this element.
   enableActions(EL('div', ret));
   return ret;
 }
 
-function template(tplname, contents) {
-  const origtpl = get('#' + tplname + '-template');
-  const tpl = origtpl.cloneNode(true);
-  if (contents) {
-    for (const [sel, children] of Object.entries(contents)) {
-      if (children) {
-        const par = tpl.querySelector(sel);
-        if (!par) {
-          alertUser([
-            "Unknown template selector.",
-            "Template: " + tplname,
-            "Selector: " + sel,
-          ]);
-        } else {
-          appendChildren(par, children);
-        }
-      }
-    }
-  }
-  enableActions(tpl);
-  return tpl.children;
+// DOM/QoL: Remove an element from its parent.
+function removeElement(el) {
+  el.parentElement.remove(el);
 }
 
-function templateReplace(el, tplname, contents) {
-  const eltpl = template(tplname, contents);
-  el.innerHTML = '';
-  appendChildren(el, eltpl);
-  return el;
+// DOM/QoL: Replace an element within its parent. Order not kept.
+//          Uses appendChildren for flexibility.
+function replaceElement(el, children) {
+  const p = el.parentElement;
+  p.remove(el);
+  appendChildren(p, children)
 }
 
-function showFloater(title, bodytpl, children) {
-  const body = template(bodytpl, children);
-  const floater = template('floater', {
-    '.name': title,
-    '.body': body,
-  });
-
-  appendChildren(get('#floats'), floater);
-}
-
-function getParentWith(el, sel) {
+// DOM: traverse upwards the parent tree from an element until you get an element
+//      matching a selector. If element matches it, it will be returned.
+function findParent(el, sel) {
   while (el) {
     if (el.matches(sel)) return el;
     el = el.parentElement;
@@ -131,43 +92,40 @@ function getParentWith(el, sel) {
   return undefined;
 }
 
-function closeFloaterFor(el) {
-  el = getParentWith(el, '.floater');
-  if (el) el.parentElement.removeChild(el);
-}
-
-function deleteParent(el) {
-  el = getParentWith(el, '[data-delete]');
-  if (el) el.parentElement.removeChild(el);
-}
-
-function elementContains(par, child) {
-  let pr = par.getBoundingClientRect();
-  let cr = child.getBoundingClientRect();
-
-  if ((cr.top < pr.top) || (cr.bottom > pr.bottom) ||
-      (cr.left < pr.left) || (cr.right > pr.right)) {
-    return null;
+// DOM/QoL: Templates embedded in the HTML, most likely beneath an invisible
+//          <div>. Clones the elements of <div id="template-(name)">.
+//          contents is an object of "selector": children. to add.
+function template(tplname, contents) {
+  const origtpl = get('#template-' + tplname);
+  const tpl = origtpl.cloneNode(true);
+  if (contents) {
+    for (const [sel, children] of Object.entries(contents)) {
+      if (children) {
+        const pars = getAll(sel, tpl);
+        for (const par of pars) {
+          appendChildren(par, children);
+        }
+      }
+    }
   }
-  return par;
+  // NOCOMPAT: Enable trigger actions on children of this element.
+  enableTriggers(tpl);
+  return tpl.children;
 }
 
-function elementsContain(pars, child) {
-  for (const par of pars) {
-    const pr = elementContains(par, child);
-    if (pr) return pr;
-  }
-  return null;
+// DOM/QoL: Shortcut: Like template(), but replace el's contents with it.
+function templateReplace(el, tplname, contents) {
+  const eltpl = template(tplname, contents);
+  el.innerHTML = '';
+  appendChildren(el, eltpl);
+  return el;
 }
 
-const INITIALIZERS = [];
-
-function addInitializer(func) {
-  INITIALIZERS.push(func);
-}
-
-function callInitializers() {
-  for (const init of INITIALIZERS) {
-    init();
-  }
+// QoL: Cross-browser 'break out of this event stack'
+function pauseEvent(e){
+    if(e.stopPropagation) e.stopPropagation();
+    if(e.preventDefault) e.preventDefault();
+    e.cancelBubble=true;
+    e.returnValue=false;
+    return false;
 }

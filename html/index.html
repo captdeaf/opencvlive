@@ -10,15 +10,16 @@
     <!-- PLCheat style and script. -->
     <link rel="stylesheet" type="text/css" href="styles.css" />
     <script type="text/javascript" src="util.js"></script>
-    <script type="text/javascript" src="actions.js"></script>
-    <script type="text/javascript" src="simple.js"></script>
+    <script type="text/javascript" src="triggers.js"></script>
+    <script type="text/javascript" src="ui.js"></script>
+    <script type="text/javascript" src="helpers.js"></script>
     <script type="text/javascript" src="dragndrop.js"></script>
     <script type="text/javascript" src="scripts.js"></script>
   </head>
   <body>
     <div id="about">
       What is OpenCV Live?
-      <div id="about-closer" class="toggle-about">&lt;close&gt;</div>
+      <div id="about-closer" data-onclick="hide" data-target="#about" class="toggle-about">&lt;close&gt;</div>
       <br/>
       <br/>
       <p>
@@ -80,7 +81,7 @@
         highlighting for our python code examples.
       </p>
     </div>
-    <div id="user-alert" class="dialog" style="display: none;" data-click="closeme"></div>
+    <div id="user-alert" class="dialog" style="display: none;" data-onclick="hide" data-target="#user-alert"></div>
     <div id="head" class="cvstyle">
       <div id="topbar">
         <div id="title" class="toggle-about">OpenCVLive&nbsp;<span id="qmark">(About)</span></div>
@@ -92,11 +93,11 @@
         <h3>Blocks Available</h3>
         <p>(Click &amp; Drag)</p>
         <div id="block-selection">
-            <div class="block block-active drag-start drag-me" data-drag="trigger" data-drag_target="#main" data-drag_drop="showUploadDialog" data-help="Upload a file image">
+            <div class="block block-active drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadDialog" data-help="Upload a file image">
               <h3>Upload Image</h3>
               <img src="loadimage.png">
             </div>
-            <div class="block block-active drag-start drag-me" data-drag="trigger" data-drag_target="#main" data-drag_drop="showUploadedDialog" data-help="Pick uploaded files">
+            <div class="block block-active drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
               <h3>Pick Image</h3>
               <img src="pickimage.png">
             </div>
@@ -111,47 +112,51 @@
       Any text before or after it is just comments.
 
       For toolbox, block selection:
-      <div id="block-selector-template">
-        <div class="block block-selector" draggable="true">
-          <h3 draggable="false"></h3>
-          <img draggable="false"/>
+      <div id="template-block-selector">
+        <div class="block block-selector">
+          <h3></h3>
+          <img/>
         </div>
       </div>
 
       Active blocks in main:
-      <div id="block-active-template">
+      <div id="template-block-active">
       </div>
 
-      <div id="uploaded-template">
+      <div id="template-uploaded">
         <div class="file-select">
           <input type="select" name="image" multiple>
-          <button class="submit" data-click="submitUpload">Already-uploaded images</button>
+          <button class="submit" data-onclick="submitUpload">Already-uploaded images</button>
         </div>
       </div>
 
-      <div id="upload-template">
+      <div id="template-upload">
         <div class="file-select" data-upload="/uploadImage">
           <input type="file" name="image" multiple>
-          <button class="submit" data-click="submitUpload">Upload Image</button>
+          <button class="submit" data-onclick="submitUpload">Upload Image</button>
         </div>
       </div>
 
-      <div id="floater-template">
-        <div class="floater drag-me" data-drag="move" data-delete="true">
-          <h3 class="drag-start"><span class="name"></span><div class="closer" data-click="deleteparent">X</div></h3>
+      <div id="template-floater">
+        <div class="floater drag-me" data-drag="reposition" data-drag-target="!float">
+          <h3 class="drag-start">
+            <span class="name"></span>
+            <div class="closer" data-onclick="remove" data-target=".floater">X</div>
+          </h3>
           <div class="body"></div>
         </div>
       </div>
 
       On load or reset, main:
-      <div id="main-template">
+      <div id="template-main">
       </div>
     </div>
     <div id="localfiles">
     </div>
     <script type="text/javascript">
       (function() {
-        setupUI();
+        runInitializers();
+        enableTriggers(get('document'))
       })();
     </script>
     <div id="floats"></div>

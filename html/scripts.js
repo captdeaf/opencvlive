@@ -19,7 +19,7 @@ async function uploadAsync(path, formData, cb) {
 }
 
 addTrigger('submitUpload', function(el, evt) {
-  let form = getParentWith(el, '[data-upload]')
+  let form = findParent(el, '[data-upload]')
   if (!form) return;
 
   let formData = new FormData();
@@ -48,11 +48,10 @@ addTrigger('submitUpload', function(el, evt) {
   });
 });
 
-addTrigger('showUploadDialog', function(el, evt) {
+addTrigger('showUploadDialog', (el, evt) => {
   showFloater('Upload an Image', 'upload');
 });
 
-function setupUI() {
-  callInitializers();
+addInitializer(() => {
   resetMain();
-}
+});

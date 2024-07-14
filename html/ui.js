@@ -1,7 +1,15 @@
-// simple.js
+// ui.js
 //
-// Simple UI management: Toggles, basic onclicks, etc.
+/////////////////////////////////////
+//
+// Simplest UI triggers: "Close this dialog", etc.
+//
+// This also introduces Storage-based triggers. A checkbox that is checked and
+// named can be saved and its state correct the next time.
+//
+/////////////////////////////////////
 
+// 
 function addToggle(attr, stateKey, defaultState, callback) {
   // checkbox.onchange = addToggle('checked',
   //                               'advancedSearch', 
@@ -36,29 +44,14 @@ function addToggle(attr, stateKey, defaultState, callback) {
 }
 
 // Basic click functionality
-addTrigger('deleteparent', (el, evt) => {
-  deleteParent(el);
+addTrigger('remove', (el, evt) => {
+  const sel = el.dataset.target;
+  const par = findParent(el, sel);
+  removeElement(par);
 });
 
-addTrigger('closeme', (el, evt) => {
-  el.style.display = 'none';
-});
-
-addInitializer(function() {
-  const desc = get('#about');
-  const toggles = getAll('.toggle-about');
-
-  const descdisplay = desc.style.display;
-
-  const toggleAbout = addToggle(undefined, 'about-shown', false, function(enabled) {
-    if (enabled) {
-      desc.style.display = 'none';
-    } else {
-      desc.style.display = descdisplay;
-    }
-  });
-
-  for (const toggle of toggles) {
-    toggle.onclick = toggleAbout;
-  }
+addTrigger('hide', (el, evt) => {
+  const sel = el.dataset.target;
+  const par = findParent(el, sel);
+  par.style.display = 'none';
 });
