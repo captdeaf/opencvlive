@@ -240,3 +240,56 @@ addInitializer(function() {
   document.onmouseup   = endMouseAction;
   document.onmousemove = moveMouseAction;
 });
+
+/////////////////////////////////////
+//
+// data-hover: mouse handling.
+//
+/////////////////////////////////////
+
+// Added data-onhover, which triggers whenever a mouse enters, or stays in
+// for longer than 100 millis. Try and do it smoothly.
+function addHoverTracker(el) {
+  const timeout = 100;
+  const triggerName = el.dataset.hover;
+  const target = get(el.dataset.target);
+  const scrollDiff = 15;
+
+  function triggerScroll(evt, amt) {
+    trigger(triggerName, target, evt, amt);
+  }
+
+  let count = 5;
+  let mouseon = false;
+  let lastScroll = 0;
+
+  function doScroll(evt) {
+    let now = new Date().getTime();
+    if (mouseon && lastScroll < (now - (timeout - 20))) {
+      triggerScroll(evt, scrollDiff * (count/5));
+      lastScroll = now;
+      setTimeout(doScroll, timeout);
+      count = count + 1;
+    }
+  }
+
+  el.onmouseenter = (evt) => {
+    mouseon = true;
+    doScroll(evt);
+  };
+
+  el.onmouseleave = (evt) => {
+    mouseon = false;
+    count = 5;
+  };
+}
+
+addTrigger('scrollup', (el, evt, amt) => {
+  el.scrollTop = el.scrollTop - amt;
+});
+
+addTrigger('scrolldown', (el, evt, amt) => {
+  el.scrollTop = el.scrollTop + amt;
+});
+
+addTriggerFunction('[data-hover]', addHoverTracker);

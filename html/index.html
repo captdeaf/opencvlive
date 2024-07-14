@@ -104,9 +104,11 @@
           <button data-onclick="showUploadDialog">Upload</button>
         </h3>
         <hr/>
+        <div class="collection-scroll" data-hover="scrollup" data-target="#library">&uarr;</div>
         <div class="collection" id="library"></div>
+        <div class="collection-scroll" data-hover="scrolldown" data-target="#library">&darr;</div>
         <h3>Blocks Available</h3>
-        <p>(Click &amp; Drag)</p>
+        <div class="collection-scroll" data-hover="scrollup" data-target="#block-selection">&uarr;</div>
         <div class="collection" id="block-selection">
           <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadDialog" data-help="Upload a file image">
             <img src="loadimage.png">
@@ -116,7 +118,24 @@
             <img src="pickimage.png">
             <span>Pick blah</span>
           </div>
+          <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
+            <img src="pickimage.png">
+            <span>Pick blah</span>
+          </div>
+          <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
+            <img src="pickimage.png">
+            <span>Pick blah</span>
+          </div>
+          <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
+            <img src="pickimage.png">
+            <span>Pick blah</span>
+          </div>
+          <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="showUploadedDialog" data-help="Pick uploaded files">
+            <img src="pickimage.png">
+            <span>Pick blah</span>
+          </div>
         </div>
+        <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
       </div>
       <div id="main">
       </div>

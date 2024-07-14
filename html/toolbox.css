@@ -5,27 +5,20 @@
   position: relative;
   display: inline-block;
   top: 0;
-  flex: 0 0 content;
+  width: 20vw;
   min-width: 13em;
-  max-width: 13em;
   height: 100%;
-  overflow-x: scroll;
-  overflow-y: scroll;
-
+  resize: horizontal;
   background-color: lightyellow;
   border-right: 2px solid black;
-  padding: 0.4em;
-}
-
-#toolbox .collection {
-  display: flex;
-  flex-flow: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  overflow-y: auto;
+  padding-left: 0.3em;
 }
 
 /* Headers for the collections */
 #toolbox h3 {
+  margin-top: 0.3em;
+  flex: 0 0 auto;
   display: block;
   top: 0.1em;
   left: 0.25em;
@@ -37,6 +30,7 @@
 }
 
 #toolbox p {
+  flex: 0 0 auto;
   font-size: 10px;
   display: block;
   top: 0.1em;
@@ -48,8 +42,31 @@
   margin: 0;
 }
 
+#toolbox .collection-scroll {
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  height: 1em;
+  background-color: #ececec;
+  border: 1px solid #aaa;
+}
+
+#toolbox .collection {
+  scroll-behavior: smooth;
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  min-height: 10em;
+  max-height: 25em;
+  height: 35vh;
+  justify-content: flex-start;
+  overflow-y: scroll;
+}
+
 .item {
-  margin-right: 0.5em;
+  margin: 0.25em;
   display: block;
   flex: 0 0 auto;
   position: relative;
