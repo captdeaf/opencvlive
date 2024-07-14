@@ -39,6 +39,9 @@ class EasyEncoder(json.JSONEncoder):
 def jsondump(body, file, **kwargs):
     json.dump(body, file, cls=EasyEncoder, **kwargs)
 
+def jsondumps(body, **kwargs):
+    return json.dumps(body, cls=EasyEncoder, **kwargs)
+
 def debug(msg):
     print(msg, file=sys.stderr)
     sys.stdout.flush()

@@ -17,27 +17,24 @@
     <script type="text/javascript" src="scripts.js"></script>
   </head>
   <body>
-    <div id="about">
+    <div id="about" data-hide="about" data-hide-default="false">
       What is OpenCV Live?
-      <div id="about-closer" data-onclick="hide" data-target="#about" class="toggle-about">&lt;close&gt;</div>
+      <div id="about-closer" data-onclick="toggle" data-target="#about" class="toggle-about">&lt;close&gt;</div>
       <br/>
       <br/>
       <p>
         <span class="quote">
-          &quot;I'm a total noob to OpenCV. I don't know how to get the effect
-          I want.&quot; - Me.
+          &quot;Help! I'm a total noob to OpenCV. I don't know how to get the effect
+          I want. But hey, I can make a little server to help...&quot; - Me.
         </span>
-      </p>
-      <p>
-        Does that sound like you, too? Or maybe you just want to tinker around
-        for getting the best result? This is here for you.
       </p>
       <p>
       OpenCV can be a bit complicated to use. This little app aims to:
         <ol/>
           <li>
-            Let you select one or more images to experiment on. Using File:///
-            lets the server just hold onto the file.
+            Let you select one or more images to experiment on. Since this is intended
+            to be run locally in your own python environment, I'm not concerned about
+            the safety of mine ;).
           </li>
           <li>
             Add a call block. Call blocks act as a tree: top being the
@@ -84,12 +81,15 @@
     <div id="user-alert" class="dialog" style="display: none;" data-onclick="hide" data-target="#user-alert"></div>
     <div id="head" class="cvstyle">
       <div id="topbar">
-        <div id="title" class="toggle-about">OpenCVLive&nbsp;<span id="qmark">(About)</span></div>
+        <div id="title" class="toggle-about" data-onclick="toggle" data-target="#about">OpenCVLive&nbsp;<span id="qmark">(About)</span></div>
         <div id="topbar-filler"></div>
       </div>
     </div>
     <div id="sheet">
       <div id="toolbox">
+        <h3>Library</h3>
+        <button data-click="showUploadFloater">Upload</button>
+        <div id="library"></div>
         <h3>Blocks Available</h3>
         <p>(Click &amp; Drag)</p>
         <div id="block-selection">

@@ -95,10 +95,10 @@ function addTrigger(name, func) {
 
 function trigger(name, ...args) {
   if (name) {
-    if (Object.keys(TRIGGERS).indexOf(name) < 0) {
-        alertUser("Unknown Trigger:", name);
-    } else {
+    if (name in TRIGGERS) {
       TRIGGERS[name](...args);
+    } else {
+      alertUser("Unknown Trigger:", name);
     }
   }
 }
@@ -124,9 +124,7 @@ function enableTriggers(parentElement) {
   }
 
   for (const act of MORE_ACTIONS) {
-    console.log("Adding actions to: " + act.selector)
     for (const el of getAll(act.selector, parentElement)) {
-      console.log("Added");
       act.func(el);
     }
   }

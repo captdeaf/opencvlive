@@ -22,8 +22,8 @@
 //
 /////////////////////////////////////
 
-// Current mouse action. Yes, it's a global. Because I only want exactly
-// one thing DnD'd at a time.
+// Current mouse action. Yes, it's a global, because window events are
+// overridden.
 let MOUSE = {
   actions: {},
   started: false,
@@ -36,16 +36,6 @@ let MOUSE = {
 // for some interesting features.
 let MOUSE_POS = { 'x': 0, 'y': 0 };
 
-// Just in case it's a click and not a mousedown, how long do we wait?
-// This is in milliseconds.
-const MOUSE_TIMEOUT = 100;
-
-// Is this still the same DnD we started with?
-function isMouseOkay() {
-  if (MOUSE.target === undefined) return false;
-  return ((new Date().getTime()) - MOUSE.time) > MOUSE_TIMEOUT;
-}
-
 // startMouseAction is triggered by onmousedown on an element.  It
 // re-instantiates MOUSE with its information, so it can check again once the
 // dragging actually starts. In case of click-click-drag.
@@ -53,10 +43,9 @@ function isMouseOkay() {
 // It actually isn't tied to DnD. actions can be anything related to mouse
 // down+move+release, not just DnD.
 function startMouseAction(evt, actions) {
-  if (isMouseOkay()) return;
   if (evt.which != 1) return;
 
-  const mymouse = {
+  MOUSE = {
     "actions": actions,
     "started": false,
     "target": evt.target,
@@ -64,18 +53,8 @@ function startMouseAction(evt, actions) {
     "pos": getMousePos(evt),
   };
 
-  MOUSE = mymouse;
+  if (actions.start) { actions.start(); }
 
-  if (actions.begin) { actions.begin(); }
-  if (actions.start) {
-    setTimeout(function() {
-      if (mymouse.time == mymouse.time) {
-        mymouse.actions.start()
-        mymouse.started = true;
-      }
-    }, MOUSE_TIMEOUT);
-  }
-  // Override event so we don't trigger other things.
   return pauseEvent(evt);
 }
 
@@ -91,7 +70,7 @@ function getMousePos(evt) {
 function moveMouseAction(evt) {
   MOUSE.pos = getMousePos(evt);
 
-  if (MOUSE.actions && MOUSE.actions.move && isMouseOkay()) {
+  if (MOUSE.actions && MOUSE.actions.move) {
     MOUSE.actions.move();
   }
 
@@ -101,7 +80,7 @@ function moveMouseAction(evt) {
 // End the mouse action. Either mouse up, or mouse left the document.
 // This is also an override of document.onleave and document.onmouseup
 function endMouseAction(evt) {
-  if (MOUSE.actions && MOUSE.actions.end && isMouseOkay()) {
+  if (MOUSE.actions && MOUSE.actions.end) {
     MOUSE.actions.end(evt);
   }
   MOUSE = {};
@@ -165,7 +144,7 @@ function addMouseDrag(element) {
     dragged = null;
   }
 
-  actions.begin = function() {
+  actions.start = function() {
     xStart = MOUSE.pos.x;
     yStart = MOUSE.pos.y;
 
@@ -173,12 +152,6 @@ function addMouseDrag(element) {
 
     xOffset = cur.left;
     yOffset = cur.top;
-  };
-
-  actions.start = function() {
-    if (!isMouseOkay()) {
-      return;
-    }
 
     if (method !== 'reposition') {
       dragged = element.cloneNode(true);

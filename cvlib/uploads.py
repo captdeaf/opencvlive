@@ -5,14 +5,15 @@
 
 # A sorta-singleton that holds all the cvlive calls.
 
-from cvlib.flaskapp import app, jsondump, debug, request
+from cvlib.flaskapp import app, jsondumps, debug, request
 import os
+from glob import glob
 
-UPLOADS = "uploads"
+UPLOADS = "html/uploads"
+fixUploadPath = lambda p: p[5:]
 
 @app.route('/uploadImage', methods=['POST'])
 def uploadImage():
-    debug("uI hit")
     if request.method != 'POST':
         return "Not Found"
 
@@ -23,3 +24,8 @@ def uploadImage():
         if data.filename:
             data.save(os.path.join(UPLOADS, data.filename))
     return "OK"
+
+@app.route('/uploads', methods=['GET'])
+def getUploadedPictures():
+    images = [fixUploadPath(x) for x in glob(f"{UPLOADS}/*")]
+    return jsondumps(images)

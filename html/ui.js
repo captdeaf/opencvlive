@@ -9,49 +9,72 @@
 //
 /////////////////////////////////////
 
-// 
-function addToggle(attr, stateKey, defaultState, callback) {
-  // checkbox.onchange = addToggle('checked',
-  //                               'advancedSearch', 
-  //                               false,
-  //                               function(enabled) {
-  //                                 if (enabled) {
-  //                                   ...
-  //                                 }
-  //                               });
-  //  if attr is a function, it's called instead of element[attr] boolean.
-  //  if attr is undefined, it's a toggle.
-  let state = getSaved(stateKey, '' + defaultState) === 'true';
+function makeHidable(el) {
 
-  let checkElement = function(target) {
-    return target[attr];
-  };
-  if (attr === undefined) {
-    checkElement = function() {
-      return !state;
-    };
-  } else if (typeof(attr) === typeof(checkElement)) {
-    checkElement = attr;
-  }
-
-  if (callback) callback(state);
-
-  return function(evt) {
-    state = checkElement(evt.target);
-    setSaved(stateKey, "" + state);
-    if (callback) callback(state);
-  }
 }
 
-// Basic click functionality
-addTrigger('remove', (el, evt) => {
-  const sel = el.dataset.target;
-  const par = findParent(el, sel);
-  removeElement(par);
+addTriggerFunction('[data-hide]', (el) => {
+  const saveKey = el.dataset.hide;
+  const display = el.style.display;
+  const defaultState = el.dataset.hideDefault;
+
+  let isHidden = getSaved(saveKey, '' + defaultState) === 'true';
+
+  function updateState() {
+    if (isHidden) {
+      el.style.display = 'none';
+    } else {
+      el.style.display = display;
+    }
+  }
+
+  el.toggle = (preferred) => {
+    isHidden = !isHidden;
+    if (preferred === true || preferred === false) {
+      isHidden = preferred;
+    }
+    setSaved(saveKey, '' + isHidden);
+    updateState();
+  }
+
+  updateState();
 });
 
+// On click, access all objects matching the data-target selector, and call
+// .toggle() on their elements. If data-toggle is set, it passes a preferred
+// value. Otherwise it doesn't, and toggle switches. (preferred is good for, e.g:
+// "hide all");
+addTrigger('toggle', (el, evt) => {
+  const sel = el.dataset.target;
+  const targets = getAll(sel);
+
+  // Preferred
+  let preferred = undefined;
+  const val = el.dataset.toggle;
+  if (val === "true") {
+    preferred = true;
+  } else if (val === "false") {
+    preferred = false;
+  }
+  for (const target of targets) {
+    if (target.toggle) {
+      target.toggle();
+    }
+  }
+});
+
+// On click, remove either this element, or a parent element
+// matching the data-target selector.
 addTrigger('hide', (el, evt) => {
   const sel = el.dataset.target;
   const par = findParent(el, sel);
   par.style.display = 'none';
+});
+
+// On click, remove either this element, or a parent element
+// matching the data-target selector.
+addTrigger('remove', (el, evt) => {
+  const sel = el.dataset.target;
+  const par = findParent(el, sel);
+  removeElement(par);
 });
