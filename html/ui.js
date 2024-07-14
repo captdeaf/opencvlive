@@ -66,7 +66,10 @@ addTrigger('toggle', (el, evt) => {
 // On click, hide either this element, or a parent element
 // matching the data-target selector.
 addTrigger('hide', (el, evt) => {
-  const sel = el.dataset.target;
+  let sel = el.dataset.target;
+  if (!sel || sel == '') {
+    sel = '.dialog';
+  }
   const par = findParent(el, sel);
   par.style.display = 'none';
 });

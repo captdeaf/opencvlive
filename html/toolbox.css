@@ -19,8 +19,8 @@
 
 #toolbox .collection {
   display: flex;
-  flex-wrap: wrap;
   flex-flow: row;
+  flex-wrap: wrap;
   justify-content: flex-start;
 }
 

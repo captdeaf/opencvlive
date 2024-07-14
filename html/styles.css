@@ -22,61 +22,28 @@ span.quote {
 .dialog {
   position: fixed;
   top: 10em;
-  left: 50%;
-  -webkit-transform: translateX(-50%) translateY(-50%);
-  -moz-transform: translateX(-50%) translateY(-50%);
-  -ms-transform: translateX(-50%) translateY(-50%);
-  transform: translateX(-50%) translateY(-50%);
+  left: 15%;
+  z-index: 900;
+  min-width: 20em;
+  max-width: 25em;
+  width: 20vw;
+  background-color: #fee;
+  border: 3px solid black;
+  padding: 0.5em;
+  border-radius: 8px;
 }
 
-.floater {
-  position: fixed;
-  top: 10em;
-  left: 50%;
-  background-color: #efe;
-  color: black;
-  border: 2px solid #eef;
-  z-index: 1000;
-  width: 30%;
-  min-width: 12em;
-  max-width: 30em;
-  min-height: 4em;
-
-  display: flex;
-  flex-flow: column;
-}
-
-.floater h3 {
+.dialog h3 {
   display: block;
   position: relative;
   flex: 0 0 auto;
   width: 100%;
   height: 1.5em;
   border-bottom: 1px solid black;
-  margin: 0.25em 0 0 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow-x: hidden;
   padding: 0;
-}
-
-.floater h3 span {
-  position: absolute;
-  left: 0.5em;
-}
-
-.floater h3 .closer {
-  position: absolute;
-  font-size: 80%;
-  color: red;
-  right: 0.25em;
-  top: 0;
-}
-
-.floater .body {
-  min-height: 4em;
-  flex: 1 1 auto;
-}
-
-.floater .foot {
-  flex: 1 1 content;
 }
 
 #user-alert {
@@ -93,4 +60,17 @@ span.quote {
 
 [data-onclick] {
   cursor: pointer;
+}
+
+/* Little things like the closing X in the top-right. */
+.closer {
+  position: absolute;
+  font-size: 80%;
+  color: red;
+  right: 0.2em;
+  top: 0.1em;
+}
+
+#upload-dialog input {
+  margin-top: 0.2em;
 }

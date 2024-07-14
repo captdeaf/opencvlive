@@ -14,7 +14,12 @@ function alertUser(...all) {
   const alerter = get('#user-alert');
   alerter.innerHTML = '';
   for (msgs of all) {
-    if (msgs.join) {
+    if (!msgs) {
+      appendChildren(alerter,
+        EL('p', "Err, nonexistant msgs?"),
+        EL('p', "" + all),
+      );
+    } else if (msgs.join) {
       for (const msg of msgs) {
         appendChildren(alerter,
           EL('p', msg)
@@ -27,6 +32,13 @@ function alertUser(...all) {
     }
   }
   alerter.style.display = 'block';
+  return alerter;
+}
+
+function alertUserBriefly(time, ...all) {
+  const alerter = alertUser(...all);
+
+  setTimeout(() => alerter.style.display = 'none', time);
 }
 
 /////////////////////////////////////

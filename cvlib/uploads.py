@@ -23,7 +23,8 @@ def uploadImage():
     for field, data in request.files.items():
         if data.filename:
             data.save(os.path.join(UPLOADS, data.filename))
-    return "OK"
+
+    return jsondumps("UPLOADED")
 
 @app.route('/uploads', methods=['GET'])
 def getUploadedPictures():

@@ -9,58 +9,29 @@ function resetMain() {
 }
 
 async function easyFetch(path, opts, cbs) {
-  let promise = fetch(path, opts);
-  promise = promise.then((resp) => resp.json())
-  if (cbs.complete)
-    promise = promise.then(cbs.complete);
+  // Request
+  let request = fetch(path, opts);
+  if (cbs.request) cbs.request(request);
 
-  await promise;
-}
+  // Response
+  let resp = await(request)
+  if (cbs.response) cbs.response(response);
 
-async function uploadAsync(path, formData, cb) {
-  let promise = fetch(path, {
-    method: "POST",
-    body: formData
-  });
-  if (cb)
-    promise = promise.then(cb);
-
-  await promise;
-}
-
-addTrigger('submitUpload', function(el, evt) {
-  let form = findParent(el, '[data-upload]')
-  if (!form) return;
-
-  let formData = new FormData();
-  const allInputs = form.querySelectorAll('input');
-
-  let hasFile = false;
-
-  for (const input of allInputs) {
-    if (input.type == 'file') {
-      for (const file of input.files) {
-        hasFile = true;
-        formData.append("file", file);
-      }
-    } else {
-      formData.append(input.name, input.value)
-    }
+  // Status-based
+  if (resp.status === 200) {
+    let js = await resp.json();
+    if (cbs.success) cbs.success(js);
+  } else {
+    let text = await resp.text();
+    if (cbs.fail) cbs.fail(resp, text);
   }
 
-  if (!hasFile) {
-    alertUser("No file provided?");
-    return;
-  }
-
-  uploadAsync(form.dataset.upload, formData, () => {
-    deleteParent(form);
-  });
-});
+  // Complete
+  if (cbs.complete) { cbs.complete(resp); }
+}
 
 function rebuildLibrary(paths) {
   const library = get('#library');
-  console.log(paths);
   for (const path of paths) {
     const pane = template('library-image', (tpl) => {
       const img = get('img', tpl);
@@ -75,14 +46,68 @@ function rebuildLibrary(paths) {
 
 function refreshLibrary() {
   easyFetch("/uploads", {}, {
-    complete: (resp) => {
+    success: (resp) => {
       rebuildLibrary(resp);
-    }
+    },
   });
 }
 
+// Show the upload dialog, and reset it as a form (clear inputs)
+// Also clear its file state listing.
 addTrigger('showUploadDialog', (el, evt) => {
-  showFloater('Upload an Image', 'upload');
+  const uploadDiv = get('#upload-dialog');
+
+  const allInputs = uploadDiv.querySelectorAll('input');
+  allInputs[0].form.reset();
+
+  for (const input of allInputs) {
+    input.disabled = false;
+  }
+
+  uploadDiv.style.display = 'block';
+
+  get('#upload-list', uploadDiv).innerHTML = '';
+});
+
+addTrigger('uploadFileChange', (el, evt) => {
+  const uploadDiv = findParent(el, '[data-upload]')
+  if (!uploadDiv) return;
+
+  const fileList = get('#upload-list', uploadDiv);
+  const allFiles = [];
+
+  const formData = new FormData();
+  const allInputs = uploadDiv.querySelectorAll('input');
+
+  for (const input of allInputs) {
+    if (input.type == 'file') {
+      for (const file of input.files) {
+        allFiles.push(EL('li', file.name));
+        hasFile = true;
+        formData.append("file[]", file);
+      }
+    } else {
+      formData.append(input.name, input.value)
+    }
+    input.disabled = true;
+  }
+
+  appendChildren(fileList, allFiles);
+
+  easyFetch(uploadDiv.dataset.upload,
+      {method: "POST", body: formData},
+      {
+        fail: (resp) => {
+          alertUserBriefly(1300, "Upload failed...");
+        },
+        success: (resp) => {
+          refreshLibrary();
+        },
+        complete: (resp) => {
+          setTimeout(() => trigger('hide', uploadDiv), 500);
+        }
+      }
+  )
 });
 
 addInitializer(() => {
