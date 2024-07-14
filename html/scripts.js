@@ -32,6 +32,7 @@ async function easyFetch(path, opts, cbs) {
 
 function rebuildLibrary(paths) {
   const library = get('#library');
+  library.innerHTML = '';
   for (const path of paths) {
     const pane = template('library-image', (tpl) => {
       const img = get('img', tpl);
@@ -81,10 +82,11 @@ addTrigger('uploadFileChange', (el, evt) => {
 
   for (const input of allInputs) {
     if (input.type == 'file') {
-      for (const file of input.files) {
-        allFiles.push(EL('li', file.name));
-        hasFile = true;
-        formData.append("file[]", file);
+      const files = input.files;
+      const fileCount = files.length;
+      for (let i = 0; i < fileCount; i++) {
+        allFiles.push(EL('li', files[i].name));
+        formData.append("file", files[i]);
       }
     } else {
       formData.append(input.name, input.value)

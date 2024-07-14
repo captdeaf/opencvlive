@@ -20,7 +20,8 @@ def uploadImage():
     try: os.mkdir(UPLOADS)
     except: pass
 
-    for field, data in request.files.items():
+    for data in request.files.getlist("file"):
+        debug(data)
         if data.filename:
             data.save(os.path.join(UPLOADS, data.filename))
 
