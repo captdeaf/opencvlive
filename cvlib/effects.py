@@ -28,6 +28,8 @@
 #
 # Lazily, using a messy list, and exact same internal code.
 #
+# Using lazy apply, we can verify call chain. e.g: BGR->BGR calls.
+#
 # Lazy apply always starts with a copy unless you pass
 # copy=False. It should never modify the image you pass to it. Though any
 # images passed as arguments (e.g: EF.merge(otherImage)) don't have that copy.
@@ -86,24 +88,110 @@ def flatten(mess):
     recurse(mess)
     return stack
 
+####################################
+#
+# INFO is a group of dictionaries that is intended for interaction with
+# external sources such as a web app.
+#
+# INFO = dict(
+#
+#   constants = dict('ANY', 'Any image') # Name->desc mapping.
+#
+#   effects = dict('name', dict(...)) # As much information as we can collect
+#                                     #  about an effect.
+#
+#   types = dict('name', dict(...)) # Not used in python, these are used by annotating
+#                                   # effects to allow the web version to make UI
+#                                   # inputs and type safety. (e.g: 'byte' is 0-255)
+# )
+#
+####################################
+
+INFO = dict(
+    constants = dict(
+            flags = dict(),
+            channels = dict(),
+        ),
+    types     = dict(),
+    effects   = dict(),
+)
+
+# Turn a dict of constants into ... constants and INFO.constants.
+def C(group, **constants):
+    if group not in INFO['constants']:
+        INFO['constants']['group'] = dict()
+    for name, desc in constants.items():
+        setattr(EF, name, desc)
+        INFO['constants'][group][name] = desc
+
+# Type('byte', input='slider', min='0', max='255')
+# Type('str', input='text')
+# etc
+def addType(name, **kwargs):
+    INFO['types'][name] = kwargs
+
+def addEffectInfo(func, channelfrom, channelto, **kwargs):
+    newEffect = dict(
+        name = func.__name__,
+        doc = func.__doc__,
+        channelfrom = channelfrom,
+        channelto = channelto,
+        **kwargs
+    )
+    INFO['effects'][func.__name__] = newEffect
+
 ###################################
 #
 # EF is a container for CONSTANT values, which is used for both direct and lazy
-# calls.
+# calls. It is also a container for effectName methods, which are only the lazy
+# versions.
 #
 ####################################
 class EF(object):
-    BLUE   = 0
-    GREEN  = 1
-    RED    = 2
+    pass
 
-    BGR = "bgr"
-    GRAYSCALE = "grayscale"
-    ANY = "any"
-    SAME = "same"
+C('flags',
+    BLUE   = 0,
+    GREEN  = 1,
+    RED    = 2,
+);
 
+    # Channel identifiers.
+C('channels',
+    # Constants for @register
+    # Default colors are BGR.
+    BGR       = "BGR Color image",
+    GRAYSCALE = "Grayscale",
+    HSV       = "Hue-Sat-Value",
+
+    # ANY: color, hsv or grayscale.
+    # DIM3: 3-dimensional ((h, w, color): value), etc.
+    # DIM2: 2-dimension ((h, w): value)
+    DIM3      = "3-DIMENSIONAL",
+    DIM2      = "2-DIMENSIONAL",
+
+    # ANY: DIM3 or DIM2.
+    # SAME: What format it's given, it returns.
+    ANY       = "Any image",
+    SAME      = "Same image as given",
+)
+
+# Effects is similar to EF, but has no constants, and
+# has the direct-call version of EF's lazy calls.
 class Effects(object):
     pass
+
+class EffectArgument(object):
+    def __init__(self, name, supertype, restraint):
+        self.name = name
+        self.supertype = supertype
+        self.restraint = restraint
+
+        if hasattr(EF, name):
+            debug(f"Error: EF already has name {name} and annotations wants it.")
+            sys.exit(1)
+
+        setattr(EF, name, self)
 
 ####################################
 #
@@ -123,6 +211,8 @@ def register(channelfrom, channelto):
     def registerfunc(func):
         def lazyApply(*args, **kwargs):
             return LazyCaller(func, args, kwargs, channelfrom, channelto)
+
+        addEffectInfo(func, channelfrom, channelto)
 
         setattr(EF, func.__name__, func)
         setattr(EF, func.__name__, lazyApply)

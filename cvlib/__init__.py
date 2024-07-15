@@ -7,7 +7,7 @@
 ####################################
 
 # effect class definitions first, it's used by the rest
-from .effects import EF, Effects, register
+from .effects import EF, Effects, register, INFO
 
 # Just handy for effect file imports
 import cv2 as cv
@@ -15,4 +15,4 @@ import cv2 as cv
 # Now the actual effects.
 from . import basics
 
-__all__ = ['effects', 'EF', 'register']
+__all__ = ['effects', 'EF', 'register', 'INFO']

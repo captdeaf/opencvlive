@@ -46,11 +46,9 @@
             show thumbnails, click the thumbnail to show the original image.
           </li>
           <li>
-            While every block can accept multiple input images, their output
-            varies.  If the block is intended to work on a single image, it
-            creates an output for every input. If it is intended for multiple
-            images, it may only create one, or create a few depending on the
-            block.
+            Most blocks have a single input and single output. Some can have
+            multiple inputs and/or outputs. That's the main reason this is a
+            map instead of a series. Organization is totes up to you.
           </li>
           <li>
             Many blocks will take any type of image matrix and operate on it.
@@ -84,11 +82,11 @@
     </div>
     <!-- -->
     <div id="user-alert" class="dialog" style="display: none;" data-onclick="hide" data-target="#user-alert"></div>
-    <div id="upload-dialog" data-upload="/uploadImage" class="dialog" style="display: none;" data-drag="reposition">
+    <div id="upload-dialog" data-upload="/upload" class="dialog" style="display: none;" data-drag="reposition">
       <form>
       <h3 class="drag-start" >Upload Images</h3>
       <span class="closer" data-onclick="hide">X</span>
-      <input type="file" name="image" multiple data-onchange="uploadFileChange">
+      <input type="file" name="image" multiple data-onchange="fileDialogChange">
       <ul id="upload-list"></ul>
       </form>
     </div>
@@ -139,14 +137,48 @@
         <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
       </div>
       <div id="main">
+        <canvas id="flowcanvas" class="layer">Canvaaaaaaas</canvas>
+        <div id="flowchart" class="layer opdrop">Chaaaaart</div>
       </div>
       <div id="savecol"></div>
     </div>
     <div style="display:none;" id="templates">
       We use get('#templateid').cloneNode().children to fetch the templates.
       Any text before or after it is just comments.
+      --
 
-      Toolbox library images.
+      The big kahunas: the blocks in the flowchart that are movable,
+      drop-onable, configurable, removable, added, etc.
+
+      They have:
+        - A left box for dropping and connecting inputs to.
+        - A right box for dragging to others' inputs
+        - An operation associated with it
+        - Configurable arguments.
+        - An image of the output.
+
+      Rough rendition: ( [..]()]..)
+
+      Also a header: [  move   ][del]
+      Described:  (inp[ops]img]outp)
+      
+      <div id="template-opblock">
+        <div class="opcontainer" data-drag="move" data-target=".opdrop">
+          <div class="opblock">
+            <div class="opinput"><span class="vcenter">&rarr;</span></div>
+            <div class="opcenter">
+              <span class="drag-start ophead opdrag"></span>
+              <div class="ops">
+                <div>&#x2699;</div>
+              </div>
+            </div>
+            <img class="opright">
+            <div class="opoutput"><span class="vcenter">&rarr;</span></div>
+          </div>
+        </div>
+      </div>
+
+      Toolbox container images.
       <div id="template-library-image">
         <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="addImage">
           <img>
@@ -165,9 +197,6 @@
 
       Large pictures. Not the largest, but those open in new tabs.
       <div id="template-large-image"><h3 class="large-image-name"></h3><img class="large-image"/></div>
-
-      On load or reset, main:
-      <div id="template-main"></div>
     </div>
     <div id="floats">
     </div>

@@ -21,7 +21,7 @@ span.quote {
 
 .dialog {
   position: fixed;
-  top: 10em;
+  top: 3em;
   left: 15%;
   z-index: 900;
   min-width: 20em;
@@ -77,4 +77,12 @@ span.quote {
 
 #upload-dialog input {
   margin-top: 0.2em;
+}
+
+.vcenter {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }

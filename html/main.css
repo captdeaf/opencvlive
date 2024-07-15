@@ -13,12 +13,6 @@
   height: 100%;
 }
 
-#main {
-  flex: 1 1 auto;
-  display: flex;
-  flex-flow: column;
-}
-
 body {
   font-size: 90%;
   margin: 0;
@@ -106,4 +100,112 @@ body {
 
 #about p {
   text-indent: 2em;
+}
+
+#main {
+  flex: 1 1 auto;
+  overflow: scroll;
+  position: relative;
+}
+
+#main .layer {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+/***********************************
+/
+/  The many blocks in the middle.
+/
+***********************************/
+.opcontainer {
+  position: absolute;
+  display: block;
+  width: 14em;
+  height: 5em;
+  border: 3px solid black;
+  border-radius: 1em;
+  background-color: #eee;
+}
+
+.opblock {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+}
+
+.opinput {
+  flex: 0 0 auto;
+  left: 0.5em;
+  display: block;
+  height: 5em;
+  width: 1em;
+  border-right: 1px solid black;
+}
+
+.opoutput {
+  flex: 0 0 auto;
+  display: block;
+  height: 5em;
+  width: 1em;
+  border-left: 1px solid black;
+}
+
+.ophead {
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: row;
+  height: 1em;
+  width: 100%;
+  vertical-align: middle;
+}
+
+.opcenter {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.opdrag {
+  flex: 0 0 content;
+  height: 1em;
+  left: 0;
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid black;
+  background-color: #ddf;
+}
+
+.opcenter .ops {
+  display: block;
+  flex: 1 1 auto;
+}
+
+.ops h3 {
+  font-size: 0.8em;
+  margin: 0;
+  padding: 0;
+  display: block;
+  overflow-y: hidden;
+}
+
+.opright {
+  display: block;
+  position: relative;
+  height: 100%;
+  border-left: 1px solid black;
+  max-width: 5em;
+  max-height: 5em;
 }

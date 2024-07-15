@@ -4,10 +4,6 @@
 //
 // Using highlight.js for the python code.
 
-function resetMain() {
-  templateReplace(get('#main'), 'main');
-}
-
 async function easyFetch(path, opts, cbs) {
   // Request
   let request = fetch(path, opts);
@@ -73,7 +69,7 @@ addTrigger('showUploadDialog', (el, evt) => {
   get('#upload-list', uploadDiv).innerHTML = '';
 });
 
-addTrigger('uploadFileChange', (el, evt) => {
+addTrigger('fileDialogChange', (el, evt) => {
   const uploadDiv = findParent(el, '[data-upload]')
   if (!uploadDiv) return;
 
@@ -119,9 +115,36 @@ addTrigger('showLargeImage', function(img) {
   showFloater(img.dataset.displayName, 'large-image', (el) => {
     get('img', el).src = img.src;
   });
-})
+});
+
+// TODO: Get effects JSON and do things with it.
+function testEffectsJSON() {
+  easyFetch("/cv/effects.json",
+    {method: "GET"},
+    {
+      success: (resp) => {
+        x = resp;
+      },
+    }
+  );
+}
+
+function addDumbOps() {
+  const x = template('opblock', (tpl) => {
+    get('.opdrag', tpl).innerText = "Testing";
+    get('img', tpl).src = "uploads/pickimage.png";
+  });
+
+  const container = x[0];
+
+  container.style.top = "10em";
+  container.style.left = "20em";
+
+  appendChildren(get('#flowchart'), x);
+}
 
 addInitializer(() => {
-  resetMain();
   refreshLibrary();
+  testEffectsJSON();
+  addDumbOps();
 });

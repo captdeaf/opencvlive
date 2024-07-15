@@ -20,7 +20,11 @@ if cwd not in sys.path:
 
 from applib.flaskapp import app
 
-from cvlib import EF
+# Load OpenCV stuff
+from cvlib import EF, INFO
+
+# And routes for OpenCV
+from applib import cveffects
 
 ####################################
 #

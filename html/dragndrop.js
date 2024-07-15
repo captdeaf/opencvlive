@@ -155,10 +155,10 @@ function addMouseDrag(element) {
 
     if (method !== 'reposition') {
       dragged = element.cloneNode(true);
+      appendChildren(get('#floats'), dragged);
     } else {
       dragged = element;
     }
-    appendChildren(get('#floats'), dragged);
 
     if (method === 'move') {
       element.style.visibility = 'hidden';
@@ -166,6 +166,12 @@ function addMouseDrag(element) {
 
     dragged.style.display = 'block';
     dragged.style.position = 'fixed';
+
+    let xTarget = (MOUSE.pos.x - xStart) + xOffset;
+    let yTarget = (MOUSE.pos.y - yStart) + yOffset;
+
+    dragged.style['left'] = xTarget + "px";
+    dragged.style['top'] = yTarget + "px";
 
     trigger(callbacks.start, element, MOUSE.pos);
   };
@@ -201,18 +207,22 @@ function addMouseDrag(element) {
     trigger(callbacks.end, element, MOUSE.pos, newParent, newPos);
 
     if (method === 'move') {
-      if (newParent && element.parentElement != newParent) {
+      if (element.parentElement != newParent) {
         element.parentElement.removeChild(element);
         newParent.appendChild(element);
+        trigger(newParent.dataset.onDragCreate, element, evt, newParent);
       }
-      element.style.left = newPos.x;
-      element.style.top = newPos.y;
+      element.style['left'] = newPos.x + 'px';
+      element.style['top'] = newPos.y + 'px';
     } else if (method === 'copy') {
       const clone = cloneElement(element);
-      clone.style.left = newPos.x;
-      clone.style.top = newPos.y;
+      clone.style['left'] = newPos.x + 'px';
+      clone.style['top'] = newPos.y + 'px';
       newParent.appendChild(clone);
+      trigger(newParent.dataset.onDragCreate, element, evt, newParent);
     }
+
+    trigger(newParent.dataset.onDragDrop, element, evt, newParent);
 
     cleanUp();
   };
@@ -255,27 +265,23 @@ function addHoverTracker(el) {
   const target = get(el.dataset.target);
   const scrollDiff = 15;
 
-  function triggerScroll(evt, amt) {
-    trigger(triggerName, target, evt, amt);
-  }
-
   let count = 5;
   let mouseon = false;
   let lastScroll = 0;
 
-  function doScroll(evt) {
+  function doHoverOver(evt) {
     let now = new Date().getTime();
     if (mouseon && lastScroll < (now - (timeout - 20))) {
-      triggerScroll(evt, scrollDiff * (count/5));
+      trigger(triggerName, target, evt, scrollDiff * (count/5));
       lastScroll = now;
-      setTimeout(doScroll, timeout);
+      setTimeout(doHoverOver, timeout);
       count = count + 1;
     }
   }
 
   el.onmouseenter = (evt) => {
     mouseon = true;
-    doScroll(evt);
+    doHoverOver(evt);
   };
 
   el.onmouseleave = (evt) => {
