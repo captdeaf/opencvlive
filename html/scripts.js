@@ -117,8 +117,11 @@ addTrigger('showLargeImage', function(img) {
   });
 });
 
-// TODO: Get effects JSON and do things with it.
-function testEffectsJSON() {
+function buildEffectBlock(effect) {
+  var imagename = 'samples/' + effect.name + '.png'
+}
+
+function refreshEffectBlocks() {
   easyFetch("/cv/effects.json",
     {method: "GET"},
     {
@@ -129,7 +132,7 @@ function testEffectsJSON() {
   );
 }
 
-function addDumbOps() {
+function newOpsBlock(args) {
   const x = template('opblock', (tpl) => {
     get('.opdrag', tpl).innerText = "Testing";
     get('img', tpl).src = "uploads/pickimage.png";

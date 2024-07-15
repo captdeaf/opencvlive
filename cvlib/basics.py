@@ -9,7 +9,7 @@
 from .effects import EF, cv
 
 @EF.register(EF.GRAYSCALE, EF.GRAYSCALE)
-def adaptiveThreshold(frame, cmax=255, invert=False, gaussian=True, blockSize=11, weight=2):
+def adaptiveThreshold(frame, cmax=255, invert=False, gaussian=False, blockSize=11, weight=2):
     method = cv.ADAPTIVE_THRESH_MEAN_C
     if gaussian:
         method = cv.ADAPTIVE_THRESH_GAUSSIAN_C
@@ -41,7 +41,7 @@ def colorize(image, channel=None):
     return image
 
 @EF.register(EF.BGR, EF.BGR)
-def pluckColor(image, channel):
+def pluckColor(image, channel=2):
     if channel != 0:
         image[:,:,0] = 0
     if channel != 1:
@@ -51,36 +51,37 @@ def pluckColor(image, channel):
     return image
 
 @EF.register(EF.ANY, EF.SAME)
-def blur(frame, amount):
+def blur(frame, amount=5):
     return cv.medianBlur(frame, amount)
 
 @EF.register(EF.ANY, EF.BGR)
-def writeOn(frame, text, xpct=0.2, ypct=0.8, color=[0, 255, 255], size=4,
+def writeOn(frame, text='demo', xpct=0.2, ypct=0.8, color=[0, 255, 255], size=4,
             font=cv.FONT_HERSHEY_SIMPLEX, weight=10):
 
     if text is None or len(text) == 0:
         return frame
 
-    colored = colorize(frame)
-    height, width, _ = colored.shape
+    if not EF.isColor(frame):
+        frame = colorize(frame)
+    height, width, _ = frame.shape
 
     calcx = int(width * xpct)
     calcy = int(height * ypct)
     font = cv.FONT_HERSHEY_SIMPLEX
 
-    colored = cv.putText(colored, text, (calcx, calcy), font, size, color, weight)
-    return colored
+    frame = cv.putText(frame, text, (calcx, calcy), font, size, color, weight)
+    return frame
 
 @EF.register(EF.ANY, EF.SAME)
 def removeBG(frame, bgr, learningRate = 0):
     return bgr.apply(frame, learningRate = learningRate)
 
 @EF.register(EF.BGR, EF.GRAYSCALE)
-def colorToGray(image, channel):
+def colorToGray(image, channel=1):
     return image[:,:,channel]
 
 @EF.register(EF.GRAYSCALE, EF.BGR)
-def grayToColor(image, channel):
+def grayToColor(image, channel=3):
     shape = image.shape + (3,)
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image
@@ -95,7 +96,7 @@ def blend(image, second, alpha, gamma=0.0):
     return cv.addWeighted(image, 1.0-alpha, second, alpha, gamma)
 
 @EF.register(EF.BGR, EF.SAME)
-def brighten(image, pct):
+def brighten(image, pct=0.25):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     h, s, v = cv.split(hsv)
 

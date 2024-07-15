@@ -214,7 +214,7 @@ def register(channelfrom, channelto):
 
         addEffectInfo(func, channelfrom, channelto)
 
-        setattr(EF, func.__name__, func)
+        setattr(Effects, func.__name__, func)
         setattr(EF, func.__name__, lazyApply)
 
         return func
@@ -222,24 +222,24 @@ def register(channelfrom, channelto):
     return registerfunc
 
 def applyEffects(image, *all_effects, copy=True):
-    channel = BGR
+    channel = EF.BGR
     if len(image.shape) == 2:
-        channel = GRAYSCALE
+        channel = EF.GRAYSCALE
    
     if copy:
         image = image.copy()
 
     for effect in all_effects:
-        if effect.channelfrom != channel and effect.channelfrom != ANY:
+        if effect.channelfrom != channel and effect.channelfrom != EF.ANY:
             print(f"Error with {effect.func.__name__}, converting {channel} to {effect.channelfrom}. Do this explicitly?")
-            if effect.channelfrom == BGR:
+            if effect.channelfrom == EF.BGR:
                 image = cv.cvtColor(image, cv.COLOR_GRAY2BGR)
-                channel = BGR
+                channel = EF.BGR
             else:
                 image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-                channel = GRAYSCALE
+                channel = EF.GRAYSCALE
 
-        if effect.channelto != SAME:
+        if effect.channelto != EF.SAME:
             channel = effect.channelto
 
         image = effect.func(image, *effect.args, **effect.kwargs)
@@ -247,7 +247,7 @@ def applyEffects(image, *all_effects, copy=True):
     return image
 
 def isColor(image):
-    return image.shape == 3
+    return len(image.shape) == 3
 
 EF.isColor = isColor
 EF.register = register
