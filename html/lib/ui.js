@@ -34,7 +34,7 @@ addTriggerFunction('[data-hide]', (el) => {
     }
     setSaved(saveKey, '' + isHidden);
     updateState();
-  }
+  };
 
   updateState();
 });
@@ -48,7 +48,7 @@ addTrigger('toggle', (el, evt) => {
   const targets = getAll(sel);
 
   // Preferred
-  let preferred = undefined;
+  let preferred;
   const val = el.dataset.toggle;
   if (val === "true") {
     preferred = true;

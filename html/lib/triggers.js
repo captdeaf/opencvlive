@@ -106,7 +106,7 @@ function trigger(name, ...args) {
 function lazyTrigger(name, ...lazyargs) {
   return (...args) => {
     return trigger(name, ...lazyargs, ...args);
-  }
+  };
 }
 
 const MORE_ACTIONS = [];

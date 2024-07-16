@@ -12,7 +12,7 @@
 function alertUser(...all) {
   const paras = [];
   const alertDialog = showFloater('Alert', 'user-alert', function(alerter) {
-    for (msgs of Object.values(all)) {
+    for (const msgs of Object.values(all)) {
       appendChildren(alerter,
         EL('p', msgs)
       );
@@ -69,9 +69,9 @@ function containingElement(boxes, child) {
 
 // A trigger that console.logs all its arguments, nothing else.
 addTrigger("debugTrigger", (...args) => {
-  console.log("---------- debugTrigger:")
-  for (var arg of Object.values(args)) {
+  console.log("---------- debugTrigger:");
+  for (const arg of Object.values(args)) {
     console.log(arg);
   }
-  console.log("------------------------")
+  console.log("------------------------");
 });

@@ -13,13 +13,13 @@
 
 // QoL: get(selector, parent=document)
 function get(identifier, par) {
-  if (!par) par = document
+  if (!par) par = document;
   return par.querySelector(identifier);
 }
 
 // QoL: getAll(selector, parent=document)
 function getAll(identifier, par) {
-  if (!par) par = document
+  if (!par) par = document;
   return [...par.querySelectorAll(identifier)];
 }
 
@@ -42,7 +42,7 @@ function setSaved(name, val) {
 // DOM: Make elements. EL('div', EL('span', "Text here"));
 function EL(name, ...children) {
   const ret = document.createElement(name);
-  appendChildren(ret, children)
+  appendChildren(ret, children);
   return ret;
 }
 
@@ -95,7 +95,7 @@ function removeElement(el) {
 function replaceElement(el, children) {
   const p = el.parentElement;
   p.remove(el);
-  appendChildren(p, children)
+  appendChildren(p, children);
 }
 
 // DOM: traverse upwards the parent tree from an element until you get an element

@@ -138,8 +138,8 @@ function addMouseDrag(dragMe) {
     if (newX > bounds.right) newX = bounds.right;
     if (newY > bounds.bottom) newX = bounds.bottom;
 
-    dragged.style['top'] = newY + 'px';
-    dragged.style['left'] = newX + 'px';
+    dragged.style.top = newY + 'px';
+    dragged.style.left = newX + 'px';
   }
 
   if (dragMe.dataset.dragTarget === '!float') {
@@ -241,8 +241,9 @@ function addMouseDrag(dragMe) {
     starters = [dragMe];
   }
 
+  const startMouse = (evt) => startMouseAction(evt, actions);
   for (const starter of Object.values(starters)) {
-    starter.onmousedown = (evt) => startMouseAction(evt, actions)
+    starter.onmousedown = startMouseAct();
   }
 }
 

@@ -10,7 +10,7 @@ async function easyFetch(path, opts, cbs) {
   if (cbs.request) cbs.request(request);
 
   // Response
-  let resp = await(request)
+  let resp = await(request);
   if (cbs.response) cbs.response(response);
 
   // Status-based
@@ -29,7 +29,8 @@ async function easyFetch(path, opts, cbs) {
 function rebuildLibrary(paths) {
   const library = get('#library');
   library.innerHTML = '';
-  for (const path of paths) {
+
+  function paneLoop(path) {
     const name = basename(path);
     const pane = template('library-image', (tpl) => {
       const img = get('img', tpl);
@@ -42,6 +43,8 @@ function rebuildLibrary(paths) {
     pane.dataset.name = name;
     pane.dataset.path = path;
     appendChildren(library, pane);
+  }
+  for (const path of paths) {
   }
 }
 
@@ -71,7 +74,7 @@ addTrigger('showUploadDialog', (el, evt) => {
 });
 
 addTrigger('fileDialogChange', (el, evt) => {
-  const uploadDiv = findParent(el, '[data-upload]')
+  const uploadDiv = findParent(el, '[data-upload]');
   if (!uploadDiv) return;
 
   const fileList = get('#upload-list', uploadDiv);
@@ -89,7 +92,7 @@ addTrigger('fileDialogChange', (el, evt) => {
         formData.append("file", files[i]);
       }
     } else {
-      formData.append(input.name, input.value)
+      formData.append(input.name, input.value);
     }
     input.disabled = true;
   }
@@ -109,7 +112,7 @@ addTrigger('fileDialogChange', (el, evt) => {
           setTimeout(() => trigger('hide', uploadDiv), 500);
         }
       }
-  )
+  );
 });
 
 addTrigger('showLargeChildImage', function(child) {
@@ -131,7 +134,7 @@ function buildEffectBlock(effect) {
 
   const block = template('block-effect', (block) => {
     const img = get('img', block);
-    img.src = imagePath
+    img.src = imagePath;
     get('span', block).innerText = effect.name;
   });
 
