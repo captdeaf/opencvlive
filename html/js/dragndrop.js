@@ -119,6 +119,8 @@ function addMouseDrag(dragMe) {
   callbacks.click = dragMe.dataset.dragClick;
   callbacks.end = dragMe.dataset.dragDrop;
 
+  let inside = false;
+
   let mouseOff = {left: 0, top: 0, right: 0, bottom: 0};
 
   let dragged = null;
@@ -133,10 +135,19 @@ function addMouseDrag(dragMe) {
     newX = (MOUSE.pos.x - mouseOff.left);
     newY = (MOUSE.pos.y - mouseOff.top);
 
-    if (newX < boundary.left) newX = boundary.left;
-    if (newY < boundary.top) newY = boundary.top;
-    if (newX > boundary.right) newX = boundary.right;
-    if (newY > boundary.bottom) newY = boundary.bottom;
+    if ((newX >= boundary.left) &&
+        (newY >= boundary.top) &&
+        (newX <= boundary.right) &&
+        (newY <= boundary.bottom)) {
+      inside = true;
+    }
+
+    if (inside) {
+      if (newX < boundary.left) newX = boundary.left;
+      if (newY < boundary.top) newY = boundary.top;
+      if (newX > boundary.right) newX = boundary.right;
+      if (newY > boundary.bottom) newY = boundary.bottom;
+    }
 
     el.style.top = newY + 'px';
     el.style.left = newX + 'px';
@@ -218,11 +229,18 @@ function addMouseDrag(dragMe) {
 
     if (!dragged) return false;
 
+    if (!inside) {
+      cleanUp();
+      return;
+    }
+
+    let fixedPos;
+    fixedPos = moveIt(dragged, bounds);
+
     if (method === 'move') {
-      pos = moveIt(dragged, bounds);
       const parentBounds = dragMe.parentElement.getBoundingClientRect();
-      dragMe.style.left = (pos.x - parentBounds.left) + 'px';
-      dragMe.style.top = (pos.y - parentBounds.top) + 'px';
+      dragMe.style.left = (fixedPos.x - parentBounds.left) + 'px';
+      dragMe.style.top = (fixedPos.y - parentBounds.top) + 'px';
     } else if (method === 'reposition') {
       moveIt(dragMe, bounds);
     }
@@ -230,8 +248,8 @@ function addMouseDrag(dragMe) {
     bounds = boundTo.getBoundingClientRect();
 
     const relativePos = {
-      x: MOUSE.pos.x - bounds.left,
-      y: MOUSE.pos.y - bounds.top,
+      x: fixedPos.x - bounds.left,
+      y: fixedPos.y - bounds.top,
     };
 
     let droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
@@ -243,7 +261,7 @@ function addMouseDrag(dragMe) {
       const sel = dragMe.dataset.dropOk + '[data-drop]';
       let dropElements = listElementsMatching(droppedOn, sel);
       for (const element of dropElements) {
-        trigger(element.dataset.drop, dragMe, evt, MOUSE.pos, droppedOn, relativePos);
+        trigger(element.dataset.drop, dragMe, evt, fixedPos, droppedOn, relativePos);
       }
     }
 

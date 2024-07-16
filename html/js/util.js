@@ -39,9 +39,22 @@ function setSaved(name, val) {
   return val;
 }
 
+// DOM/QoL: Add attributes quickly.
+function addAttrs(el, attrs) {
+  for (const [k, v] of Object.entries(attrs)) {
+    el.setAttribute(k, v);
+  }
+  return el;
+}
+
 // DOM: Make elements. EL('div', EL('span', "Text here"));
-function EL(name, ...children) {
+function EL(name, attrs, ...children) {
   const ret = document.createElement(name);
+  if (attrs.append) {
+    children.unshift(attrs);
+  } else {
+    addAttrs(ret, attrs);
+  }
   appendChildren(ret, children);
   return ret;
 }
