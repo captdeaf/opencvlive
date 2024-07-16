@@ -30,15 +30,17 @@ function rebuildLibrary(paths) {
   const library = get('#library');
   library.innerHTML = '';
   for (const path of paths) {
+    const name = basename(path);
     const pane = template('library-image', (tpl) => {
       const img = get('img', tpl);
       const span = get('span', tpl);
-      const name = basename(path);
 
       img.src = path;
-      img.dataset.displayName = name;
+      img.dataset.name = name;
       span.innerText = name;
     });
+    pane.dataset.name = name;
+    pane.dataset.path = path;
     appendChildren(library, pane);
   }
 }
@@ -154,15 +156,12 @@ function refreshEffectBlocks() {
         for (const effect of Object.values(resp.effects)) {
           appendChildren(parentElement, buildEffectBlock(effect));
         }
-        // TODO: REMOVE THIS WHEN DONE TESTING.
-        trigger("createEffectAt", get('[data-effect-name="blend"]'), undefined, undefined,
-                undefined, {y: 200, x: 200});
       },
     }
   );
 }
 
-function newOpsBlock(effect, imagePath) {
+function newImageBlock(effect, imagePath) {
   const container = template('opblock', (tpl) => {
     get('.opdrag', tpl).innerText = effect.name;
     get('img', tpl).src = imagePath;
@@ -174,10 +173,45 @@ function newOpsBlock(effect, imagePath) {
   return container;
 }
 
+function newImBlock(imageName, imagePath) {
+  const container = template('imblock', (tpl) => {
+    get('.ophead', tpl).innerText = imageName;
+    get('img', tpl).src = imagePath;
+  });
+
+  container.style.top = "10em";
+  container.style.left = "20em";
+
+  return container;
+}
+
+addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
+                                  parentElement, relativePos) {
+  const imageName = libraryElement.dataset.name;
+  const imagePath = libraryElement.dataset.path;
+
+  const imBlock = newImBlock(imageName, imagePath);
+  imBlock.style.top = relativePos.y + 'px';
+  imBlock.style.left = relativePos.x + 'px';
+  appendChildren(get('#flowchart'), imBlock);
+});
+
+function newOpBlock(effect, imagePath) {
+  const container = template('opblock', (tpl) => {
+    get('.ophead', tpl).innerText = effect.name;
+    get('img', tpl).src = imagePath;
+  });
+
+  container.style.top = "20em";
+  container.style.left = "20em";
+
+  return container;
+}
+
 addTrigger("createEffectAt", function(effectElement, evt, fixedPos,
                                       parentElement, relativePos) {
   const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
-  const opsBlock = newOpsBlock(effect, effectElement.dataset.imagePath);
+  const opsBlock = newOpBlock(effect, effectElement.dataset.imagePath);
   opsBlock.style.top = relativePos.y + 'px';
   opsBlock.style.left = relativePos.x + 'px';
   appendChildren(get('#flowchart'), opsBlock);

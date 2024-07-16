@@ -102,9 +102,153 @@ function getRelativePosition(par, child) {
   };
 }
 
+// Method of drag+drop: trigger, move, reposition, copy:
+//
+// trigger: drag a clone, drop it, vanishes but triggers events.
+// move: hide dragMe, drag a clone, drop it, if okay, dragMe teleports there.
+//       still triggers events.
+
+function addMouseDrag(dragMe) {
+  const callbacks = {};
+  let clickStart = new Date().getTime();
+
+  const method = dragMe.dataset.drag;
+
+  callbacks.start = dragMe.dataset.dragStart;
+  callbacks.move = dragMe.dataset.dragMove;
+  callbacks.click = dragMe.dataset.dragClick;
+  callbacks.end = dragMe.dataset.dragDrop;
+
+  let mouseOff = {left: 0, top: 0, right: 0, bottom: 0};
+
+  let dragged = null;
+  let boundTo = get('body');
+  let bounds = get('body').getBoundingClientRect();
+
+  if (dragMe.dataset.dragBind) {
+    boundTo = get(dragMe.dataset.dragBind);
+  }
+
+  function moveIt() {
+    newX = (MOUSE.pos.x - mouseOff.left);
+    newY = (MOUSE.pos.y - mouseOff.top);
+
+    if (newX < bounds.left) newX = bounds.left;
+    if (newY < bounds.top) newY = bounds.top;
+    if (newX > bounds.right) newX = bounds.right;
+    if (newY > bounds.bottom) newX = bounds.bottom;
+
+    dragged.style['top'] = newY + 'px';
+    dragged.style['left'] = newX + 'px';
+  }
+
+  if (dragMe.dataset.dragTarget === '!float') {
+    targetElements = null;
+  } else if (dragMe.dataset.dragTarget) {
+    targetElements = getAll(dragMe.dataset.dragTarget);
+  }
+
+  function cleanUp() {
+    dragMe.style.visibility = 'visible';
+    removeElement(dragged);
+    dragged = null;
+  }
+
+  const actions = {};
+
+  actions.start = function() {
+    // Track time, if this is < 200ms, we consider it a click.
+    clickStart = new Date().getTime();
+
+    // Track mouse differences. For dragging around.
+    const curRect = dragMe.getBoundingClientRect();
+
+    mouseOff = {
+      left: MOUSE.pos.x - curRect.left,
+      top: MOUSE.pos.y - curRect.top,
+      right: curRect.right - MOUSE.pos.x,
+      bottom: curRect.bottom - MOUSE.pos.y,
+    };
+
+    // Where can our dragging go?
+    bounds = boundTo.getBoundingClientRect();
+
+    // Tweak bounds for mouse offset relative to parent. Optimizing for
+    // boundary checks.
+    bounds.left = bounds.left + mouseOff.left;
+    bounds.top = bounds.top + mouseOff.top;
+    bounds.bottom = bounds.bottom - mouseOff.bottom;
+    bounds.right = bounds.right - mouseOff.right;
+
+    dragged = dragMe.cloneNode(true);
+    appendChildren(get('#floats'), dragged);
+
+    if (method === 'move') {
+      dragMe.style.visibility = 'hidden';
+    }
+
+    dragged.style.visibility = 'visible';
+    dragged.style.display = 'block';
+    dragged.style.position = 'absolute';
+
+    moveIt(dragged);
+
+    trigger(callbacks.start, dragMe, MOUSE.pos);
+  };
+
+  actions.move = function(evt) {
+    if (!dragged) return;
+
+    moveIt(dragged);
+
+    trigger(callbacks.move, dragMe, MOUSE.pos);
+  };
+
+  // actions.end determines if the triggering event is paused.
+  // return True to stop
+  actions.end = function(evt) {
+    // Check for pseudo-click
+    if ((new Date().getTime() - clickStart) < 200) {
+      trigger(callbacks.click, dragMe, evt, MOUSE.pos);
+      cleanUp();
+      return false;
+    }
+
+    if (!dragged) return false;
+
+    const droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
+
+    bounds = boundTo.getBoundingClientRect();
+
+    const relativePos = {
+      x: MOUSE.pos.x - bounds.left,
+      y: MOUSE.pos.y - bounds.top,
+    };
+
+    if (method === 'move') {
+      dragMe.style.left = (relativePos.x - mouseOff.left) + 'px';
+      dragMe.style.top = (relativePos.y - mouseOff.top) + 'px';
+    }
+
+    trigger(callbacks.end, dragMe, evt, MOUSE.pos, droppedOn, relativePos);
+    cleanUp();
+    return true;
+  };
+
+  let starters = getAll('.drag-start', dragMe);
+
+  if (!starters || starters.length == 0) {
+    starters = [dragMe];
+  }
+
+  for (const starter of Object.values(starters)) {
+    starter.onmousedown = (evt) => startMouseAction(evt, actions)
+  }
+}
+
 // This is called with an element that wants to be DnD-able. Most likely using
 // the triggers from addTriggerFunction('[data-drag]', addMouseDrag);
-function addMouseDrag(dragMe) {
+function addMouseDragOld(dragMe) {
   // We're dealing with two elements here:
   // class=drag-start - The element that's clickable. If no subelement with this,
   // elment is considered to have it.

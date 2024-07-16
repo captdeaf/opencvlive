@@ -66,3 +66,12 @@ function containingElement(boxes, child) {
   }
   return null;
 }
+
+// A trigger that console.logs all its arguments, nothing else.
+addTrigger("debugTrigger", (...args) => {
+  console.log("---------- debugTrigger:")
+  for (var arg of Object.values(args)) {
+    console.log(arg);
+  }
+  console.log("------------------------")
+});

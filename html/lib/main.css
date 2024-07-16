@@ -18,6 +18,21 @@
   position: relative;
 }
 
+#flowcanvas {
+  z-index: 199;
+}
+
+#flowchart {
+  z-index: 200;
+}
+
+#trashit {
+  width: 4em;
+  height: 4em;
+  font-size: 300%;
+  z-index: 201;
+}
+
 #main .layer {
   display: block;
   position: absolute;
@@ -74,6 +89,7 @@
   flex-flow: row;
   height: 1em;
   width: 100%;
+  font-size: 70%;
   vertical-align: middle;
 }
 
@@ -84,6 +100,11 @@
   height: 100%;
   display: flex;
   flex-flow: column;
+}
+
+.opsplit {
+  height: 0.3em;
+  flex: 0 0 auto;
 }
 
 .opdrag {
@@ -107,11 +128,21 @@
 }
 
 .opiframe {
-  border: 1px solid black;
   display: block;
   position: relative;
   flex-grow: 1;
-  width: 50%;
+  width: 48%;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+.opslisting {
+  border-left: 1px solid black;
+  display: block;
+  position: relative;
+  flex-grow: 1;
+  width: 48%;
   height: 100%;
   overflow-y: hidden;
   overflow-x: hidden;
@@ -126,8 +157,8 @@
 }
 
 .ops {
-  flex-grow: 1;
-  width: 50%;
+  height: 100%;
+  width: 100%;
 }
 
 .ops h3 {
@@ -136,4 +167,9 @@
   padding: 0;
   display: block;
   overflow-y: hidden;
+}
+
+.imcontainer img {
+  border: 0px solid black;
+  border-radius: 1em;
 }
