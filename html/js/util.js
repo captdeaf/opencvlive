@@ -13,8 +13,17 @@
 
 // QoL: get(selector, parent=document)
 function get(identifier, par) {
-  if (!par) par = document;
-  return par.querySelector(identifier);
+  if (!par) {
+    par = document;
+  } else {
+    if (par.matches(identifier)) return par;
+  }
+  const result = par.querySelector(identifier);
+  if (!result) {
+    console.log("Unable to find identifier: " + identifier + " of parent:");
+    console.log(par);
+  }
+  return result;
 }
 
 // QoL: getAll(selector, parent=document)

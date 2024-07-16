@@ -48,11 +48,19 @@
 /  The many blocks in the middle.
 /
 ***********************************/
-.opcontainer {
+.opmaster {
   position: absolute;
-  display: block;
+  display: flex;
+  flex-flow: column;
   width: 14em;
-  height: 7em;
+}
+
+.opcontainer {
+  display: block;
+  position: relative;
+  flex: 0 0 content;
+  width: 100%;
+  min-height: 7em;
   border: 3px solid black;
   border-radius: 1em;
   background-color: #eee;
@@ -131,21 +139,19 @@
   display: block;
   position: relative;
   flex-grow: 1;
-  width: 48%;
+  width: 100%;
   height: 100%;
   overflow-y: hidden;
   overflow-x: hidden;
 }
 
 .opslisting {
-  border-left: 1px solid black;
   display: block;
   position: relative;
   flex-grow: 1;
-  width: 48%;
+  width: 100%;
   height: 100%;
-  overflow-y: hidden;
-  overflow-x: hidden;
+  overflow: scroll;
 }
 
 .opimage {
@@ -172,4 +178,8 @@
 .imcontainer img {
   border: 0px solid black;
   border-radius: 1em;
+}
+
+.opcontainer.opprocessed {
+  background-color: green;
 }
