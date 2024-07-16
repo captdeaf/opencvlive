@@ -109,6 +109,20 @@ function findParent(el, sel) {
   return undefined;
 }
 
+// Given a list of elements (e.g: from elementsFromPoint), return those
+// of a given selector.
+function listElementsMatching(elements, selector) {
+  elements = [...elements];
+  const ret = [];
+
+  for (const element of elements) {
+    if (element.matches(selector)) {
+      ret.push(selector);
+    }
+  }
+  return ret;
+}
+
 // DOM/QoL: Templates embedded in the HTML, most likely beneath an invisible
 //          <div>. Clones the elements of <div id="template-(name)">.
 //          contents is an object of "selector": children. to add.
