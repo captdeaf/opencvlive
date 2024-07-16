@@ -6,6 +6,7 @@
 #
 ####################################
 
+import numpy as np
 from .effects import EF, cv
 
 @EF.register(EF.GRAYSCALE, EF.GRAYSCALE)
@@ -81,7 +82,7 @@ def colorToGray(image, channel=1):
     return image[:,:,channel]
 
 @EF.register(EF.GRAYSCALE, EF.BGR)
-def grayToColor(image, channel=3):
+def grayToColor(image, channel=1):
     shape = image.shape + (3,)
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image
@@ -100,21 +101,21 @@ def brighten(image, pct=0.25):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     h, s, v = cv.split(hsv)
 
-    v[:] *= pct
+    v[:] = (100 * v[:]) / int(100 * pct)
     v[v > 255] = 255
 
     newhsv = cv.merge((h, s, v))
     return cv.cvtColor(newhsv, cv.COLOR_HSV2BGR)
 
 @EF.register(EF.ANY, EF.SAME)
-def cutPoly(image, pts):
+def cutPoly(image, pts, color=[0, 0, 0]):
     mask = np.zeros(image.shape[:2], dtype="uint8")
     cv.fillPoly(mask, pts, 1)
 
     if EF.isColor(image):
-        image[mask == 0] = [0, 0, 0]
+        image[mask == 1] = color
     else:
-        image[mask == 0] = 0
+        image[mask == 1] = color[0]
     
     return image
 

@@ -11,6 +11,7 @@
 ####################################
 
 import os, sys
+import numpy as np
 
 cwd = os.getcwd()
 if cwd not in sys.path:
@@ -21,16 +22,29 @@ from cvlib import EF, cv, INFO, Effects
 EFFECT_IMAGE_DIR="html/samples/"
 
 DEMO_FILES = [
-    'html/uploads/demo_landscape.png',
-    'html/uploads/demo_sunset.png',
+    cv.imread('html/uploads/demo_landscape.png'),
+    cv.imread('html/uploads/demo_sunset.png'),
 ]
+
+POLY_PTS = np.array([[250, 700], [250, 900], 
+                [800, 200], [200, 1300], 
+                [200, 700], [1000, 200]])
+
+def defaultCall(name, img):
+    return EF.apply(img, getattr(EF, name)())
+
+SPECIAL = {
+    'subtract': lambda _: EF.apply(DEMO_FILES[0], EF.subtract(DEMO_FILES[1])),
+    'blend': lambda _: EF.apply(DEMO_FILES[0], EF.blend(DEMO_FILES[1], 0.3)),
+    'cutPoly': lambda use: EF.apply(use, EF.cutPoly([POLY_PTS], [255, 255, 255])),
+}
 
 # Read first demo image as colored, add a grayscale version, then go through
 # every Effect, passing it either image as needed.
 #
 # We have a second demo image for when we need two (merge/blend/etc).
 def rebuildEffectImages():
-    colored = cv.imread(DEMO_FILES[0])
+    colored = DEMO_FILES[0]
     grayed = EF.apply(colored,
         EF.grayscale()
     )
@@ -45,18 +59,15 @@ def rebuildEffectImages():
             use = grayed
 
         try:
-            if True or (not os.path.exists(filename)):
-                # Eh, at present this is small enough not to need
-                # checking, and I'm frequently evolving everything
-                # anyway.
-                img = EF.apply(use,
-                    getattr(EF, name, lambda x: None)(),
-                    EF.writeOn(name, ypct=0.3, color=[0, 40, 0]),
-                )
-                cv.imwrite(filename, img)
-                print(f"{name}: {filename} written")
+            if name in SPECIAL:
+                img = SPECIAL[name](use)
             else:
-                print(f"{name}: {filename} exists")
+                img = defaultCall(name, use)
+
+            img = EF.apply(img, EF.writeOn(name, ypct=0.3, color=[0, 40, 0]))
+
+            cv.imwrite(filename, img)
+            print(f"{name}: {filename} written")
         except Exception as err:
             print(f"{name}: {filename} failed:")
             print(err)
