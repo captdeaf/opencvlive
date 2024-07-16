@@ -117,7 +117,7 @@ function listElementsMatching(elements, selector) {
 
   for (const element of elements) {
     if (element.matches(selector)) {
-      ret.push(selector);
+      ret.push(element);
     }
   }
   return ret;

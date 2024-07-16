@@ -216,8 +216,6 @@ function addMouseDrag(dragMe) {
 
     if (!dragged) return false;
 
-    const droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
-
     bounds = boundTo.getBoundingClientRect();
 
     const relativePos = {
@@ -228,6 +226,19 @@ function addMouseDrag(dragMe) {
     if (method === 'move') {
       dragMe.style.left = (relativePos.x - mouseOff.left) + 'px';
       dragMe.style.top = (relativePos.y - mouseOff.top) + 'px';
+    }
+
+    let droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
+    if (dragMe.dataset.dragDropon) {
+      droppedOn = listElementsMatching(droppedOn, dragMe.dataset.dragDropon);
+    }
+
+    if (dragMe.dataset.dropOk) {
+      const sel = dragMe.dataset.dropOk + '[data-drop]';
+      let dropElements = listElementsMatching(droppedOn, sel);
+      for (const element of dropElements) {
+        trigger(element.dataset.drop, dragMe, evt, MOUSE.pos, droppedOn, relativePos);
+      }
     }
 
     trigger(callbacks.end, dragMe, evt, MOUSE.pos, droppedOn, relativePos);
@@ -241,9 +252,9 @@ function addMouseDrag(dragMe) {
     starters = [dragMe];
   }
 
-  const startMouse = (evt) => startMouseAction(evt, actions);
+  const lcb = (evt) => startMouseAction(evt, actions);
   for (const starter of Object.values(starters)) {
-    starter.onmousedown = startMouseAct();
+    starter.onmousedown = lcb;
   }
 }
 

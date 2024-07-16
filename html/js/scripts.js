@@ -45,6 +45,7 @@ function rebuildLibrary(paths) {
     appendChildren(library, pane);
   }
   for (const path of paths) {
+    paneLoop(path);
   }
 }
 
@@ -210,6 +211,10 @@ function newOpBlock(effect, imagePath) {
 
   return container;
 }
+
+addTrigger("removeElement", (el) => {
+  removeElement(el);
+});
 
 addTrigger("createEffectAt", function(effectElement, evt, fixedPos,
                                       parentElement, relativePos) {
