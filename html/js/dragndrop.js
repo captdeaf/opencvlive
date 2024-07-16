@@ -129,17 +129,19 @@ function addMouseDrag(dragMe) {
     boundTo = get(dragMe.dataset.dragBind);
   }
 
-  function moveIt() {
+  function moveIt(el, boundary) {
     newX = (MOUSE.pos.x - mouseOff.left);
     newY = (MOUSE.pos.y - mouseOff.top);
 
-    if (newX < bounds.left) newX = bounds.left;
-    if (newY < bounds.top) newY = bounds.top;
-    if (newX > bounds.right) newX = bounds.right;
-    if (newY > bounds.bottom) newX = bounds.bottom;
+    if (newX < boundary.left) newX = boundary.left;
+    if (newY < boundary.top) newY = boundary.top;
+    if (newX > boundary.right) newX = boundary.right;
+    if (newY > boundary.bottom) newY = boundary.bottom;
 
-    dragged.style.top = newY + 'px';
-    dragged.style.left = newX + 'px';
+    el.style.top = newY + 'px';
+    el.style.left = newX + 'px';
+
+    return {x: newX, y: newY};
   }
 
   if (dragMe.dataset.dragTarget === '!float') {
@@ -183,7 +185,7 @@ function addMouseDrag(dragMe) {
     dragged = dragMe.cloneNode(true);
     appendChildren(get('#floats'), dragged);
 
-    if (method === 'move') {
+    if (method === 'move' || method === 'reposition') {
       dragMe.style.visibility = 'hidden';
     }
 
@@ -191,7 +193,7 @@ function addMouseDrag(dragMe) {
     dragged.style.display = 'block';
     dragged.style.position = 'absolute';
 
-    moveIt(dragged);
+    moveIt(dragged, bounds);
 
     trigger(callbacks.start, dragMe, MOUSE.pos);
   };
@@ -199,7 +201,7 @@ function addMouseDrag(dragMe) {
   actions.move = function(evt) {
     if (!dragged) return;
 
-    moveIt(dragged);
+    moveIt(dragged, bounds);
 
     trigger(callbacks.move, dragMe, MOUSE.pos);
   };
@@ -216,17 +218,21 @@ function addMouseDrag(dragMe) {
 
     if (!dragged) return false;
 
+    if (method === 'move') {
+      pos = moveIt(dragged, bounds);
+      const parentBounds = dragMe.parentElement.getBoundingClientRect();
+      dragMe.style.left = (pos.x - parentBounds.left) + 'px';
+      dragMe.style.top = (pos.y - parentBounds.top) + 'px';
+    } else if (method === 'reposition') {
+      moveIt(dragMe, bounds);
+    }
+
     bounds = boundTo.getBoundingClientRect();
 
     const relativePos = {
       x: MOUSE.pos.x - bounds.left,
       y: MOUSE.pos.y - bounds.top,
     };
-
-    if (method === 'move') {
-      dragMe.style.left = (relativePos.x - mouseOff.left) + 'px';
-      dragMe.style.top = (relativePos.y - mouseOff.top) + 'px';
-    }
 
     let droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
     if (dragMe.dataset.dragDropon) {

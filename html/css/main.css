@@ -27,9 +27,9 @@
 }
 
 #trashit {
-  width: 4em;
-  height: 4em;
-  font-size: 300%;
+  display: inline-block;
+  width: content;
+  font-size: 200%;
   z-index: 201;
 }
 

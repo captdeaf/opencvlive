@@ -115,7 +115,7 @@
       <div id="main">
         <canvas id="flowcanvas" class="layer disabled" disabled>Canvaaaaaaas</canvas>
         <div id="flowchart" class="layer opdrop">
-          <div id="trashit" class="opdrop">&#x1F5D1;</div>
+          <div id="trashit" data-drop="removeElement" class="opdrop">&#x1F5D1;</div>
         </div>
       </div>
       <div id="savecol"></div>
@@ -127,7 +127,7 @@
 
       Image blocks, for when we drag images onto the flowchart.
       <div id="template-imblock">
-        <div class="opcontainer" style="width: 8em;" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger">
+        <div class="opcontainer" style="width: 8em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-onmouseover="raiseZIndex" data-zindex="ops">
           <div class="opblock">
             <div class="opinput oparr"><span class="vcenter"></span></div>
             <div class="opcenter">
@@ -154,7 +154,7 @@
         - Configurable arguments.
       
       <div id="template-opblock">
-        <div class="opcontainer" style="width: 14em;" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
+        <div class="opcontainer" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
           <div class="opblock">
             <div class="opinput oparr"><span class="vcenter">&rarr;</span></div>
             <div class="opcenter">
@@ -191,7 +191,7 @@
 
       Basic floating dialog
       <div id="template-floater">
-        <div class="dialog drag-me floater" data-onmouseover="raiseZIndex" data-zindex="floater" data-drag="move" data-drag-bind="body">
+        <div class="dialog drag-me floater" data-drop-ok=".opdrop" data-onmouseover="raiseZIndex" data-zindex="floater" data-drag="reposition" data-drag-bind="body">
           <h3 class="drag-start name"></h3>
           <span class="closer" data-onclick="remove" data-target=".floater">X</span>
           <div class="body"></div>
