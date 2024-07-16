@@ -22,7 +22,6 @@ function get(identifier, par) {
   }
   const result = par.querySelector(identifier);
   if (!result) {
-    raise(asdf);
     console.log("Unable to find identifier: " + identifier + " of parent:");
     console.log(par);
   }

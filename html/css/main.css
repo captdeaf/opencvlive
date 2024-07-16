@@ -13,6 +13,9 @@
 }
 
 #main {
+  display: block;
+  height: 100%;
+  width: 100%;
   flex: 1 1 content;
   overflow: scroll;
   position: relative;
@@ -24,12 +27,13 @@
   user-select: none;
 }
 
-#linecanvas {
-  z-index: 201;
-}
-
 #flowchart {
   z-index: 200;
+}
+
+#flowlines {
+  z-index: 201;
+  user-select: none;
 }
 
 #trashit {
@@ -87,6 +91,7 @@
   display: block;
   height: 100%;
   width: 1em;
+  user-select: none;
 }
 
 .opinput {

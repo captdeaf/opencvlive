@@ -99,6 +99,8 @@ function getRelativePosition(par, child) {
   return {
     'x': cr.left - pr.left,
     'y': cr.top - pr.top,
+    'centerX': cr.left - pr.left + cr.width/2,
+    'centerY': cr.top - pr.top + cr.height/2,
   };
 }
 
@@ -126,6 +128,8 @@ function addMouseDrag(dragMe) {
   let dragged = null;
   let boundTo = get('body');
   let bounds = get('body').getBoundingClientRect();
+
+  const svgLines = get('#flowlines');
 
   if (dragMe.dataset.dragBind) {
     boundTo = get(dragMe.dataset.dragBind);
@@ -169,6 +173,8 @@ function addMouseDrag(dragMe) {
 
   const actions = {};
 
+  let lineStart;
+
   actions.start = function() {
     // Track time, if this is < 200ms, we consider it a click.
     clickStart = new Date().getTime();
@@ -197,6 +203,7 @@ function addMouseDrag(dragMe) {
         right: -pointerRect.width/2,
         bottom: -pointerRect.height/2,
       };
+      lineStart = getRelativePosition(dragMe, get('#flowlines'));
     } else {
       dragged = dragMe.cloneNode(true);
       appendChildren(get('#floats'), dragged);
@@ -226,6 +233,28 @@ function addMouseDrag(dragMe) {
     if (!dragged) return;
 
     moveIt(dragged, bounds);
+
+    if (method === 'point') {
+      const flowchart = get('#flowchart');
+      const flowchartBox = flowchart.getBoundingClientRect();
+
+      lineStart = getRelativePosition(flowchart, dragMe);
+      const objPos = getRelativePosition(flowchart, dragged);
+
+      svgLines.style.width = flowchartBox.width;
+      svgLines.style.height = flowchartBox.height;
+
+      svgLines.innerHTML = '';
+      svgLines.append(EL('line', {
+        x1: lineStart.centerX,
+        y1: lineStart.centerY,
+        x2: objPos.centerX,
+        y2: objPos.centerY,
+        stroke: 'black',
+      }));
+      // This works to switch the namespaces of the element ... *facepalm*
+      svgLines.innerHTML = svgLines.innerHTML;
+    }
 
     trigger(callbacks.move, dragMe, MOUSE.pos);
   };
