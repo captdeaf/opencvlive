@@ -36,7 +36,6 @@ function rebuildLibrary(paths) {
       const name = basename(path);
 
       img.src = path;
-      img.dataset.onclick = 'showLargeImage';
       img.dataset.displayName = name;
       span.innerText = name;
     });
@@ -111,6 +110,13 @@ addTrigger('fileDialogChange', (el, evt) => {
   )
 });
 
+addTrigger('showLargeChildImage', function(child) {
+  const img = get('img', child);
+  showFloater(img.dataset.displayName, 'large-image', (el) => {
+    get('img', el).src = img.src;
+  });
+});
+
 addTrigger('showLargeImage', function(img) {
   showFloater(img.dataset.displayName, 'large-image', (el) => {
     get('img', el).src = img.src;
@@ -118,36 +124,63 @@ addTrigger('showLargeImage', function(img) {
 });
 
 function buildEffectBlock(effect) {
-  var imagename = 'samples/' + effect.name + '.png'
+  // TODO: Use a default if not found.
+  const imagePath = 'samples/' + effect.name + '.png';
+
+  const block = template('block-effect', (block) => {
+    const img = get('img', block);
+    img.src = imagePath
+    get('span', block).innerText = effect.name;
+  });
+
+  block.dataset.blockName = effect.name;
+  block.dataset.imagePath = imagePath;
+  block.dataset.effectName = effect.name;
+  block.effect = effect;
+
+  return block;
 }
+
+var ALL_EFFECTS = null;
 
 function refreshEffectBlocks() {
   easyFetch("/cv/effects.json",
     {method: "GET"},
     {
       success: (resp) => {
-        x = resp;
+        ALL_EFFECTS = resp;
+        const parentElement = get('#block-selection');
+        parentElement.innerHTML = '';
+        for (const effect of Object.values(resp.effects)) {
+          appendChildren(parentElement, buildEffectBlock(effect));
+        }
       },
     }
   );
 }
 
-function newOpsBlock(args) {
-  const x = template('opblock', (tpl) => {
-    get('.opdrag', tpl).innerText = "Testing";
-    get('img', tpl).src = "uploads/pickimage.png";
+function newOpsBlock(effect, imagePath) {
+  const container = template('opblock', (tpl) => {
+    get('.opdrag', tpl).innerText = effect.name;
+    get('img', tpl).src = imagePath;
   });
-
-  const container = x[0];
 
   container.style.top = "10em";
   container.style.left = "20em";
 
-  appendChildren(get('#flowchart'), x);
+  return container;
 }
+
+addTrigger("createEffectAt", function(effectElement, evt, fixedPos,
+                                      parentElement, relativePos) {
+  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
+  const opsBlock = newOpsBlock(effect, effectElement.dataset.imagePath);
+  opsBlock.style.top = relativePos.y + 'px';
+  opsBlock.style.left = relativePos.x + 'px';
+  appendChildren(get('#flowchart'), opsBlock);
+});
 
 addInitializer(() => {
   refreshLibrary();
-  testEffectsJSON();
-  addDumbOps();
+  refreshEffectBlocks();
 });

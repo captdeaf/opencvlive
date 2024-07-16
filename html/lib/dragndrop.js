@@ -80,11 +80,12 @@ function moveMouseAction(evt) {
 // End the mouse action. Either mouse up, or mouse left the document.
 // This is also an override of document.onleave and document.onmouseup
 function endMouseAction(evt) {
+  let pause = false;
   if (MOUSE.actions && MOUSE.actions.end) {
-    MOUSE.actions.end(evt);
+    pause = MOUSE.actions.end(evt);
   }
   MOUSE = {};
-  if (evt) {
+  if (evt && pause) {
     return pauseEvent(evt);
   }
 }
@@ -103,7 +104,7 @@ function getRelativePosition(par, child) {
 
 // This is called with an element that wants to be DnD-able. Most likely using
 // the triggers from addTriggerFunction('[data-drag]', addMouseDrag);
-function addMouseDrag(element) {
+function addMouseDrag(dragMe) {
   // We're dealing with two elements here:
   // class=drag-start - The element that's clickable. If no subelement with this,
   // elment is considered to have it.
@@ -111,10 +112,12 @@ function addMouseDrag(element) {
   // addMouseDrag() is called on the dragged element.
   
   const callbacks = {};
+  let clickStart = new Date().getTime();
 
-  callbacks.start = element.dataset.dragStart;
-  callbacks.move = element.dataset.dragMove;
-  callbacks.end = element.dataset.dragDrop;
+  callbacks.start = dragMe.dataset.dragStart;
+  callbacks.move = dragMe.dataset.dragMove;
+  callbacks.click = dragMe.dataset.dragClick;
+  callbacks.end = dragMe.dataset.dragDrop;
 
   const actions = {};
 
@@ -125,43 +128,46 @@ function addMouseDrag(element) {
   let yOffset = 0;
 
   // drag=... - triggers on drop:
-  const method = element.dataset.drag;
+  const method = dragMe.dataset.drag;
 
   // The copy being dragged.
   let dragged = null;
-  let targetElements = [element.parentElement];
+  let targetElements = [dragMe.parentElement];
 
-  if (element.dataset.dragTarget === '!float') {
+  if (dragMe.dataset.dragTarget === '!float') {
     targetElements = null;
-  } else if (element.dataset.dragTarget) {
-    targetElements = getAll(element.dataset.dragTarget);
+  } else if (dragMe.dataset.dragTarget) {
+    targetElements = getAll(dragMe.dataset.dragTarget);
   }
 
   function cleanUp() {
     if (method === 'reposition') return;
-    element.style.visibility = 'visible';
+    dragMe.style.visibility = 'visible';
     removeElement(dragged);
     dragged = null;
   }
 
   actions.start = function() {
+    // Track, if this is < 200ms, we consider it a click.
+    clickStart = new Date().getTime();
+
     xStart = MOUSE.pos.x;
     yStart = MOUSE.pos.y;
 
-    const cur = element.getBoundingClientRect();
+    const cur = dragMe.getBoundingClientRect();
 
     xOffset = cur.left;
     yOffset = cur.top;
 
     if (method !== 'reposition') {
-      dragged = element.cloneNode(true);
+      dragged = dragMe.cloneNode(true);
       appendChildren(get('#floats'), dragged);
     } else {
-      dragged = element;
+      dragged = dragMe;
     }
 
     if (method === 'move') {
-      element.style.visibility = 'hidden';
+      dragMe.style.visibility = 'hidden';
     }
 
     dragged.style.display = 'block';
@@ -173,7 +179,7 @@ function addMouseDrag(element) {
     dragged.style['left'] = xTarget + "px";
     dragged.style['top'] = yTarget + "px";
 
-    trigger(callbacks.start, element, MOUSE.pos);
+    trigger(callbacks.start, dragMe, MOUSE.pos);
   };
 
   actions.move = function(evt) {
@@ -185,12 +191,18 @@ function addMouseDrag(element) {
     dragged.style['left'] = xTarget + "px";
     dragged.style['top'] = yTarget + "px";
 
-    trigger(callbacks.move, element, MOUSE.pos);
+    trigger(callbacks.move, dragMe, MOUSE.pos);
   };
 
   actions.end = function(evt) {
-    if (!dragged) return;
-    let newParent = element.parentElement;
+    if ((new Date().getTime() - clickStart) < 200) {
+      trigger(callbacks.click, dragMe, evt, MOUSE.pos);
+      cleanUp();
+      return false;
+    }
+
+    if (!dragged) return false;
+    let newParent = dragMe.parentElement;
 
     // Case: can only drag to specific targets.
     if (targetElements !== null) {
@@ -199,38 +211,39 @@ function addMouseDrag(element) {
 
     if (!newParent) {
       cleanUp();
-      return;
+      return true;
     }
 
     const newPos = getRelativePosition(newParent, dragged);
 
-    trigger(callbacks.end, element, MOUSE.pos, newParent, newPos);
+    trigger(callbacks.end, dragMe, evt, MOUSE.pos, newParent, newPos);
 
     if (method === 'move') {
-      if (element.parentElement != newParent) {
-        element.parentElement.removeChild(element);
-        newParent.appendChild(element);
-        trigger(newParent.dataset.onDragCreate, element, evt, newParent);
+      if (dragMe.parentElement != newParent) {
+        dragMe.parentElement.removeChild(dragMe);
+        newParent.appendChild(dragMe);
+        trigger(newParent.dataset.onDragCreate, dragMe, evt, newParent);
       }
-      element.style['left'] = newPos.x + 'px';
-      element.style['top'] = newPos.y + 'px';
+      dragMe.style['left'] = newPos.x + 'px';
+      dragMe.style['top'] = newPos.y + 'px';
     } else if (method === 'copy') {
-      const clone = cloneElement(element);
+      const clone = cloneElement(dragMe);
       clone.style['left'] = newPos.x + 'px';
       clone.style['top'] = newPos.y + 'px';
       newParent.appendChild(clone);
-      trigger(newParent.dataset.onDragCreate, element, evt, newParent);
+      trigger(newParent.dataset.onDragCreate, dragMe, evt, newParent);
     }
 
-    trigger(newParent.dataset.onDragDrop, element, evt, newParent);
+    trigger(newParent.dataset.onDragDrop, dragMe, evt, newParent);
 
     cleanUp();
+    return true;
   };
 
-  let starters = getAll('.drag-start', element);
+  let starters = getAll('.drag-start', dragMe);
 
   if (!starters || starters.length == 0) {
-    starters = [element];
+    starters = [dragMe];
   }
 
   for (const starter of Object.values(starters)) {

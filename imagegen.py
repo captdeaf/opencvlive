@@ -18,12 +18,19 @@ if cwd not in sys.path:
 
 from cvlib import EF, cv, INFO, Effects
 
-EFFECT_IMAGE_DIR="html/effimages/"
+EFFECT_IMAGE_DIR="html/samples/"
 
-# Read demo.png as colored, add a grayscale version, then go
-# through every Effect, passing it either image as needed.
+DEMO_FILES = [
+    'html/uploads/demo_landscape.png',
+    'html/uploads/demo_sunset.png',
+]
+
+# Read first demo image as colored, add a grayscale version, then go through
+# every Effect, passing it either image as needed.
+#
+# We have a second demo image for when we need two (merge/blend/etc).
 def rebuildEffectImages():
-    colored = cv.imread(f"{EFFECT_IMAGE_DIR}/demo.png")
+    colored = cv.imread(DEMO_FILES[0])
     grayed = EF.apply(colored,
         EF.grayscale()
     )

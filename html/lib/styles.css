@@ -19,6 +19,10 @@ span.quote {
   font-weight: bold;
 }
 
+#floats {
+  z-index: 10000;
+}
+
 .dialog {
   position: fixed;
   top: 3em;
@@ -66,7 +70,11 @@ span.quote {
   cursor: pointer;
 }
 
-/* Little things like the closing X in the top-right. */
+.disabled {
+  pointer-events: none;
+  user-select: none;
+}
+
 .closer {
   position: absolute;
   font-size: 80%;

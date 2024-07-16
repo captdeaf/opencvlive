@@ -20,7 +20,7 @@ function get(identifier, par) {
 // QoL: getAll(selector, parent=document)
 function getAll(identifier, par) {
   if (!par) par = document
-  return par.querySelectorAll(identifier);
+  return [...par.querySelectorAll(identifier)];
 }
 
 // Storage: getSaved and setSaved: For local storage. Good for remembering UI
@@ -46,31 +46,48 @@ function EL(name, ...children) {
   return ret;
 }
 
+// QoL: is an object iterable? (for all the different collection types.)
+function isSafeIterable(obj) {
+  if ((obj == undefined) ||
+      (obj == null)) {
+    return false;
+  }
+
+  // Strings shouldn't be for us.
+  if (['string'].includes(typeof(obj))) {
+    return false;
+  }
+
+  return typeof(obj[Symbol.iterator]) === 'function';
+}
+
 // DOM: Populate an element w/ children, but accepting more types of 'children'
 function appendChildren(el, children) {
-  if (children.append) {
-    el.append(children);
-  } else if (typeof(children) == 'string') {
-    el.innerHTML += children;
-  } else {
-    for (const child of Object.values(children)) {
-      appendChildren(el, child);
+  if (!isSafeIterable(children)) {
+    children = [children];
+  }
+  let allChildren = [...children].flat();
+  for (const child of Object.values(allChildren)) {
+    if (child !== null) {
+      el.append(child);
     }
   }
   return el;
 }
 
-// DOM/QoL: cloneElement is a deep clone that also calls enableActions.
+// DOM/QoL: cloneElement is a deep clone that also calls enableTriggers.
 function cloneElement(el) {
   const ret = el.cloneNode(true);
   // NOCOMPAT: Enable trigger actions on children of this element.
-  enableActions(EL('div', ret));
+  enableTriggers(EL('div', ret));
   return ret;
 }
 
 // DOM/QoL: Remove an element from its parent.
 function removeElement(el) {
-  el.parentElement.removeChild(el);
+  if (el.parentElement) {
+    el.parentElement.removeChild(el);
+  }
 }
 
 // DOM/QoL: Replace an element within its parent. Order not kept.
@@ -113,7 +130,11 @@ function template(tplname, contents) {
 
   // NOCOMPAT: Enable trigger actions on children of this element.
   enableTriggers(tpl);
-  return tpl.children;
+  if (tpl.children.length === 1) {
+    return tpl.firstElementChild;
+  } else {
+    return tpl.children;
+  }
 }
 
 // DOM/QoL: Shortcut: Like template(), but replace el's contents with it.
@@ -138,4 +159,11 @@ function pauseEvent(e){
     e.cancelBubble=true;
     e.returnValue=false;
     return false;
+}
+
+// QoL: Used for callbacks. maybeCall(callbacks.foo, args)
+function maybeCall(func, ...args) {
+  if (func) {
+    func(...args);
+  }
 }

@@ -8,17 +8,17 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <!-- OpenCVLive style and script. -->
-    <link rel="stylesheet" type="text/css" href="main.css" />
-    <link rel="stylesheet" type="text/css" href="styles.css" />
-    <link rel="stylesheet" type="text/css" href="toolbox.css" />
+    <link rel="stylesheet" type="text/css" href="lib/main.css" />
+    <link rel="stylesheet" type="text/css" href="lib/styles.css" />
+    <link rel="stylesheet" type="text/css" href="lib/toolbox.css" />
 
-    <script type="text/javascript" src="util.js"></script>
-    <script type="text/javascript" src="triggers.js"></script>
-    <script type="text/javascript" src="ui.js"></script>
-    <script type="text/javascript" src="helpers.js"></script>
-    <script type="text/javascript" src="dragndrop.js"></script>
-    <script type="text/javascript" src="keys.js"></script>
-    <script type="text/javascript" src="scripts.js"></script>
+    <script type="text/javascript" src="lib/util.js"></script>
+    <script type="text/javascript" src="lib/triggers.js"></script>
+    <script type="text/javascript" src="lib/ui.js"></script>
+    <script type="text/javascript" src="lib/helpers.js"></script>
+    <script type="text/javascript" src="lib/dragndrop.js"></script>
+    <script type="text/javascript" src="lib/keys.js"></script>
+    <script type="text/javascript" src="lib/scripts.js"></script>
   </head>
   <body>
     <div id="about" data-hide="about" data-hide-default="false">
@@ -81,7 +81,6 @@
       </p>
     </div>
     <!-- -->
-    <div id="user-alert" class="dialog" style="display: none;" data-onclick="hide" data-target="#user-alert"></div>
     <div id="upload-dialog" data-upload="/upload" class="dialog" style="display: none;" data-drag="reposition">
       <form>
       <h3 class="drag-start" >Upload Images</h3>
@@ -113,8 +112,9 @@
         <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
       </div>
       <div id="main">
-        <canvas id="flowcanvas" class="layer">Canvaaaaaaas</canvas>
-        <div id="flowchart" class="layer opdrop">Chaaaaart</div>
+        <canvas id="flowcanvas" class="layer disabled" disabled><div class="clear"></div>Canvaaaaaaas</canvas>
+        <div id="flowchart" class="layer opdrop"><div class="clear"></div></div>
+        <div class="clear"></div>
       </div>
       <div id="savecol"></div>
     </div>
@@ -148,7 +148,7 @@
                 <div>&#x2699;</div>
               </div>
             </div>
-            <img class="opright">
+            <img class="opright" data-onclick="showLargeImage" data-drag-click="showLargeImage"/>
             <div class="opoutput"><span class="vcenter">&rarr;</span></div>
           </div>
         </div>
@@ -156,28 +156,30 @@
 
       Library container images.
       <div id="template-library-image">
-        <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="addImage">
-          <img/>
+        <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-target="#flowchart" data-drag-drop="addImage", data-help="Work with this image">
           <span></span>
+          <img/>
         </div>
       </div>
 
       Effect container images.
       <div id="template-block-effect">
-        <div class="item drag-start" data-drag="trigger" data-drag-target="#main" data-drag-drop="createEffectAt" data-help="Create an effect">
-          <img src="loadimage.png" data-name="Upload blah">
+        <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-target="#flowchart" data-drag-drop="createEffectAt" data-help="Create an effect">
           <span></span>
+          <img/>
         </div>
       </div>
 
       Basic floating dialog
       <div id="template-floater">
-        <div class="dialog drag-me floater" data-drag="reposition" data-drag-target="!float">
+        <div class="dialog drag-me floater" data-onmouseover="raiseZIndex" data-drag="reposition" data-drag-target="document">
           <h3 class="drag-start name"></h3>
           <span class="closer" data-onclick="remove" data-target=".floater">X</span>
           <div class="body"></div>
         </div>
       </div>
+
+      <div id="template-user-alert" class="user-alert dialog" style="display: none;" data-onclick="remove" data-target=".user-alert"></div>
 
       Large pictures. Not the largest, but those open in new tabs.
       <div id="template-large-image"><h3 class="large-image-name"></h3><img class="large-image"/></div>

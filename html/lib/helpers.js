@@ -11,28 +11,14 @@
 // lines.
 function alertUser(...all) {
   const paras = [];
-  const alerter = get('#user-alert');
-  alerter.innerHTML = '';
-  for (msgs of all) {
-    if (!msgs) {
-      appendChildren(alerter,
-        EL('p', "Err, nonexistant msgs?"),
-        EL('p', "" + all),
-      );
-    } else if (msgs.join) {
-      for (const msg of msgs) {
-        appendChildren(alerter,
-          EL('p', msg)
-        );
-      }
-    } else {
+  const alertDialog = showFloater('Alert', 'user-alert', function(alerter) {
+    for (msgs of Object.values(all)) {
       appendChildren(alerter,
         EL('p', msgs)
       );
     }
-  }
-  alerter.style.display = 'block';
-  return alerter;
+  });
+  return alertDialog;
 }
 
 function alertUserBriefly(time, ...all) {
@@ -56,6 +42,7 @@ function showFloater(title, bodytpl, contents) {
   });
 
   appendChildren(get('#floats'), floater);
+  return floater;
 }
 
 /////////////////////////////////////

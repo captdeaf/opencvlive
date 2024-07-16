@@ -9,10 +9,9 @@
 //
 /////////////////////////////////////
 
-function makeHidable(el) {
-
-}
-
+// A toggleable item to hide and unhide, saving state in the key
+// described in data-hide. It is toggled by 'toggle' events
+// targeting this element.
 addTriggerFunction('[data-hide]', (el) => {
   const saveKey = el.dataset.hide;
   const display = el.style.display;
@@ -80,4 +79,11 @@ addTrigger('remove', (el, evt) => {
   const sel = el.dataset.target;
   const par = findParent(el, sel);
   removeElement(par);
+});
+
+// Raise the Z-index of target item.
+let currentZed = 10001;
+addTrigger('raiseZIndex', (el, evt) => {
+  el.style['z-index'] = currentZed;
+  currentZed += 1;
 });

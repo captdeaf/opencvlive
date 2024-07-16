@@ -13,6 +13,7 @@
   border-right: 2px solid black;
   overflow-y: auto;
   padding-left: 0.3em;
+  z-index: 100;
 }
 
 /* Headers for the collections */
@@ -70,8 +71,9 @@
   display: block;
   flex: 0 0 auto;
   position: relative;
-  max-width: 5em;
   max-height: 8em;
+  max-width: 6em;
+  width: 45%;
   border: 1px solid gray;
   border-radius: 5px;
   background-color: #ddf;
@@ -80,7 +82,8 @@
 
 .item img {
   aspect-ratio: 1 / 1;
-  width: 95%;
+  max-width: 95%;
+  max-height: 80%;
   margin-top: 5px;
   border-color: none;
 }

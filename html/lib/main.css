@@ -5,7 +5,6 @@
 
 #sheet {
   width: 100vw;
-  background-color: #fff;
   color: #000;
   display: flex;
   flex-flow: row;
@@ -28,6 +27,7 @@ body {
   border-bottom: 2px solid black;
   display: flex;
   flex-flow: column;
+  z-index: 350;
 }
 
 #topbar {
@@ -103,7 +103,7 @@ body {
 }
 
 #main {
-  flex: 1 1 auto;
+  flex: 1 1 content;
   overflow: scroll;
   position: relative;
 }
@@ -111,10 +111,14 @@ body {
 #main .layer {
   display: block;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   width: 100%;
   height: 100%;
+}
+
+.clear {
+  clear: both;
 }
 
 
