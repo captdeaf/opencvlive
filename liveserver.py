@@ -5,6 +5,16 @@
 # The python backend for opencvlive.
 #
 # Serves up HTML/js/etc, and the backend operations for opencv effects.
+#
+# Additional: Create all the sample images, if they don't exist (spot check
+# latest)
+#
+# LATEST_SAMPLE is path to latest sample. In other words, if we manage a new
+# sample generation, change this to that sample.
+#
+####################################
+
+LATEST_SAMPLE = 'html/samples/blend.png'
 
 import os, sys, time, threading, argparse
 
@@ -26,6 +36,8 @@ from cvlib import EF, INFO
 # And routes for OpenCV
 from applib import cveffects
 
+from applib.imagegen import rebuildEffectImages
+
 ####################################
 #
 # Main: parse args, launch a browser if requested, and start the app.
@@ -44,6 +56,9 @@ def main():
     parser.add_argument('-w', '--browser', action='store_true', default=False)
 
     args = parser.parse_args()
+
+    if not os.path.exists(LATEST_SAMPLE):
+        rebuildEffectImages()
 
     if args.browser:
         import webbrowser
