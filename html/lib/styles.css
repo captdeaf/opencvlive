@@ -87,6 +87,10 @@ span.quote {
   margin-top: 0.2em;
 }
 
+.clear {
+  clear: both;
+}
+
 .vcenter {
   margin: 0;
   position: absolute;

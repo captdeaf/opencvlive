@@ -8,8 +8,9 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <!-- OpenCVLive style and script. -->
-    <link rel="stylesheet" type="text/css" href="lib/main.css" />
     <link rel="stylesheet" type="text/css" href="lib/styles.css" />
+    <link rel="stylesheet" type="text/css" href="lib/site.css" />
+    <link rel="stylesheet" type="text/css" href="lib/main.css" />
     <link rel="stylesheet" type="text/css" href="lib/toolbox.css" />
 
     <script type="text/javascript" src="lib/util.js"></script>
@@ -130,26 +131,23 @@
         - A left box for dropping and connecting inputs to.
         - A right box for dragging to others' inputs
         - An operation associated with it
-        - Configurable arguments.
         - An image of the output.
-
-      Rough rendition: ( [..]()]..)
-
-      Also a header: [  move   ][del]
-      Described:  (inp[ops]img]outp)
+        - Configurable arguments.
       
       <div id="template-opblock">
         <div class="opcontainer" data-drag="reposition" data-target=".opdrop">
           <div class="opblock">
-            <div class="opinput"><span class="vcenter">&rarr;</span></div>
+            <div class="opinput oparr"><span class="vcenter">&rarr;</span></div>
             <div class="opcenter">
               <span class="drag-start ophead opdrag"></span>
-              <div class="ops">
-                <div>&#x2699;</div>
+              <div class="oplower">
+                <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+                  <img class="opimage"/>
+                </div>
+                <div class="ops">Config and Settings here</div>
               </div>
             </div>
-            <img class="opright" data-onclick="showLargeImage" data-drag-click="showLargeImage"/>
-            <div class="opoutput"><span class="vcenter">&rarr;</span></div>
+            <div class="opoutput oparr"><span class="vcenter">&rarr;</span></div>
           </div>
         </div>
       </div>

@@ -154,6 +154,9 @@ function refreshEffectBlocks() {
         for (const effect of Object.values(resp.effects)) {
           appendChildren(parentElement, buildEffectBlock(effect));
         }
+        // TODO: REMOVE THIS WHEN DONE TESTING.
+        trigger("createEffectAt", get('[data-effect-name="blend"]'), undefined, undefined,
+                undefined, {y: 200, x: 200});
       },
     }
   );
