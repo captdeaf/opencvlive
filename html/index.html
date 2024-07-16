@@ -113,10 +113,11 @@
         <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
       </div>
       <div id="main">
-        <canvas id="flowcanvas" class="layer disabled" disabled>Canvaaaaaaas</canvas>
+        <canvas id="flowcanvas" class="layer disabled"></canvas>
         <div id="flowchart" class="layer opdrop">
           <div id="trashit" data-drop="removeElement" class="opdrop">&#x1F5D1;</div>
         </div>
+        <canvas id="linecanvas" class="layer disabled"></canvas>
       </div>
       <div id="savecol"></div>
     </div>
@@ -159,19 +160,16 @@
         <div class="opmaster" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
           <div class="opcontainer">
             <div class="opblock">
-              <div class="opinput oparr"><span class="vcenter">&rarr;</span></div>
+              <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
               <div class="opcenter">
                 <span class="drag-start ophead opdrag"></span>
                 <div class="oplower">
-                  <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
-                    <img class="opimage"/>
-                  </div>
                   <div class="opslisting">
                     <div class="ops"></div>
                   </div>
                 </div>
               </div>
-              <div class="opoutput oparr"><span class="vcenter">&rarr;</span></div>
+              <div class="opoutput"></div>
             </div>
           </div>
         </div>
@@ -180,14 +178,14 @@
       <div id="template-opprocessedimage">
         <div style="width: 14em;" class="opcontainer opprocessed" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
           <div class="opblock">
-            <div class="opinput oparr"><span class="vcenter">&rarr;</span></div>
+            <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
             <div class="opcenter">
               <span class="drag-start ophead opdrag"></span>
-              <div class="oplower opiframe">
+              <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
                 <img class="opimage"/>
               </div>
             </div>
-            <div class="opoutput oparr"><span class="vcenter">&rarr;</span></div>
+            <div class="opoutput oparr" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger"><span class="vcenter">&rarr;</span></div>
           </div>
         </div>
       </div>
@@ -227,7 +225,7 @@
     <script type="text/javascript">
       (function() {
         runInitializers();
-        enableTriggers(get('document'))
+        enableTriggers(document)
       })();
     </script>
   </body>

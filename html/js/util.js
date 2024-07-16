@@ -15,11 +15,14 @@
 function get(identifier, par) {
   if (!par) {
     par = document;
+  } else if (identifier === 'document') {
+    return document;
   } else {
     if (par.matches(identifier)) return par;
   }
   const result = par.querySelector(identifier);
   if (!result) {
+    raise(asdf);
     console.log("Unable to find identifier: " + identifier + " of parent:");
     console.log(par);
   }

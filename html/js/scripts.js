@@ -198,6 +198,7 @@ addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
 function newOpProcessed(effect, imagePath) {
   const imgresult = template('opprocessedimage', (tpl) => {
     const img = get('img', tpl);
+    get('.ophead', tpl).innerText = effect.name;
     img.src = imagePath;
     img.effect = effect.name;
     img.name = effect.name

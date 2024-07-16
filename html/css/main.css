@@ -20,6 +20,12 @@
 
 #flowcanvas {
   z-index: 199;
+  pointer-events: none;
+  user-select: none;
+}
+
+#linecanvas {
+  z-index: 201;
 }
 
 #flowchart {
@@ -89,6 +95,10 @@
 
 .opoutput {
   border-left: 1px solid black;
+  flex: 0 0 auto;
+  display: block;
+  height: 100%;
+  width: 1em;
 }
 
 .ophead {

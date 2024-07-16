@@ -186,15 +186,28 @@ function addMouseDrag(dragMe) {
     // Where can our dragging go?
     bounds = boundTo.getBoundingClientRect();
 
+    if (method === 'point') {
+      dragged = EL('div', {class: 'drag-pointer'}, "&#x25CE;");
+      dragged.innerHTML = "&rarr;";
+      appendChildren(get('#floats'), dragged);
+      const pointerRect = dragged.getBoundingClientRect();
+      mouseOff = {
+        left: pointerRect.width/2,
+        top: pointerRect.height/2,
+        right: -pointerRect.width/2,
+        bottom: -pointerRect.height/2,
+      };
+    } else {
+      dragged = dragMe.cloneNode(true);
+      appendChildren(get('#floats'), dragged);
+    }
+
     // Tweak bounds for mouse offset relative to parent. Optimizing for
     // boundary checks.
     bounds.left = bounds.left + mouseOff.left;
     bounds.top = bounds.top + mouseOff.top;
     bounds.bottom = bounds.bottom - mouseOff.bottom;
     bounds.right = bounds.right - mouseOff.right;
-
-    dragged = dragMe.cloneNode(true);
-    appendChildren(get('#floats'), dragged);
 
     if (method === 'move' || method === 'reposition') {
       dragMe.style.visibility = 'hidden';

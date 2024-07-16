@@ -70,6 +70,10 @@ span.quote {
   cursor: pointer;
 }
 
+[data-drag] {
+  cursor: grab;
+}
+
 .disabled {
   pointer-events: none;
   user-select: none;
@@ -97,4 +101,11 @@ span.quote {
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
+}
+
+.drag-pointer {
+  position: absolute;
+  cursor: none;
+  left: -50%;
+  top: -50%;
 }
