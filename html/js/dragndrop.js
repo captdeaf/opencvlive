@@ -166,7 +166,7 @@ function addMouseDrag(dragMe) {
   }
 
   function cleanUp() {
-    dragMe.style.visibility = 'visible';
+    dragMe.style.visibility = 'inherit';
     removeElement(dragged);
     dragged = null;
   }
