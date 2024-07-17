@@ -1,6 +1,7 @@
 # util.py
 #
 
+import re
 import json
 
 # This is ganked from another project of mine. All it really does is
@@ -41,3 +42,14 @@ def debug(msg):
     print("!!")
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     sys.stderr.flush()
+
+# Building our html templates, which are getting unwieldy.
+#
+# Very straightforward. {{basename}} and that's it.
+TEMPLATE_RE = re.compile(r'\{\{(\w+)\}\}')
+
+def buildTemplates(filename, dirname):
+    with open(f"{dirname}/{filename}.html", 'r', encoding='utf-8') as fin:
+        body = fin.read()
+
+    return re.sub(TEMPLATE_RE, lambda x: buildTemplates(x[1], dirname), body)

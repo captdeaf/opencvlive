@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>OpenCVLive - Live image manipulation.</title>
+    <!-- From: highlightjs.org -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- OpenCVLive style and script. -->
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/site.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/toolbox.css" />
+
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/triggers.js"></script>
+    <script type="text/javascript" src="js/ui.js"></script>
+    <script type="text/javascript" src="js/helpers.js"></script>
+    <script type="text/javascript" src="js/dragndrop.js"></script>
+    <script type="text/javascript" src="js/keys.js"></script>
+    <script type="text/javascript" src="js/scripts.js"></script>
+  </head>
+  <body>
+    {{about}}
+    <!-- -->
+    <div id="upload-dialog" data-upload="/upload" class="dialog" style="display: none;" data-drag="move">
+      <form>
+      <h3 class="drag-start" >Upload Images</h3>
+      <span class="closer" data-onclick="hide">X</span>
+      <input type="file" name="image" multiple data-onchange="fileDialogChange">
+      <ul id="upload-list"></ul>
+      </form>
+    </div>
+    <div id="head" class="cvstyle">
+      <div id="topbar">
+        <div id="title" class="toggle-about" data-onclick="toggle" data-target="#about">OpenCVLive&nbsp;<span id="qmark">(About)</span></div>
+        <div id="topbar-filler"></div>
+      </div>
+    </div>
+    <div id="sheet">
+      <div id="toolbox">
+        <h3>
+          Library
+          <button data-onclick="showUploadDialog">Upload</button>
+        </h3>
+        <hr/>
+        <div class="collection-scroll" data-hover="scrollup" data-target="#library">&uarr;</div>
+        <div class="collection" id="library"></div>
+        <div class="collection-scroll" data-hover="scrolldown" data-target="#library">&darr;</div>
+        <h3>Blocks Available</h3>
+        <div class="collection-scroll" data-hover="scrollup" data-target="#block-selection">&uarr;</div>
+        <div class="collection" id="block-selection">
+        </div>
+        <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
+      </div>
+      <div id="main">
+        <canvas id="flowcanvas" class="layer disabled"></canvas>
+        <div id="flowchart" class="layer opdrop">
+          <div id="trashit" data-drop="removeElement" class="opdrop">&#x1F5D1;</div>
+        </div>
+        <svg id="flowlines" class="layer disabled"></svg>
+      </div>
+      <div id="savecol"></div>
+    </div>
+    <div style="display:none;" id="templates">
+      {{jstemplates}}
+    </div>
+    <div id="floats">
+    </div>
+    <script type="text/javascript">
+      (function() {
+        runInitializers();
+        enableTriggers(document)
+      })();
+    </script>
+  </body>
+</html>

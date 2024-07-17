@@ -1,0 +1,63 @@
+Image blocks, for when we drag images onto the flowchart.
+<div id="template-imblock">
+  <div class="opmaster" style="width: 8em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-onmouseover="raiseZIndex" data-zindex="ops">
+    <div class="opcontainer">
+      <div class="opblock">
+        <div class="opinput oparr"><span class="vcenter"></span></div>
+        <div class="opcenter">
+          <span class="drag-start ophead opdrag"></span>
+          <div class="oplower">
+            <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+              <img class="opimage"/>
+            </div>
+          </div>
+        </div>
+        <div class="opoutput oparr"><span class="vcenter">&rarr;</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+The big kahunas: the blocks in the flowchart that are movable,
+drop-onable, configurable, removable, added, etc.
+
+They have:
+  - A left box for dropping and connecting inputs to.
+  - A right box for dragging to others' inputs
+  - An operation associated with it
+  - An image of the output.
+  - Configurable arguments.
+
+<div id="template-opblock">
+  <div class="opmaster" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
+    <div class="opcontainer">
+      <div class="opblock">
+        <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
+        <div class="opcenter">
+          <span class="drag-start ophead opdrag"></span>
+          <div class="oplower">
+            <div class="opslisting">
+              <div class="ops"></div>
+            </div>
+          </div>
+        </div>
+        <div class="opoutput"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="template-opprocessedimage">
+  <div style="width: 14em;" class="opcontainer opprocessed" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
+    <div class="opblock">
+      <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
+      <div class="opcenter">
+        <span class="drag-start ophead opdrag"></span>
+        <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+          <img class="opimage"/>
+        </div>
+      </div>
+      <div class="opoutput oparr" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger"><span class="vcenter">&rarr;</span></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+Library container images.
+<div id="template-library-image">
+  <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="addImageAt" data-help="Work with this image">
+    <span></span>
+    <img/>
+  </div>
+</div>
+
+Effect container images.
+<div id="template-block-effect">
+  <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="createEffectAt" data-help="Create an effect">
+    <span></span>
+    <img/>
+  </div>
+</div>
+
+Basic floating dialog
+<div id="template-floater">
+  <div class="dialog drag-me floater" data-drop-ok=".opdrop" data-onmouseover="raiseZIndex" data-zindex="floater" data-drag="reposition" data-drag-bind="body">
+    <h3 class="drag-start name"></h3>
+    <span class="closer" data-onclick="remove" data-target=".floater">X</span>
+    <div class="body"></div>
+  </div>
+</div>
+
+<div id="template-user-alert" class="user-alert dialog" style="display: none;" data-onclick="remove" data-target=".user-alert"></div>
+
+Large pictures. Not the largest, but those open in new tabs.
+<div id="template-large-image"><h3 class="large-image-name"></h3><img class="large-image"/></div>

@@ -22,7 +22,7 @@
     <script type="text/javascript" src="js/scripts.js"></script>
   </head>
   <body>
-    <div id="about" data-hide="about" data-hide-default="false">
+        <div id="about" data-hide="about" data-hide-default="false">
       What is OpenCV Live?
       <div id="about-closer" data-onclick="toggle" data-target="#about" class="toggle-about">&lt;close&gt;</div>
       <br/>
@@ -81,6 +81,7 @@
         highlighting for our python code examples.
       </p>
     </div>
+
     <!-- -->
     <div id="upload-dialog" data-upload="/upload" class="dialog" style="display: none;" data-drag="move">
       <form>
@@ -122,103 +123,109 @@
       <div id="savecol"></div>
     </div>
     <div style="display:none;" id="templates">
-      We use get('#templateid').cloneNode().children to fetch the templates.
-      Any text before or after it is just comments.
-      --
+      <div style="display:none;" id="templates">
+  We use get('#templateid').cloneNode().children to fetch the templates.
+  Any text before or after it is just comments.
+  --
+  Library container images.
+<div id="template-library-image">
+  <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="addImageAt" data-help="Work with this image">
+    <span></span>
+    <img/>
+  </div>
+</div>
 
-      Image blocks, for when we drag images onto the flowchart.
-      <div id="template-imblock">
-        <div class="opmaster" style="width: 8em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-onmouseover="raiseZIndex" data-zindex="ops">
-          <div class="opcontainer">
-            <div class="opblock">
-              <div class="opinput oparr"><span class="vcenter"></span></div>
-              <div class="opcenter">
-                <span class="drag-start ophead opdrag"></span>
-                <div class="oplower">
-                  <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
-                    <img class="opimage"/>
-                  </div>
-                </div>
-              </div>
-              <div class="opoutput oparr"><span class="vcenter">&rarr;</span></div>
+Effect container images.
+<div id="template-block-effect">
+  <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="createEffectAt" data-help="Create an effect">
+    <span></span>
+    <img/>
+  </div>
+</div>
+
+Basic floating dialog
+<div id="template-floater">
+  <div class="dialog drag-me floater" data-drop-ok=".opdrop" data-onmouseover="raiseZIndex" data-zindex="floater" data-drag="reposition" data-drag-bind="body">
+    <h3 class="drag-start name"></h3>
+    <span class="closer" data-onclick="remove" data-target=".floater">X</span>
+    <div class="body"></div>
+  </div>
+</div>
+
+<div id="template-user-alert" class="user-alert dialog" style="display: none;" data-onclick="remove" data-target=".user-alert"></div>
+
+Large pictures. Not the largest, but those open in new tabs.
+<div id="template-large-image"><h3 class="large-image-name"></h3><img class="large-image"/></div>
+
+  Image blocks, for when we drag images onto the flowchart.
+<div id="template-imblock">
+  <div class="opmaster" style="width: 8em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-onmouseover="raiseZIndex" data-zindex="ops">
+    <div class="opcontainer">
+      <div class="opblock">
+        <div class="opinput oparr"><span class="vcenter"></span></div>
+        <div class="opcenter">
+          <span class="drag-start ophead opdrag"></span>
+          <div class="oplower">
+            <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+              <img class="opimage"/>
             </div>
           </div>
         </div>
+        <div class="opoutput oparr"><span class="vcenter">&rarr;</span></div>
       </div>
+    </div>
+  </div>
+</div>
 
-      The big kahunas: the blocks in the flowchart that are movable,
-      drop-onable, configurable, removable, added, etc.
+The big kahunas: the blocks in the flowchart that are movable,
+drop-onable, configurable, removable, added, etc.
 
-      They have:
-        - A left box for dropping and connecting inputs to.
-        - A right box for dragging to others' inputs
-        - An operation associated with it
-        - An image of the output.
-        - Configurable arguments.
-      
-      <div id="template-opblock">
-        <div class="opmaster" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
-          <div class="opcontainer">
-            <div class="opblock">
-              <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
-              <div class="opcenter">
-                <span class="drag-start ophead opdrag"></span>
-                <div class="oplower">
-                  <div class="opslisting">
-                    <div class="ops"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="opoutput"></div>
+They have:
+  - A left box for dropping and connecting inputs to.
+  - A right box for dragging to others' inputs
+  - An operation associated with it
+  - An image of the output.
+  - Configurable arguments.
+
+<div id="template-opblock">
+  <div class="opmaster" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
+    <div class="opcontainer">
+      <div class="opblock">
+        <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
+        <div class="opcenter">
+          <span class="drag-start ophead opdrag"></span>
+          <div class="oplower">
+            <div class="opslisting">
+              <div class="ops"></div>
             </div>
           </div>
         </div>
+        <div class="opoutput"></div>
       </div>
+    </div>
+  </div>
+</div>
 
-      <div id="template-opprocessedimage">
-        <div style="width: 14em;" class="opcontainer opprocessed" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
-          <div class="opblock">
-            <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
-            <div class="opcenter">
-              <span class="drag-start ophead opdrag"></span>
-              <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
-                <img class="opimage"/>
-              </div>
-            </div>
-            <div class="opoutput oparr" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger"><span class="vcenter">&rarr;</span></div>
-          </div>
+<div id="template-opprocessedimage">
+  <div style="width: 14em;" class="opcontainer opprocessed" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
+    <div class="opblock">
+      <div class="opinput oparr"><span class="vcenter">&#x25CE;</span></div>
+      <div class="opcenter">
+        <span class="drag-start ophead opdrag"></span>
+        <div class="opiframe" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+          <img class="opimage"/>
         </div>
       </div>
+      <div class="opoutput oparr" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger"><span class="vcenter">&rarr;</span></div>
+    </div>
+  </div>
+</div>
 
-      Library container images.
-      <div id="template-library-image">
-        <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="addImageAt" data-help="Work with this image">
-          <span></span>
-          <img/>
-        </div>
-      </div>
+  <div id="template-opline">
+</div>
 
-      Effect container images.
-      <div id="template-block-effect">
-        <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="createEffectAt" data-help="Create an effect">
-          <span></span>
-          <img/>
-        </div>
-      </div>
+</div>
 
-      Basic floating dialog
-      <div id="template-floater">
-        <div class="dialog drag-me floater" data-drop-ok=".opdrop" data-onmouseover="raiseZIndex" data-zindex="floater" data-drag="reposition" data-drag-bind="body">
-          <h3 class="drag-start name"></h3>
-          <span class="closer" data-onclick="remove" data-target=".floater">X</span>
-          <div class="body"></div>
-        </div>
-      </div>
-
-      <div id="template-user-alert" class="user-alert dialog" style="display: none;" data-onclick="remove" data-target=".user-alert"></div>
-
-      Large pictures. Not the largest, but those open in new tabs.
-      <div id="template-large-image"><h3 class="large-image-name"></h3><img class="large-image"/></div>
     </div>
     <div id="floats">
     </div>
