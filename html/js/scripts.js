@@ -164,8 +164,8 @@ function refreshEffectBlocks() {
           appendChildren(parentElement, buildEffectBlock(effect));
         }
         // TODO: This is for DEBUG only.
-        const blend = get('.item[data-name="blend"]')
-        trigger("createEffectAt", blend, 1, 1, 1, {x: 30, y: 30});
+        const blur = get('.item[data-name="blur"]')
+        trigger("createEffectAt", blur, 1, 1, 1, {x: 30, y: 30});
       },
     }
   );

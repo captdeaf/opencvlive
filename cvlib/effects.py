@@ -59,7 +59,8 @@
 
 import cv2 as cv
 import numpy as np
-import inspect
+
+from .typedefs import T, JSDict
 
 ####################################
 #
@@ -130,10 +131,20 @@ def C(group, **constants):
 def addType(name, **kwargs):
     INFO['types'][name] = kwargs
 
+def dictify(annos):
+    args = {}
+    for arg, anno in annos.items():
+        if isinstance(anno, JSDict):
+            args[arg] = anno.toDict()
+        else:
+            args[arg] = anno
+    return args
+
 def addEffectInfo(func, channelfrom, channelto, **kwargs):
     newEffect = dict(
         name = func.__name__,
         doc = func.__doc__,
+        args = dictify(func.__annotations__),
         channelfrom = channelfrom,
         channelto = channelto,
         **kwargs
@@ -180,18 +191,6 @@ C('channels',
 # has the direct-call version of EF's lazy calls.
 class Effects(object):
     pass
-
-class EffectArgument(object):
-    def __init__(self, name, supertype, restraint):
-        self.name = name
-        self.supertype = supertype
-        self.restraint = restraint
-
-        if hasattr(EF, name):
-            debug(f"Error: EF already has name {name} and annotations wants it.")
-            sys.exit(1)
-
-        setattr(EF, name, self)
 
 ####################################
 #

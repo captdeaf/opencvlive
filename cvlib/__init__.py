@@ -15,4 +15,6 @@ import cv2 as cv
 # Now the actual effects.
 from . import basics
 
-__all__ = ['effects', 'EF', 'register', 'INFO']
+from .typedefs import T, JSDict, TYPE_DECODERS
+
+# __all__ = ['effects', 'EF', 'register', 'INFO', 'T', 'JSDict', 'TYPE_DECODERS']
