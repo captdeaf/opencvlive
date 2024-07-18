@@ -126,14 +126,14 @@ function addMouseDrag(dragMe) {
   let mouseOff = {left: 0, top: 0, right: 0, bottom: 0};
 
   let dragged = null;
-  let boundTo = get('body');
-  let bounds = get('body').getBoundingClientRect();
+  let boundTo = EL.body;
 
-  const svgLines = get('#flowlines');
+  const svgLines = EL.drawlines;
 
   if (dragMe.dataset.dragBind) {
     boundTo = get(dragMe.dataset.dragBind);
   }
+  let bounds = EL.body.getBoundingClientRect();
 
   function moveIt(el, boundary) {
     newX = (MOUSE.pos.x - mouseOff.left);
@@ -195,7 +195,7 @@ function addMouseDrag(dragMe) {
     if (method === 'point') {
       dragged = EL('div', {class: 'drag-pointer'}, "&#x25CE;");
       dragged.innerHTML = "&rarr;";
-      appendChildren(get('#floats'), dragged);
+      appendChildren(EL.floats, dragged);
       const pointerRect = dragged.getBoundingClientRect();
       mouseOff = {
         left: pointerRect.width/2,
@@ -203,10 +203,10 @@ function addMouseDrag(dragMe) {
         right: -pointerRect.width/2,
         bottom: -pointerRect.height/2,
       };
-      lineStart = getRelativePosition(dragMe, get('#flowlines'));
+      lineStart = getRelativePosition(dragMe, svgLines);
     } else {
       dragged = dragMe.cloneNode(true);
-      appendChildren(get('#floats'), dragged);
+      appendChildren(EL.floats, dragged);
     }
 
     // Tweak bounds for mouse offset relative to parent. Optimizing for
@@ -235,7 +235,7 @@ function addMouseDrag(dragMe) {
     moveIt(dragged, bounds);
 
     if (method === 'point') {
-      const flowchart = get('#flowchart');
+      const flowchart = EL.flowchart;
       const flowchartBox = flowchart.getBoundingClientRect();
 
       lineStart = getRelativePosition(flowchart, dragMe);

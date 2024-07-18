@@ -91,7 +91,3 @@ addTrigger('raiseZIndex', (el, evt) => {
   el.style['z-index'] = currentZeds[target];
   currentZeds[target] += 1;
 });
-
-addTrigger("removeElement", (el) => {
-  removeElement(el);
-});

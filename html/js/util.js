@@ -39,14 +39,14 @@ function getAll(identifier, par) {
 function getSaved(name, otherwise) {
   const val = localStorage.getItem(name);
   if (val === null) {
-    localStorage.setItem(name, otherwise);
+    localStorage.setItem(name, JSON.stringify(otherwise));
     return otherwise;
   }
-  return val;
+  return JSON.parse(val);
 }
 
 function setSaved(name, val) {
-  localStorage.setItem(name, val);
+  localStorage.setItem(name, JSON.stringify(val));
   return val;
 }
 
@@ -155,7 +155,7 @@ function populateElement(tpl, contents) {
     if (children) {
       const pars = getAll(sel, tpl);
       if (!pars || pars.length === 0) {
-        alertUser("populateTemplate: Selector not found", sel);
+        alertUser("populateElement: Selector not found", sel);
       } else {
         for (const par of pars) {
           appendChildren(par, children);
@@ -170,13 +170,18 @@ function populateElement(tpl, contents) {
 // DOM/QoL: Templates embedded in the HTML, most likely beneath an invisible
 //          <div>. Clones the elements of <div id="template-(name)">.
 //          contents is an object of "selector": children. to add.
+TEMPLATE_CACHE = {};
 function template(tplname, contents) {
-  const origtpl = get('#template-' + tplname);
-  const tpl = origtpl.cloneNode(true);
-  if (typeof(contents) !== 'function') {
-    populateElement(tpl, contents);
-  } else {
-    contents(tpl);
+  if (!TEMPLATE_CACHE[tplname]) {
+    TEMPLATE_CACHE[tplname] = get('#template-' + tplname);
+  }
+  const tpl = TEMPLATE_CACHE[tplname].cloneNode(true);
+  if (contents) {
+    if (typeof(contents) !== 'function') {
+      populateElement(tpl, contents);
+    } else {
+      contents(tpl);
+    }
   }
 
   // NOCOMPAT: Enable trigger actions on children of this element.

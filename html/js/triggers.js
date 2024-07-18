@@ -154,6 +154,8 @@ function addInitializer(func) {
 }
 
 function runInitializers() {
+  loadConstants();
+
   for (const boot of BOOTS) {
     boot();
   }

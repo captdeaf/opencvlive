@@ -19,7 +19,7 @@ function bindKeys() {
 }
 
 function flushFloater() {
-  const floats = get('#floats');
+  const floats = EL.floats;
   const kid = floats.lastChild;
   if (kid && kid.append) {
     removeElement(kid);

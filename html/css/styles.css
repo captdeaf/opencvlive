@@ -70,7 +70,7 @@ span.quote {
   cursor: pointer;
 }
 
-[data-drag] {
+.drag-start {
   cursor: grab;
 }
 

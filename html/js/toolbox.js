@@ -3,7 +3,7 @@
 // UI management for left-side toolbox.
 
 function rebuildLibrary(paths) {
-  const library = get('#library');
+  const library = EL.library;
   library.innerHTML = '';
 
   function paneLoop(path) {
@@ -36,9 +36,7 @@ function refreshLibrary() {
 // Show the upload dialog, and reset it as a form (clear inputs)
 // Also clear its file state listing.
 addTrigger('showUploadDialog', (el, evt) => {
-  const uploadDiv = get('#upload-dialog');
-
-  const allInputs = uploadDiv.querySelectorAll('input');
+  const allInputs = EL.upload.querySelectorAll('input');
   allInputs[0].form.reset();
 
   for (const input of allInputs) {
@@ -47,7 +45,7 @@ addTrigger('showUploadDialog', (el, evt) => {
 
   uploadDiv.style.display = 'block';
 
-  get('#upload-list', uploadDiv).innerHTML = '';
+  get('#upload-list', EL.upload).innerHTML = '';
 });
 
 addTrigger('fileDialogChange', (el, evt) => {
@@ -134,7 +132,7 @@ function refreshEffectBlocks() {
     {
       success: (resp) => {
         ALL_EFFECTS = resp;
-        const parentElement = get('#block-selection');
+        const parentElement = EL.blockselection;
         parentElement.innerHTML = '';
         for (const effect of Object.values(resp.effects)) {
           appendChildren(parentElement, buildEffectBlock(effect));

@@ -43,7 +43,7 @@ function showFloater(title, bodytpl, contents) {
     '.body': body,
   });
 
-  appendChildren(get('#floats'), floater);
+  appendChildren(EL.floats, floater);
   return floater;
 }
 
