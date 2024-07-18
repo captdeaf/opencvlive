@@ -70,6 +70,10 @@ addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
   addOpBlock(op);
 });
 
+addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
+  moveBlockJS(el.type, el.id, relativePos);
+});
+
 // Remove an element from both Chart JS and HTML
 // el can be: an op, a node, an image.
 addTrigger('removeElement', (el, evt) => {

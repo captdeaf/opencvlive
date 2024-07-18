@@ -148,23 +148,23 @@ function newOpJS(effect, pos) {
   return op;
 }
 
-addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
-  if (!CHART.ops[el.id]) {
-    alertUser("opsdrop on nonexistant uuid?", el.id);
+function moveBlockJS(eltype, elid, pos) {
+  if (!CHART[eltype][elid]) {
+    alertUser("opsdrop on nonexistant uuid?", elid);
     return;
   }
 
-  CHART.ops[el.id].pos = {
-    left: relativePos.x,
-    top: relativePos.y,
+  CHART[eltype][elid].pos = {
+    left: pos.x,
+    top: pos.y,
   };
   
   saveChart();
-});
+}
 
 function removeBlockJS(eltype, elid) {
   if (eltype == TYPE.ops) {
-    delete CHART.ops[el.id];
+    delete CHART.ops[elid];
   } else {
     alertUser("Unknown removed block", eltype);
   }
