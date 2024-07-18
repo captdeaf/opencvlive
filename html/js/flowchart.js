@@ -18,7 +18,7 @@
 
 function newImageBlock(imageName, imagePath) {
   const container = template('imblock', (tpl) => {
-    get('.ophead', tpl).innerText = imageName;
+    get('.block-head', tpl).innerText = imageName;
     get('img', tpl).src = imagePath;
     get('img', tpl).name = imageName;
   });
@@ -42,7 +42,7 @@ addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
 
 function updateOpBlock(block, opdesc) {
   populateElement(block, {
-    '.ophead': opdesc.name,
+    '.block-head': opdesc.name,
     '.oplisting': getOpListing(opdesc.args),
   });
 
@@ -54,7 +54,7 @@ function updateOpBlock(block, opdesc) {
 function newOpBlock(opdesc) {
   const effect = ALL_EFFECTS.effects[opdesc.effect];
   const oplisting = getOpListing(opdesc.args);
-  const block = template('opblock');
+  const block = template('block-op');
   block.id = opdesc.uuid;
   updateOpBlock(block, opdesc);
 
@@ -88,11 +88,7 @@ addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
 
 addTrigger('removeElement', (el, evt) => {
   // el can be: an op, a node, an image.
-  if (el.type === TYPE.ops) {
-    delete CHART.ops[el.id];
-    console.log("Removing: " + el.type);
-    saveChart();
-  }
+  removeBlock(el.type, el.id);
   removeElement(el);
 });
 

@@ -162,6 +162,15 @@ addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
   saveChart();
 });
 
+function removeBlock(eltype, elid) {
+  if (eltype == TYPE.ops) {
+    delete CHART.ops[el.id];
+  } else {
+    alertUser("Unknown removed block", eltype);
+  }
+  saveChart();
+}
+
 addInitializer(() => {
   CHART = getSaved(CHARTKEY, DEMO_CHART);
 });
