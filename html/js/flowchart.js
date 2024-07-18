@@ -15,80 +15,65 @@
 //    - Image (an output-only 'node')
 //
 ////////////////////////////////////
+//
+//  Op Block flow:
+//
+//  1) We need a new opjs, they call createOp
+//      - on renderAll: (fetches from passed chart)
+//      - addEffectAt: (newOpJS(effect, pos) to generate new opjs
+//  2) addOpBlock(opjs): Creates DOM block and configures it.
+//  3) updateOpBlock(block, opjs), called when:
+//      - addOpBlock() first populates block.
+//      - chart needs to update block from its side.
+//
+////////////////////////////////////
 
-function newImageBlock(imageName, imagePath) {
-  const container = template('imblock', (tpl) => {
-    get('.block-head', tpl).innerText = imageName;
-    get('img', tpl).src = imagePath;
-    get('img', tpl).name = imageName;
-  });
-
-  container.style.top = "10em";
-  container.style.left = "20em";
-
-  return container;
-}
-
-addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
-                                  parentElement, relativePos) {
-  const imageName = libraryElement.dataset.name;
-  const imagePath = libraryElement.dataset.path;
-
-  const imBlock = newImageBlock(imageName, imagePath);
-  imBlock.style.top = relativePos.y + 'px';
-  imBlock.style.left = relativePos.x + 'px';
-  appendChildren(EL.flowchart, imBlock);
-});
-
-function updateOpBlock(block, opdesc) {
+// Populate or change a block w/ new chart js.
+function updateOpBlock(block, opjs) {
   populateElement(block, {
-    '.block-head': opdesc.name,
-    '.oplisting': getOpListing(opdesc.args),
+    '.block-head': opjs.name,
+    '.oplisting': getOpListing(opjs.args),
   });
 
-  block.style.top = opdesc.position.top + 'px';
-  block.style.left = opdesc.position.left + 'px';
+  block.style.top = opjs.pos.top + 'px';
+  block.style.left = opjs.pos.left + 'px';
   return block;
 }
 
-function newOpBlock(opdesc) {
-  const effect = ALL_EFFECTS.effects[opdesc.effect];
-  const oplisting = getOpListing(opdesc.args);
+// Add a single op JS object from the chart.
+function addOpBlock(opjs) {
+  const effect = ALL_EFFECTS.effects[opjs.effect];
+
+  const oplisting = getOpListing(opjs.args);
+
   const block = template('block-op');
-  block.id = opdesc.uuid;
-  updateOpBlock(block, opdesc);
-
-  return block;
-}
-
-function createOp(opdesc) {
-  const block = newOpBlock(opdesc);
-  block.id = opdesc.uuid
+  block.id = opjs.uuid;
   block.type = TYPE.ops;
+  updateOpBlock(block, opjs);
+
   appendChildren(EL.flowchart, block);
 }
 
+// Render all blocks from Chart JS
 function renderAllBlocks(chart) {
   const children = [];
-  for (const [uuid, opdesc] of Object.entries(chart.ops)) {
-    createOp(opdesc);
+  for (const [uuid, opjs] of Object.entries(chart.ops)) {
+    addOpBlock(opjs);
   }
 }
 
-function newEffectAt(effect, pos) {
-  const op = newOpAt(effect, pos);
-  createOp(op);
-}
-
+// Generate new JS block and render it.
 addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
                               parentElement, relativePos) {
   const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
-  newEffectAt(effect, relativePos);
+  const op = newOpJS(effect, relativePos);
+  addOpBlock(op);
 });
 
+// Remove an element from both Chart JS and HTML
+// el can be: an op, a node, an image.
 addTrigger('removeElement', (el, evt) => {
-  // el can be: an op, a node, an image.
-  removeBlock(el.type, el.id);
+  removeBlockJS(el.type, el.id);
   removeElement(el);
 });
 

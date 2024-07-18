@@ -20,7 +20,7 @@
 //    - image path
 //
 //  Ops block and Image block need:
-//    - Position
+//    - pos
 //    - Nonstandard styles, if any?
 //
 //  Ops block needs:
@@ -58,7 +58,7 @@ const DEMO_CHART = {
           value: 5,
         }
       },
-      position: {
+      pos: {
         left: 100,
         top: 80,
       },
@@ -75,7 +75,7 @@ const DEMO_CHART = {
       name: 'Demo Invert',
       effect: 'invert',
       args: {},
-      position: {
+      pos: {
         left: 200,
         top: 180,
       },
@@ -85,7 +85,7 @@ const DEMO_CHART = {
     imguuid1: {
       name: 'Sunset',
       path: 'uploads/demo_sunset.png',
-      position: {
+      pos: {
         left: 10,
         top: 140,
       },
@@ -128,13 +128,13 @@ function getOpListing(opargs) {
   return children;
 }
 
-function newOpAt(effect, pos) {
+function newOpJS(effect, pos) {
   const uuid = TYPE.ops + (new Date().getTime()).toFixed();
   const op = {
     uuid: uuid,
     name: effect.displayname,
     effect: effect.name,
-    position: {
+    pos: {
       left: pos.x,
       top: pos.y,
     },
@@ -154,7 +154,7 @@ addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
     return;
   }
 
-  CHART.ops[el.id].position = {
+  CHART.ops[el.id].pos = {
     left: relativePos.x,
     top: relativePos.y,
   };
@@ -162,7 +162,7 @@ addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
   saveChart();
 });
 
-function removeBlock(eltype, elid) {
+function removeBlockJS(eltype, elid) {
   if (eltype == TYPE.ops) {
     delete CHART.ops[el.id];
   } else {
