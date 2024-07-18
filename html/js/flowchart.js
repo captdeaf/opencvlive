@@ -1,6 +1,20 @@
 // flowchart.js
 //
 // UI management for the boxes in the center pane.
+////////////////////////////////////
+//
+//  Three types of blocks:
+//
+//    - Ops block: a single operation and its settings. No i/o,
+//                 though it displays an input, inputs generate
+//                 new nodes.
+//
+//    - Node block: Below ops blocks. An instance of an operation, with an
+//                  image input and output.
+//
+//    - Image (an output-only 'node')
+//
+////////////////////////////////////
 
 function newImageBlock(imageName, imagePath) {
   const container = template('imblock', (tpl) => {
@@ -26,14 +40,62 @@ addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
   appendChildren(EL.flowchart, imBlock);
 });
 
-function newOpNode(opuuid, imagePath) {
-  const imgresult = template('opprocessedimage', (tpl) => {
-    const img = get('img', tpl);
-    get('.ophead', tpl).innerText = effect.name;
-    img.src = imagePath;
-    img.effect = effect.name;
-    img.name = effect.name
+function updateOpBlock(block, opdesc) {
+  populateElement(block, {
+    '.ophead': opdesc.name,
+    '.oplisting': getOpListing(opdesc.args),
   });
 
-  return imgresult;
+  block.style.top = opdesc.position.top + 'px';
+  block.style.left = opdesc.position.left + 'px';
+  return block;
 }
+
+function newOpBlock(opdesc) {
+  const effect = ALL_EFFECTS.effects[opdesc.effect];
+  const oplisting = getOpListing(opdesc.args);
+  const block = template('opblock');
+  block.id = opdesc.uuid;
+  updateOpBlock(block, opdesc);
+
+  return block;
+}
+
+function createOp(opdesc) {
+  const block = newOpBlock(opdesc);
+  block.id = opdesc.uuid
+  block.type = TYPE.ops;
+  appendChildren(EL.flowchart, block);
+}
+
+function renderAllBlocks(chart) {
+  const children = [];
+  for (const [uuid, opdesc] of Object.entries(chart.ops)) {
+    createOp(opdesc);
+  }
+}
+
+function newEffectAt(effect, pos) {
+  const op = newOpAt(effect, pos);
+  createOp(op);
+}
+
+addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
+                              parentElement, relativePos) {
+  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
+  newEffectAt(effect, relativePos);
+});
+
+addTrigger('removeElement', (el, evt) => {
+  // el can be: an op, a node, an image.
+  if (el.type === TYPE.ops) {
+    delete CHART.ops[el.id];
+    console.log("Removing: " + el.type);
+    saveChart();
+  }
+  removeElement(el);
+});
+
+addInitializer(() => {
+  renderAllBlocks(CHART);
+});

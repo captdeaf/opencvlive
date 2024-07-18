@@ -1,6 +1,7 @@
 // ops.js
 //
-// Configuration and ops management for client-side effect ops.
+// Configuration and ops management for client-side effect ops. UI portion is
+// handled in flowchart.js
 //
 ////////////////////////////////////
 //
@@ -127,42 +128,7 @@ function getOpListing(opargs) {
   return children;
 }
 
-function updateOpBlock(block, opdesc) {
-  populateElement(block, {
-    '.ophead': opdesc.name,
-    '.oplisting': getOpListing(opdesc.args),
-  });
-
-  block.style.top = opdesc.position.top + 'px';
-  block.style.left = opdesc.position.left + 'px';
-  return block;
-}
-
-function newOpBlock(opdesc) {
-  const effect = ALL_EFFECTS.effects[opdesc.effect];
-  const oplisting = getOpListing(opdesc.args);
-  const block = template('opblock');
-  block.id = opdesc.uuid;
-  updateOpBlock(block, opdesc);
-
-  return block;
-}
-
-function createOp(opdesc) {
-  const block = newOpBlock(opdesc);
-  block.id = opdesc.uuid
-  block.type = TYPE.ops;
-  appendChildren(EL.flowchart, block);
-}
-
-function renderAllBlocks(chart) {
-  const children = [];
-  for (const [uuid, opdesc] of Object.entries(chart.ops)) {
-    createOp(opdesc);
-  }
-}
-
-function newEffectAt(effect, pos) {
+function newOpAt(effect, pos) {
   const uuid = TYPE.ops + (new Date().getTime()).toFixed();
   const op = {
     uuid: uuid,
@@ -179,30 +145,23 @@ function newEffectAt(effect, pos) {
   // Update our chart
   CHART.ops[op.uuid] = op;
   saveChart();
-  createOp(op);
+  return op;
 }
 
-addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
-                              parentElement, relativePos) {
-  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
-  newEffectAt(effect, relativePos);
-});
-
-
-
-addTrigger('removeElement', (el, evt) => {
-  // el can be: an op, a node, an image.
-  if (el.type === TYPE.ops) {
-    delete CHART.ops[el.id];
-    console.log("Removing: " + el.type);
-    saveChart();
+addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
+  if (!CHART.ops[el.id]) {
+    alertUser("opsdrop on nonexistant uuid?", el.id);
+    return;
   }
-  removeElement(el);
+
+  CHART.ops[el.id].position = {
+    left: relativePos.x,
+    top: relativePos.y,
+  };
+  
+  saveChart();
 });
 
 addInitializer(() => {
   CHART = getSaved(CHARTKEY, DEMO_CHART);
-  console.log("Saved:");
-  console.log(CHART);
-  renderAllBlocks(CHART);
 });
