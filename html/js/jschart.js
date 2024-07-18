@@ -83,6 +83,7 @@ const DEMO_CHART = {
   },
   images: {
     imguuid1: {
+      uuid: 'imguuid1',
       name: 'Sunset',
       path: 'uploads/demo_sunset.png',
       pos: {
@@ -98,8 +99,8 @@ let CHART = DEMO_CHART;
 
 const TYPE = {
   ops: 'ops',
-  node: 'node',
-  imag: 'image',
+  node: 'nodes',
+  image: 'images',
 }
 
 function saveChart() {
@@ -128,6 +129,25 @@ function getOpListing(opargs) {
   return children;
 }
 
+function newImageJS(name, path, pos) {
+  const uuid = TYPE.image + (new Date().getTime()).toFixed();
+  const img = {
+    uuid: uuid,
+    name: name,
+    path: path,
+    pos: {
+      left: pos.x,
+      top: pos.y,
+    },
+    nodes: []
+  };
+
+  // Update our chart
+  CHART.images[img.uuid] = img;
+  saveChart();
+  return img;
+}
+
 function newOpJS(effect, pos) {
   const uuid = TYPE.ops + (new Date().getTime()).toFixed();
   const op = {
@@ -149,8 +169,9 @@ function newOpJS(effect, pos) {
 }
 
 function moveBlockJS(eltype, elid, pos) {
+  console.log("moving: '" + eltype + "." + elid);
   if (!CHART[eltype][elid]) {
-    alertUser("opsdrop on nonexistant uuid?", elid);
+    // Probably deleted by removeElement on trash can.
     return;
   }
 
@@ -163,8 +184,8 @@ function moveBlockJS(eltype, elid, pos) {
 }
 
 function removeBlockJS(eltype, elid) {
-  if (eltype == TYPE.ops) {
-    delete CHART.ops[elid];
+  if (eltype === TYPE.ops || eltype === TYPE.image) {
+    delete CHART[eltype][elid];
   } else {
     alertUser("Unknown removed block", eltype);
   }

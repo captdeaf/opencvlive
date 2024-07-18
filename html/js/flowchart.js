@@ -16,15 +16,60 @@
 //
 ////////////////////////////////////
 //
+//  Image Block flow:
+//
+//  1) We need a new imgjs, they call chart's newImageJS() with ...
+//      - on renderAll: (fetches from passed chart)
+//      - addEffectAt: newImageJS(name, path, pos) to generate new opjs
+//  2) addImageBlock(imgjs): Creates DOM block and configures it.
+//  3) updateImageBlock(block, imgjs)
+//
+////////////////////////////////////
+
+function updateImageBlock(block, imgjs) {
+  populateElement(block, {
+    '.block-head': imgjs.name,
+    '.block-image-frame': EL('img', {
+      class: "block-image",
+      src: imgjs.path,
+    })
+  });
+
+  block.style.top = imgjs.pos.top + 'px';
+  block.style.left = imgjs.pos.left + 'px';
+  return block;
+}
+
+// Add a single Image JS object from the chart.
+function addImageBlock(imgjs) {
+  const effect = ALL_EFFECTS.effects[imgjs.effect];
+
+  const block = template('block-image');
+  block.id = imgjs.uuid;
+  block.type = TYPE.image;
+  updateImageBlock(block, imgjs);
+
+  appendChildren(EL.flowchart, block);
+}
+
+// Generate new Image block and render it.
+addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
+                              parentElement, relativePos) {
+  const imgName = libraryElement.dataset.name;
+  const imgPath = libraryElement.dataset.path;
+  const imgjs = newImageJS(imgName, imgPath, relativePos);
+  addImageBlock(imgjs);
+});
+
+////////////////////////////////////
+//
 //  Op Block flow:
 //
-//  1) We need a new opjs, they call createOp
+//  1) We need a new opjs, they call chart's createOpJS with ...
 //      - on renderAll: (fetches from passed chart)
-//      - addEffectAt: (newOpJS(effect, pos) to generate new opjs
+//      - addEffectAt: newOpJS(effect, pos) to generate new opjs
 //  2) addOpBlock(opjs): Creates DOM block and configures it.
-//  3) updateOpBlock(block, opjs), called when:
-//      - addOpBlock() first populates block.
-//      - chart needs to update block from its side.
+//  3) updateOpBlock(block, opjs)
 //
 ////////////////////////////////////
 
@@ -43,9 +88,6 @@ function updateOpBlock(block, opjs) {
 // Add a single op JS object from the chart.
 function addOpBlock(opjs) {
   const effect = ALL_EFFECTS.effects[opjs.effect];
-
-  const oplisting = getOpListing(opjs.args);
-
   const block = template('block-op');
   block.id = opjs.uuid;
   block.type = TYPE.ops;
@@ -56,9 +98,11 @@ function addOpBlock(opjs) {
 
 // Render all blocks from Chart JS
 function renderAllBlocks(chart) {
-  const children = [];
   for (const [uuid, opjs] of Object.entries(chart.ops)) {
     addOpBlock(opjs);
+  }
+  for (const [uuid, imgjs] of Object.entries(chart.images)) {
+    addImageBlock(imgjs);
   }
 }
 
@@ -70,8 +114,10 @@ addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
   addOpBlock(op);
 });
 
-addTrigger('opdrop', function(el, evt, fixedPos, parentElement, relativePos) {
-  moveBlockJS(el.type, el.id, relativePos);
+addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) {
+  if (el && el.type) {
+    moveBlockJS(el.type, el.id, relativePos);
+  }
 });
 
 // Remove an element from both Chart JS and HTML
