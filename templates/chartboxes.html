@@ -1,6 +1,6 @@
 Image blocks, for when we drag images onto the flowchart.
 <div id="template-imblock">
-  <div class="block-master" style="width: 8em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-onmouseover="raiseZIndex" data-zindex="ops">
+  <div class="block-master" style="width: 8em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-onmouseover="raiseZIndex" data-zindex="block">
     <div class="block-container">
       <div class="block-contents">
         <div class="block-input block-arr"><span class="vcenter"></span></div>
@@ -29,7 +29,7 @@ They have:
   - Configurable arguments.
 
 <div id="template-block-op">
-  <div class="block-master" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="opdrop">
+  <div class="block-master" style="width: 14em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="opdrop">
     <div class="block-container">
       <div class="block-contents">
         <div class="block-input block-arr"><span class="vcenter">&#x25CE;</span></div>
@@ -47,7 +47,7 @@ They have:
 </div>
 
 <div id="template-opprocessedimage">
-  <div style="max-height: 10em; width: 14em;" class="block-container opprocessed" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="ops" data-drag-drop="debugTrigger">
+  <div style="max-height: 10em; width: 14em;" class="block-container opprocessed" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="debugTrigger">
     <div class="block-contents">
       <div class="block-input block-arr"><span class="vcenter">&#x25CE;</span></div>
       <div class="block-center">

@@ -84,7 +84,7 @@ addTrigger('remove', (el, evt) => {
 // Raise the Z-index of target item.
 let currentZeds = {
   floater: 10001,
-  ops: 800,
+  block: 800,
 };
 addTrigger('raiseZIndex', (el, evt) => {
   const target = el.dataset.zindex;
