@@ -50,8 +50,8 @@ function newOpBlock(effect, imagePath) {
     get('.ophead', tpl).innerText = effect.name;
     get('.opslisting', tpl).innerHTML = alltests.pop().join("<br/>");
   });
-  // let fakeResult = newOpProcessed(effect, imagePath);
-  // appendChildren(get('.opmaster', container.parentElement), fakeResult);
+  let fakeResult = newOpProcessed(effect, imagePath);
+  appendChildren(get('.opmaster', container.parentElement), fakeResult);
 
   container.style.top = "20em";
   container.style.left = "20em";

@@ -48,8 +48,13 @@ def debug(msg):
 # Very straightforward. {{basename}} and that's it.
 TEMPLATE_RE = re.compile(r'\{\{(\w+)\}\}')
 
+def optimize(content):
+    # 'content' is html code that has lots of whitespace, etc.
+    stripped = re.sub(r'\s+',' ', content)
+    return re.sub(r'>\s+<','><', stripped)
+
 def buildTemplates(filename, dirname):
     with open(f"{dirname}/{filename}.html", 'r', encoding='utf-8') as fin:
         body = fin.read()
 
-    return re.sub(TEMPLATE_RE, lambda x: buildTemplates(x[1], dirname), body)
+    return optimize(re.sub(TEMPLATE_RE, lambda x: buildTemplates(x[1], dirname), body))
