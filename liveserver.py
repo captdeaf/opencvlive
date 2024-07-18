@@ -21,6 +21,7 @@ TEMPLATE_DIR = 'templates'
 TEMPLATE_OUT = 'html/index.html'
 
 import os, sys, time, threading, argparse
+from glob import glob
 
 cwd = os.getcwd()
 if cwd not in sys.path:
@@ -88,7 +89,7 @@ def main():
         browserthread.start()
 
     try:
-        app.run(host=args.bind, port=args.port, debug=True)
+        app.run(host=args.bind, port=args.port, debug=True, extra_files=glob('templates/*.html'))
     except KeyboardInterrupt:
         pass
 

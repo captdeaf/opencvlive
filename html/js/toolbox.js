@@ -1,30 +1,6 @@
-// scripts.js
+// toolbox.js
 //
-// UI management and server interaction for OpenCVLive
-//
-// Using highlight.js for the python code.
-
-async function easyFetch(path, opts, cbs) {
-  // Request
-  let request = fetch(path, opts);
-  if (cbs.request) cbs.request(request);
-
-  // Response
-  let resp = await(request);
-  if (cbs.response) cbs.response(response);
-
-  // Status-based
-  if (resp.status === 200) {
-    let js = await resp.json();
-    if (cbs.success) cbs.success(js);
-  } else {
-    let text = await resp.text();
-    if (cbs.fail) cbs.fail(resp, text);
-  }
-
-  // Complete
-  if (cbs.complete) { cbs.complete(resp); }
-}
+// UI management for left-side toolbox.
 
 function rebuildLibrary(paths) {
   const library = get('#library');
@@ -170,68 +146,6 @@ function refreshEffectBlocks() {
     }
   );
 }
-
-function newImageBlock(imageName, imagePath) {
-  const container = template('imblock', (tpl) => {
-    get('.ophead', tpl).innerText = imageName;
-    get('img', tpl).src = imagePath;
-    get('img', tpl).name = imageName;
-  });
-
-  container.style.top = "10em";
-  container.style.left = "20em";
-
-  return container;
-}
-
-addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
-                                  parentElement, relativePos) {
-  const imageName = libraryElement.dataset.name;
-  const imagePath = libraryElement.dataset.path;
-
-  const imBlock = newImageBlock(imageName, imagePath);
-  imBlock.style.top = relativePos.y + 'px';
-  imBlock.style.left = relativePos.x + 'px';
-  appendChildren(get('#flowchart'), imBlock);
-});
-
-function newOpProcessed(effect, imagePath) {
-  const imgresult = template('opprocessedimage', (tpl) => {
-    const img = get('img', tpl);
-    get('.ophead', tpl).innerText = effect.name;
-    img.src = imagePath;
-    img.effect = effect.name;
-    img.name = effect.name
-  });
-
-  return imgresult;
-}
-
-function newOpBlock(effect, imagePath) {
-  const container = template('opblock', (tpl) => {
-    get('.ophead', tpl).innerText = effect.name;
-  });
-  let fakeResult = newOpProcessed(effect, imagePath);
-  appendChildren(get('.opmaster', container.parentElement), fakeResult);
-
-  container.style.top = "20em";
-  container.style.left = "20em";
-
-  return container;
-}
-
-addTrigger("removeElement", (el) => {
-  removeElement(el);
-});
-
-addTrigger("createEffectAt", function(effectElement, evt, fixedPos,
-                                      parentElement, relativePos) {
-  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
-  const opsBlock = newOpBlock(effect, effectElement.dataset.imagePath);
-  opsBlock.style.top = relativePos.y + 'px';
-  opsBlock.style.left = relativePos.x + 'px';
-  appendChildren(get('#flowchart'), opsBlock);
-});
 
 addInitializer(() => {
   refreshLibrary();

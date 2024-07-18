@@ -61,7 +61,7 @@ function addAttrs(el, attrs) {
 // DOM: Make elements. EL('div', EL('span', "Text here"));
 function EL(name, attrs, ...children) {
   const ret = document.createElement(name);
-  if (attrs.append) {
+  if (typeof(attrs) === 'string' || attrs.append) {
     children.unshift(attrs);
   } else {
     addAttrs(ret, attrs);
@@ -204,4 +204,27 @@ function maybeCall(func, ...args) {
   if (func) {
     func(...args);
   }
+}
+
+// A fetcher with callback style I prefer.
+async function easyFetch(path, opts, cbs) {
+  // Request
+  let request = fetch(path, opts);
+  if (cbs.request) cbs.request(request);
+
+  // Response
+  let resp = await(request);
+  if (cbs.response) cbs.response(response);
+
+  // Status-based
+  if (resp.status === 200) {
+    let js = await resp.json();
+    if (cbs.success) cbs.success(js);
+  } else {
+    let text = await resp.text();
+    if (cbs.fail) cbs.fail(resp, text);
+  }
+
+  // Complete
+  if (cbs.complete) { cbs.complete(resp); }
 }
