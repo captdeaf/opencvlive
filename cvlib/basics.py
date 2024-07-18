@@ -9,7 +9,7 @@
 import numpy as np
 from .effects import EF, cv, T
 
-threshold_target = T.select({
+thresholdTarget = T.select({
     "Binary": cv.THRESH_BINARY,
     "Binary Inverted":cv.THRESH_BINARY_INV,
     "Truncated": cv.THRESH_TRUNC,
@@ -17,21 +17,27 @@ threshold_target = T.select({
     "ToZero Inverted": cv.THRESH_TOZERO_INV,
 })
 
-@EF.register(EF.GRAYSCALE, EF.GRAYSCALE)
+colorChannel = T.select({
+    "BLUE": 0,
+    "GREEN": 1,
+    "RED": 2,
+})
+
+@EF.register("Adaptive Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="AT'd")
 def adaptiveThreshold(frame,
             cmax : T.int = 255,
             method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-            target : threshold_target = cv.THRESH_BINARY,
+            target : thresholdTarget = cv.THRESH_BINARY,
             blockSize : T.int(min=1) = 11,
             weight : T.int = 2
         ):
     return cv.adaptiveThreshold(frame, cmax, method, target, blockSize, weight)
 
-@EF.register(EF.GRAYSCALE, EF.GRAYSCALE)
+@EF.register("Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="Thresholded")
 def threshold(frame,
             low : T.byte = 128,
             high : T.byte = 255,
-            target : threshold_target = cv.THRESH_BINARY,
+            target : thresholdTarget = cv.THRESH_BINARY,
             otsu : T.bool = False,
         ):
     if otsu:
@@ -39,43 +45,43 @@ def threshold(frame,
     _, ret = cv.threshold(frame, low, high, target)
     return ret
 
-@EF.register(EF.ANY, EF.GRAYSCALE)
+@EF.register("Convert to Grayscale", EF.ANY, EF.GRAYSCALE, desc="Grayed")
 def grayscale(image):
     if not EF.isColor(image):
         return image
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-@EF.register(EF.ANY, EF.BGR)
+@EF.register("Convert to Color", EF.ANY, EF.BGR, desc="Colored")
 def colorize(image):
     if not EF.isColor(image):
         return cv.cvtColor(image, cv.COLOR_GRAY2BGR)
     return image
 
-@EF.register(EF.BGR, EF.BGR)
-def pluckColor(image, channel : T.int(min=0, max=2)  = 1):
-    if channel != 0:
-        image[:,:,0] = 0
-    if channel != 1:
-        image[:,:,1] = 0
-    if channel != 2:
-        image[:,:,2] = 0
+@EF.register("Remove Color", EF.BGR, EF.BGR, desc="Plucked")
+def removeColor(image, channel : colorChannel  = 1):
+    image[:,:,channel] = 0
     return image
 
-@EF.register(EF.ANY, EF.SAME)
+@EF.register("Blur", EF.ANY, EF.SAME, desc="Blurry")
 def blur(frame, amount : T.int(min=1, flag='odd') = 5):
     return cv.medianBlur(frame, amount)
 
-@EF.register(EF.ANY, EF.BGR)
+@EF.register("Write text", EF.ANY, EF.BGR, desc="Inscribed")
 def writeOn(frame,
             text : T.string = 'demo',
             xpct : T.percent = 0.2,
             ypct : T.percent = 0.8,
-            color : T.color(EF.ANY) = [0, 255, 255],
+            color : T.noop = [0, 255, 255],
             size : T.int(min=1, max=255) = 4,
             weight : T.int(min=1, max=255) = 10
         ):
 
-    font = cv.FONT_HERSHEY_SIMPLEX, weight= 10
+    # TODO: When we have a good color color picker,
+    #       make this an op arg.
+    # color = [255, 255, 255]
+
+    font = cv.FONT_HERSHEY_SIMPLEX
+    weight= 10
     if text is None or len(text) == 0:
         return frame
 
@@ -90,19 +96,19 @@ def writeOn(frame,
     frame = cv.putText(frame, text, (calcx, calcy), font, size, color, weight)
     return frame
 
-@EF.register(EF.BGR, EF.GRAYSCALE)
-def colorToGray(image, channel : T.int(min=0, max=2)  = 1):
+@EF.register("Grayscale from Color", EF.BGR, EF.GRAYSCALE, desc="Color-plucked")
+def colorToGray(image, channel : colorChannel = 1):
     return image[:,:,channel]
 
-@EF.register(EF.GRAYSCALE, EF.BGR)
-def grayToColor(image, channel : T.int(min=0, max=2)  = 1):
+@EF.register("Color from Grayscale", EF.GRAYSCALE, EF.BGR, desc="Color-channeled")
+def grayToColor(image, channel : colorChannel = 1):
     shape = image.shape + (3,)
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image
     return colored
 
-@EF.register(EF.BGR, EF.SAME)
-def brighten(image, pct : T.percent = 0.25):
+@EF.register("Adjust brightness", EF.BGR, EF.SAME, desc="Brightend/Dimmed")
+def brighten(image, pct : T.percent = 0.75):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     h, s, v = cv.split(hsv)
 
@@ -112,6 +118,6 @@ def brighten(image, pct : T.percent = 0.25):
     newhsv = cv.merge((h, s, v))
     return cv.cvtColor(newhsv, cv.COLOR_HSV2BGR)
 
-@EF.register(EF.ANY, EF.SAME)
+@EF.register("Invert", EF.ANY, EF.SAME, desc="Inverted")
 def invert(image):
     return 255 - image

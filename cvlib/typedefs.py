@@ -204,13 +204,6 @@ class TPercent(TFloat):
     min=0.0
     max=1.0
 
-@T('array')
-class TArray(TJSON): pass
-
-@T('color')
-class TBGRColor(TArray):
-    types = [T.byte, T.byte, T.byte]
-
 @T('bool')
 class TBool(TJSON):
     pass
@@ -218,3 +211,6 @@ class TBool(TJSON):
 @T('select')
 class TSelect(TString):
     pass
+
+@T('noop')
+class TNOOP(TJSON): pass

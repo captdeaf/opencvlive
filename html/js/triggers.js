@@ -137,16 +137,34 @@ function enableTriggers(parentElement) {
 //
 // Straightforward: Initializers to call when everything is loaded.
 //
+// Boot: Fetch data that others depend on.
+// Initializer: Do stuff with data.
+//
 /////////////////////////////////////
 
+const BOOTS = [];
 const INITIALIZERS = [];
+
+function addBoot(func) {
+  BOOTS.push(func);
+}
 
 function addInitializer(func) {
   INITIALIZERS.push(func);
 }
 
 function runInitializers() {
-  for (const init of INITIALIZERS) {
-    init();
+  for (const boot of BOOTS) {
+    boot();
   }
+  function waitInit() {
+    if (FETCH_COUNT == 0) {
+      for (const init of INITIALIZERS) {
+        init();
+      }
+    } else {
+      setTimeout(waitInit, 100);
+    }
+  }
+  setTimeout(waitInit, 100);
 }

@@ -87,6 +87,7 @@ function isSafeIterable(obj) {
 
 // DOM: Populate an element w/ children, but accepting more types of 'children'
 function appendChildren(el, children) {
+  if (!children) return;
   if (!isSafeIterable(children)) {
     children = [children];
   }
@@ -147,22 +148,34 @@ function listElementsMatching(elements, selector) {
   return ret;
 }
 
+// DOM/QoL: Mostly for templates, but has other uses: Modifies a passed Element
+//          to populate items matching a selector with new contents.
+function populateElement(tpl, contents) {
+  for (const [sel, children] of Object.entries(contents)) {
+    if (children) {
+      const pars = getAll(sel, tpl);
+      if (!pars || pars.length === 0) {
+        alertUser("populateTemplate: Selector not found", sel);
+      } else {
+        for (const par of pars) {
+          appendChildren(par, children);
+        }
+      }
+    }
+  }
+  return tpl;
+}
+
+
 // DOM/QoL: Templates embedded in the HTML, most likely beneath an invisible
 //          <div>. Clones the elements of <div id="template-(name)">.
 //          contents is an object of "selector": children. to add.
 function template(tplname, contents) {
   const origtpl = get('#template-' + tplname);
   const tpl = origtpl.cloneNode(true);
-  if (typeof(contents) === 'object') {
-    for (const [sel, children] of Object.entries(contents)) {
-      if (children) {
-        const pars = getAll(sel, tpl);
-        for (const par of pars) {
-          appendChildren(par, children);
-        }
-      }
-    }
-  } else if (typeof(contents) === 'function') {
+  if (typeof(contents) !== 'function') {
+    populateElement(tpl, contents);
+  } else {
     contents(tpl);
   }
 
@@ -206,15 +219,17 @@ function maybeCall(func, ...args) {
   }
 }
 
+let FETCH_COUNT = 0;
 // A fetcher with callback style I prefer.
 async function easyFetch(path, opts, cbs) {
   // Request
+  FETCH_COUNT += 1;
   let request = fetch(path, opts);
   if (cbs.request) cbs.request(request);
 
   // Response
   let resp = await(request);
-  if (cbs.response) cbs.response(response);
+  if (cbs.response) cbs.response(resp);
 
   // Status-based
   if (resp.status === 200) {
@@ -224,6 +239,8 @@ async function easyFetch(path, opts, cbs) {
     let text = await resp.text();
     if (cbs.fail) cbs.fail(resp, text);
   }
+
+  FETCH_COUNT -= 1;
 
   // Complete
   if (cbs.complete) { cbs.complete(resp); }

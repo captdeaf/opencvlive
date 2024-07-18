@@ -139,15 +139,12 @@ function refreshEffectBlocks() {
         for (const effect of Object.values(resp.effects)) {
           appendChildren(parentElement, buildEffectBlock(effect));
         }
-        // TODO: This is for DEBUG only.
-        const blur = get('.item[data-name="blur"]')
-        trigger("createEffectAt", blur, 1, 1, 1, {x: 30, y: 30});
       },
     }
   );
 }
 
-addInitializer(() => {
+addBoot(() => {
   refreshLibrary();
   refreshEffectBlocks();
 });

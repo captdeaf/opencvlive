@@ -140,9 +140,10 @@ def dictify(annos):
             args[arg] = anno
     return args
 
-def addEffectInfo(func, channelfrom, channelto, **kwargs):
+def addEffectInfo(func, displayname, channelfrom, channelto, **kwargs):
     newEffect = dict(
         name = func.__name__,
+        displayname = displayname,
         doc = func.__doc__,
         args = dictify(func.__annotations__),
         channelfrom = channelfrom,
@@ -206,12 +207,12 @@ class LazyCaller(object):
         self.channelfrom = cfrom
         self.channelto = cto
 
-def register(channelfrom, channelto):
+def register(displayname, channelfrom, channelto, **effargs):
     def registerfunc(func):
         def lazyApply(*args, **kwargs):
             return LazyCaller(func, args, kwargs, channelfrom, channelto)
 
-        addEffectInfo(func, channelfrom, channelto)
+        addEffectInfo(func, displayname, channelfrom, channelto, **effargs)
 
         setattr(Effects, func.__name__, func)
         setattr(EF, func.__name__, lazyApply)

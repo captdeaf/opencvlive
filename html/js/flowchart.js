@@ -26,7 +26,7 @@ addTrigger("addImageAt", function(libraryElement, evt, fixedPos,
   appendChildren(get('#flowchart'), imBlock);
 });
 
-function newOpProcessed(effect, imagePath) {
+function newOpNode(opuuid, imagePath) {
   const imgresult = template('opprocessedimage', (tpl) => {
     const img = get('img', tpl);
     get('.ophead', tpl).innerText = effect.name;
@@ -38,32 +38,39 @@ function newOpProcessed(effect, imagePath) {
   return imgresult;
 }
 
-const alltests = [
-  ["This is a test"],
-  ["Emergency, there is an emergency going on.", "Emergency."],
-  ["Willy wonka says hello"],
-  ["This is big", "Like, really big", "Can you do more?", "Please?", "This is big", "Like, really big", "Can you do more?", "Please?"],
-];
+function getOpListing(opargs) {
+  if (!opargs || Object.keys(opargs).length == 0) {
+    return [EL('p', "No parameters")];
+  }
+  const children = [];
+  for (const [k, v] of Object.entries(opargs)) {
+    children.push(EL('p', {}, k));
+  }
+  return children;
+}
 
-function newOpBlock(effect, imagePath) {
-  const container = template('opblock', (tpl) => {
-    get('.ophead', tpl).innerText = effect.name;
-    get('.opslisting', tpl).innerHTML = alltests.pop().join("<br/>");
+function newOpBlock(uuid, opdesc) {
+  const effect = ALL_EFFECTS.effects[opdesc.effect];
+  const oplisting = getOpListing(opdesc.args);
+  const container = template('opblock', {
+    '.ophead': opdesc.name,
+    '.oplisting': oplisting,
   });
-  let fakeResult = newOpProcessed(effect, imagePath);
-  appendChildren(get('.opmaster', container.parentElement), fakeResult);
 
-  container.style.top = "20em";
-  container.style.left = "20em";
+  console.log(opdesc);
+
+  container.style.top = opdesc.position.top + 'px';
+  container.style.left = opdesc.position.left + 'px';
 
   return container;
 }
 
 addTrigger("createEffectAt", function(effectElement, evt, fixedPos,
                                       parentElement, relativePos) {
-  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
-  const opsBlock = newOpBlock(effect, effectElement.dataset.imagePath);
-  opsBlock.style.top = relativePos.y + 'px';
-  opsBlock.style.left = relativePos.x + 'px';
-  appendChildren(get('#flowchart'), opsBlock);
+  return;
+  // const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
+  // const opsBlock = newOpBlock(effect, effectElement.dataset.imagePath);
+  // opsBlock.style.top = relativePos.y + 'px';
+  // opsBlock.style.left = relativePos.x + 'px';
+  // appendChildren(get('#flowchart'), opsBlock);
 });
