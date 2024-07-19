@@ -90,9 +90,9 @@ addTrigger('fileDialogChange', (el, evt) => {
   );
 });
 
-addTrigger('showLargeChildImage', function(child) {
-  const img = get('img', child);
-  let name = child.dataset.name;
+addTrigger('showLargeChildImage', function(el) {
+  const img = get('img', el);
+  let name = el.dataset.name;
   if (!name) { name = img.dataset.name; }
   showFloater(name, 'large-image', (el) => {
     get('img', el).src = img.src;

@@ -32,7 +32,8 @@ function updateImageBlock(block, imgjs) {
     '.block-image-frame': EL('img', {
       class: "block-image",
       src: imgjs.path,
-    })
+      'data-name': imgjs.name,
+    }),
   });
 
   block.style.top = imgjs.pos.top + 'px';
