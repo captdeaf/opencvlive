@@ -65,8 +65,7 @@ const DEMO_CHART = {
       nodes: [
         {
           uuid: 'nodeuuid1',
-          sources: {imguuid1: {color: 'red'}},
-          targets: {},
+          sources: [{image: 'imguuid1', opts: {color: 'red'}}],
           name: 'Blurry Sunset',
         },
       ],
@@ -80,6 +79,13 @@ const DEMO_CHART = {
         left: 200,
         top: 180,
       },
+      nodes: [
+        {
+          uuid: 'nodeuuid2',
+          sources: [{op: 'opuuid1', node: 'nodeuuid1', opts: {color: 'green'}}],
+          name: "Inverted blurry sunset",
+        }
+      ],
     },
   },
   images: {
@@ -182,6 +188,10 @@ function moveBlockJS(eltype, elid, pos) {
   };
   
   saveChart();
+}
+
+function getJSBlock(type, uuid) {
+  return CHART[type][uuid];
 }
 
 function removeBlockJS(eltype, elid) {

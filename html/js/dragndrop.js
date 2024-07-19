@@ -246,13 +246,15 @@ function addMouseDrag(dragMe) {
       svgLines.style.height = flowchartBox.height;
 
       svgLines.innerHTML = '';
-      svgLines.append(EL('line', {
+      const line = EL('line', {
         x1: lineStart.centerX,
         y1: lineStart.centerY,
         x2: objPos.centerX,
         y2: objPos.centerY,
         stroke: 'black',
-      }));
+      });
+      svgLines.append(line);
+      console.log(line);
       // This works to switch the namespaces of the element ... *facepalm*
       svgLines.innerHTML = svgLines.innerHTML;
     }

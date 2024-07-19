@@ -12,7 +12,8 @@ function loadConstants() {
     body: 'body',
     floats: '#floats',
     flowchart: '#flowchart',
-    drawlines: '#flowlines',
+    flowlines: '#flowlines',
+    drawlines: '#templines',
 
     upload: '#upload-dialog',
     uploadList: '#upload-list',

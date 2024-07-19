@@ -105,14 +105,37 @@ function addOpBlock(opjs) {
   return block;
 }
 
-function drawNodeLine(sourceid, targetid, opts) {
+function clearNodeLines() {
+  EL.flowlines.innerHTML = '';
+  const fcbox = EL.flowchart.getBoundingClientRect();
+  EL.flowlines.style.width = fcbox.width;
+  EL.flowlines.style.height = fcbox.height;
+}
+
+function drawNodeLine(source, target, opts) {
+  EL.flowlines.append(EL('line', {
+    x1: source.pos.left,
+    y1: source.pos.top,
+    x2: target.pos.left,
+    y2: target.pos.top,
+    stroke: 'black',
+  }));
+  EL.flowlines.innerHTML = EL.flowlines.innerHTML;
 }
 
 function addNodeItem(opBlock, opjs, nodejs) {
   const effect = opBlock.effect;
   if (nodejs.sources) {
-    for (const [sourceid, opts] of Object.entries(nodejs.sources)) {
-      drawNodeLine(sourceid, uuid, opts);
+    for (const source of Object.values(nodejs.sources)) {
+      console.log("aNI:");
+      console.log(opBlock, opjs, nodejs, source);
+      if (source.image) {
+        const imgjs = getJSBlock(TYPE.image, source.image);
+        drawNodeLine(opjs, imgjs, source.opts);
+      } else if (source.op) {
+        const nopjs = getJSBlock(TYPE.ops, source.op);
+        drawNodeLine(opjs, nopjs, source.opts);
+      }
     }
   }
 
@@ -145,8 +168,8 @@ addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
 });
 
 addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) {
-  if (el && el.type) {
-    moveBlockJS(el.type, el.id, relativePos);
+  if (el && el.dataset.type) {
+    moveBlockJS(el.dataset.type, el.id, relativePos);
   }
 });
 
@@ -160,7 +183,7 @@ addTrigger('bindToOperation', function(el, evt, fixedPos, matchedElements, relat
 // Remove an element from both Chart JS and HTML
 // el can be: an op, a node, an image.
 addTrigger('removeElement', (el, evt) => {
-  removeBlockJS(el.type, el.id);
+  removeBlockJS(el.dataset.type, el.id);
   removeElement(el);
 });
 
