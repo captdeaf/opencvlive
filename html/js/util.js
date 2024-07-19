@@ -253,3 +253,11 @@ async function easyFetch(path, opts, cbs) {
   // Complete
   if (cbs.complete) { cbs.complete(resp); }
 }
+
+async function sha256(source) {
+  // From Yoz on stackoverflow
+  const sourceBytes = new TextEncoder().encode(source);
+  const digest = await crypto.subtle.digest("SHA-256", sourceBytes);
+  const resultBytes = [...new Uint8Array(digest)];
+  return resultBytes.map(x => x.toString(16).padStart(2, '0')).join("");
+}

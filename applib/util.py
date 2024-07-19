@@ -3,6 +3,7 @@
 
 import re
 import json
+import sys, os
 
 # This is ganked from another project of mine. All it really does is
 # make class objects default to __dict__. They may optionally have a

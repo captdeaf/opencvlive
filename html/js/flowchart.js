@@ -203,6 +203,7 @@ function renderAllBlocks(chart) {
   }
 
   redrawAllNodeLines();
+  refreshOpImages();
 }
 
 // Generate new JS block and render it.
