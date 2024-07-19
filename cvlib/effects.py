@@ -249,6 +249,17 @@ def applyEffects(image, *all_effects, copy=True):
 def isColor(image):
     return len(image.shape) == 3
 
+def jsApply(effect, images, args):
+    if hasattr(Effects, effect):
+        return getattr(Effects, effect)(images[0], **args)
+
+def cvread(filename):
+    return cv.imread(filename)
+
+def cvwrite(img, filename):
+    return cv.imwrite(filename, img)
+
+
 EF.isColor = isColor
 EF.register = register
 EF.apply = applyEffects

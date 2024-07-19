@@ -7,7 +7,7 @@
 ####################################
 
 # effect class definitions first, it's used by the rest
-from .effects import EF, Effects, register, INFO
+from .effects import EF, Effects, register, INFO, cvread, cvwrite, jsApply
 
 # Just handy for effect file imports
 import cv2 as cv

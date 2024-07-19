@@ -159,17 +159,28 @@ async function processNode(nodejs, dependencies, torefresh) {
 }
 
 async function updateImage(nodejs, opjs, deps) {
-  let path = "/cv/imagegen/" + nodejs.hash + ".png"
-  const args = Object.assign({}, opjs.args);
+  const path = "/cached/" + nodejs.hash + ".png"
 
+  let genpath = "/cv/imagegen?p="
+  const args = {};
+  args.effect = opjs.effect;
+  args.ops = opjs;
+  args.args = {};
+  for (const [k, v] of Object.entries(opjs.args)) {
+    args.args[k] = v.value;
+  }
+  args.outhash = nodejs.hash;
   args.dependencies = deps;
+
   const jsargs = btoa(JSON.stringify(args));
-  const fullpath = path + '?p=' + jsargs;
+
+  await fetch(genpath + jsargs);
 
   const frame = get('#' + nodejs.uuid + ' .block-image-frame', get('#' + opjs.uuid));
   frame.innerHTML = '';
   appendChildren(frame, EL('img', {
-    src: fullpath,
+    class: 'block-image',
+    src: path,
   }));
 }
 
