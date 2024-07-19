@@ -46,8 +46,8 @@
 
 const DEMO_CHART = {
   ops: {
-    opuuid1: {
-      uuid: 'opuuid1',
+    opsuuid1: {
+      uuid: 'opsuuid1',
       name: 'Demo Blur',
       effect: 'blur',
       args: {
@@ -70,8 +70,8 @@ const DEMO_CHART = {
         },
       ],
     },
-    opuuid2: {
-      uuid: 'opuuid2',
+    opsuuid2: {
+      uuid: 'opsuuid2',
       name: 'Demo Invert',
       effect: 'invert',
       args: {},
@@ -82,7 +82,7 @@ const DEMO_CHART = {
       nodes: [
         {
           uuid: 'nodeuuid2',
-          sources: [{op: 'opuuid1', sourceid: 'nodeuuid1', opts: {color: 'green'}}],
+          sources: [{op: 'opsuuid1', sourceid: 'nodeuuid1', opts: {color: 'green'}}],
           name: "Inverted blurry sunset",
         }
       ],
@@ -168,8 +168,13 @@ function moveBlockJS(eltype, elid, pos) {
   saveChart();
 }
 
-function getJSBlock(type, uuid) {
-  return CHART[type][uuid];
+function findJSBlock(uuid) {
+  if (uuid.startsWith(TYPE.ops)) {
+    return CHART.ops[uuid];
+  } else if (uuid.startsWith(TYPE.image)) {
+    return CHART.images[uuid];
+  }
+  throw("Wrong UUID for findJSBlock");
 }
 
 function removeBlockJS(eltype, elid) {

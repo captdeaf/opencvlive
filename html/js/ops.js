@@ -32,14 +32,29 @@ const x = {};
 
 const TYPEDEFS = {}
 
-TYPEDEFS.int = {
-  build: (arg) => {
+TYPEDEFS['int'] = {
+  build: (name, arg) => {
     return EL('input', {
       type: 'number',
+      'data-onchange': 'opChange',
+      'data-cname': arg.cname,
+      'data-name': name,
       ...arg
     });
   },
+  parse: (name, el, arg) => {
+    return parseInt(el.value);
+  },
 };
+
+addTrigger('opChange', function(el, evt) {
+  const opblock = findParent(el, '.block-master');
+  const label = findParent(el, 'label');
+  const opjs = findJSBlock(opblock.id);
+  const name = el.dataset.name;
+  opjs.args[name].value = TYPEDEFS[el.dataset.cname].parse(name, el, opjs.args[name]);
+  saveChart();
+});
 
 function renderOp(name, oparg, argdef) {
   const lattrs = {};
@@ -49,8 +64,8 @@ function renderOp(name, oparg, argdef) {
   const item = EL('label', lattrs, name);
   const cname = oparg.cname;
   oparg = Object.assign(oparg, argdef);
-  appendChildren(item, TYPEDEFS[cname].build(oparg));
-  return item;
+  appendChildren(item, TYPEDEFS[cname].build(name, oparg));
+  return enableTriggers(item);
 }
 
 function getOpListing(effect, opargs) {
