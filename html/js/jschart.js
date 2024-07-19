@@ -65,7 +65,7 @@ const DEMO_CHART = {
       nodes: [
         {
           uuid: 'nodeuuid1',
-          sources: [{image: 'imguuid1', opts: {color: 'red'}}],
+          sources: [{sourceid: 'imguuid1', opts: {color: 'red'}}],
           name: 'Blurry Sunset',
         },
       ],
@@ -82,7 +82,7 @@ const DEMO_CHART = {
       nodes: [
         {
           uuid: 'nodeuuid2',
-          sources: [{op: 'opuuid1', node: 'nodeuuid1', opts: {color: 'green'}}],
+          sources: [{op: 'opuuid1', sourceid: 'nodeuuid1', opts: {color: 'green'}}],
           name: "Inverted blurry sunset",
         }
       ],

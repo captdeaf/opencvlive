@@ -112,35 +112,79 @@ function clearNodeLines() {
   EL.flowlines.style.height = fcbox.height;
 }
 
-function drawNodeLine(source, target, opts) {
+function calculateLinePoint(block, loc) {
+  let sel;
+  if (loc === 'in') {
+    sel = ".block-arr.block-input";
+  } else if (loc === 'out') {
+    sel = ".block-arr.block-output";
+  }
+
+  const el = get(sel, block);
+
+  // Differences between middle of el and top-left of block
+  const elBox = el.getBoundingClientRect();
+  const chartBox = EL.flowchart.getBoundingClientRect();
+
+
+  return {
+    x: elBox.left - chartBox.left + (elBox.width/2),
+    y: elBox.top - chartBox.top + (elBox.height/2),
+  }
+}
+
+function drawNodeLineSVG(source, target, opts) {
+  const spoint = calculateLinePoint(source, 'out');
+  const tpoint = calculateLinePoint(target, 'in');
   EL.flowlines.append(EL('line', {
-    x1: source.pos.left,
-    y1: source.pos.top,
-    x2: target.pos.left,
-    y2: target.pos.top,
-    stroke: 'black',
+    x1: spoint.x,
+    y1: spoint.y,
+    x2: tpoint.x,
+    y2: tpoint.y,
+    stroke: opts.color,
   }));
   EL.flowlines.innerHTML = EL.flowlines.innerHTML;
 }
 
-function addNodeItem(opBlock, opjs, nodejs) {
-  const effect = opBlock.effect;
-  if (nodejs.sources) {
-    for (const source of Object.values(nodejs.sources)) {
-      console.log("aNI:");
-      console.log(opBlock, opjs, nodejs, source);
-      if (source.image) {
-        const imgjs = getJSBlock(TYPE.image, source.image);
-        drawNodeLine(opjs, imgjs, source.opts);
-      } else if (source.op) {
-        const nopjs = getJSBlock(TYPE.ops, source.op);
-        drawNodeLine(opjs, nopjs, source.opts);
+function drawNodeLineJS(fromuuid, touuid, opts) {
+  let fromjs;
+  // Cheap hack to get around dragndrop's hiding the
+  // original element.
+  const toBlocks = getAll('#' + touuid);
+  const fromBlocks = getAll('#' + fromuuid);
+  const toBlock = toBlocks[toBlocks.length - 1];
+  const fromBlock = fromBlocks[fromBlocks.length - 1];
+  drawNodeLineSVG(fromBlock, toBlock, opts);
+}
+
+function redrawAllNodeLines() {
+  clearNodeLines();
+  for (const opjs of Object.values(CHART.ops)) {
+    if (opjs.nodes) {
+      for (const nodejs of Object.values(opjs.nodes)) {
+        if (nodejs.sources) {
+          for (const sourcejs of Object.values(nodejs.sources)) {
+            drawNodeLineJS(sourcejs.sourceid, nodejs.uuid, sourcejs.opts);
+          }
+        }
       }
     }
   }
+}
 
-  const node = template('opnode', {});
-  opBlock.appendChild(node);
+addTrigger('redrawAllNodeLines', () => {
+  redrawAllNodeLines();
+});
+
+function updateNodeItem(tpl, opjs, nodejs) {
+}
+
+function addNodeItem(opBlock, opjs, nodejs) {
+  const effect = opBlock.effect;
+  const nodeBlock = template('opnode', {});
+  nodeBlock.id = nodejs.uuid;
+  updateNodeItem(nodeBlock, opjs, nodejs)
+  opBlock.appendChild(nodeBlock);
 }
 
 // Render all blocks from Chart JS
@@ -157,6 +201,8 @@ function renderAllBlocks(chart) {
   for (const [uuid, imgjs] of Object.entries(chart.images)) {
     addImageBlock(imgjs);
   }
+
+  redrawAllNodeLines();
 }
 
 // Generate new JS block and render it.
@@ -171,6 +217,7 @@ addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) 
   if (el && el.dataset.type) {
     moveBlockJS(el.dataset.type, el.id, relativePos);
   }
+  redrawAllNodeLines();
 });
 
 addTrigger('bindToOperation', function(el, evt, fixedPos, matchedElements, relativePos) {
