@@ -163,3 +163,4 @@ cython_debug/
 #.idea/
 html/samples
 html/index.html
+html/cached
