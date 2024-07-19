@@ -175,6 +175,7 @@ function addMouseDrag(dragMe) {
   const actions = {};
 
   let lineStart;
+  let lineTargetOff;
 
   actions.start = function() {
     // Track time, if this is < 200ms, we consider it a click.
@@ -198,8 +199,9 @@ function addMouseDrag(dragMe) {
       dragged.innerHTML = "&rarr;";
       appendChildren(EL.floats, dragged);
       const pointerRect = dragged.getBoundingClientRect();
+      lineTargetOff = pointerRect.width/2;
       mouseOff = {
-        left: pointerRect.width/2,
+        left: pointerRect.width,
         top: pointerRect.height/2,
         right: -pointerRect.width/2,
         bottom: -pointerRect.height/2,
@@ -249,7 +251,7 @@ function addMouseDrag(dragMe) {
       const line = EL('line', {
         x1: lineStart.centerX,
         y1: lineStart.centerY,
-        x2: objPos.centerX,
+        x2: objPos.centerX + lineTargetOff,
         y2: objPos.centerY,
         stroke: 'black',
       });
