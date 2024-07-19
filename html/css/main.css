@@ -189,6 +189,6 @@
   overflow-y: hidden;
 }
 
-.opcontainer.opprocessed {
+.opnode {
   background-color: #7a7;
 }

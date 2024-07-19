@@ -167,6 +167,7 @@ function addMouseDrag(dragMe) {
 
   function cleanUp() {
     dragMe.style.visibility = 'inherit';
+    EL.drawlines.innerHTML = '';
     removeElement(dragged);
     dragged = null;
   }
@@ -295,8 +296,8 @@ function addMouseDrag(dragMe) {
     };
 
     let droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
-    if (dragMe.dataset.dragDropon) {
-      droppedOn = listElementsMatching(droppedOn, dragMe.dataset.dragDropon);
+    if (dragMe.dataset.dragDropOn) {
+      droppedOn = listElementsMatching(droppedOn, dragMe.dataset.dragDropOn);
     }
 
     if (dragMe.dataset.dropOk) {
@@ -307,7 +308,9 @@ function addMouseDrag(dragMe) {
       }
     }
 
-    trigger(callbacks.end, dragMe, evt, MOUSE.pos, droppedOn, relativePos);
+    if (droppedOn && droppedOn.length > 0) {
+      trigger(callbacks.end, dragMe, evt, MOUSE.pos, droppedOn, relativePos);
+    }
     cleanUp();
     return true;
   };

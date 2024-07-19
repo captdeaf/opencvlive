@@ -64,10 +64,11 @@ const DEMO_CHART = {
       },
       nodes: [
         {
-          nodeuuid1: {
-            name: 'Blurry Sunset',
-          },
-        }
+          uuid: 'nodeuuid1',
+          sources: {imguuid1: {color: 'red'}},
+          targets: {},
+          name: 'Blurry Sunset',
+        },
       ],
     },
     opuuid2: {
@@ -190,6 +191,9 @@ function removeBlockJS(eltype, elid) {
     alertUser("Unknown removed block", eltype);
   }
   saveChart();
+}
+
+function bindJSToOp(source, target) {
 }
 
 addInitializer(() => {

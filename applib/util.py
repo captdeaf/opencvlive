@@ -54,6 +54,7 @@ def optimize(content):
     return re.sub(r'>\s+<','><', stripped)
 
 def buildTemplates(filename, dirname):
+    print("buildTemplates called")
     with open(f"{dirname}/{filename}.html", 'r', encoding='utf-8') as fin:
         body = fin.read()
 

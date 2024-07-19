@@ -26,6 +26,8 @@
 //
 ////////////////////////////////////
 
+const RENDERED_BLOCKS = {};
+
 function updateImageBlock(block, imgjs) {
   populateElement(block, {
     '.block-head': imgjs.name,
@@ -47,8 +49,10 @@ function addImageBlock(imgjs) {
 
   const block = template('block-image');
   block.id = imgjs.uuid;
-  block.type = TYPE.image;
+  block.dataset.type = TYPE.image;
   updateImageBlock(block, imgjs);
+
+  RENDERED_BLOCKS[imgjs.uuid] = block;
 
   appendChildren(EL.flowchart, block);
 }
@@ -91,16 +95,41 @@ function addOpBlock(opjs) {
   const effect = ALL_EFFECTS.effects[opjs.effect];
   const block = template('block-op');
   block.id = opjs.uuid;
-  block.type = TYPE.ops;
+  block.dataset.effect = effect.name;
+  block.dataset.type = TYPE.ops;
+  block.effect = effect;
   updateOpBlock(block, opjs);
 
   appendChildren(EL.flowchart, block);
+  RENDERED_BLOCKS[opjs.uuid] = block;
+  return block;
+}
+
+function drawNodeLine(sourceid, targetid, opts) {
+}
+
+function addNodeItem(opBlock, opjs, nodejs) {
+  const effect = opBlock.effect;
+  if (nodejs.sources) {
+    for (const [sourceid, opts] of Object.entries(nodejs.sources)) {
+      drawNodeLine(sourceid, uuid, opts);
+    }
+  }
+
+  const node = template('opnode', {});
+  opBlock.appendChild(node);
 }
 
 // Render all blocks from Chart JS
 function renderAllBlocks(chart) {
   for (const [uuid, opjs] of Object.entries(chart.ops)) {
-    addOpBlock(opjs);
+    const block = addOpBlock(opjs);
+    // Their child nodes.
+    if (opjs.nodes) {
+      for (const nodejs of Object.values(opjs.nodes)) {
+        addNodeItem(block, opjs, nodejs)
+      }
+    }
   }
   for (const [uuid, imgjs] of Object.entries(chart.images)) {
     addImageBlock(imgjs);
@@ -119,6 +148,13 @@ addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) 
   if (el && el.type) {
     moveBlockJS(el.type, el.id, relativePos);
   }
+});
+
+addTrigger('bindToOperation', function(el, evt, fixedPos, matchedElements, relativePos) {
+  el = findParent(el, '[data-type]');
+  const opBlock = findParent(matchedElements[0], '[data-type]');
+
+  bindJSToOp(el.id, opBlock.id);
 });
 
 // Remove an element from both Chart JS and HTML
