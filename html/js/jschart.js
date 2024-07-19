@@ -1,6 +1,6 @@
-// ops.js
+// jschart.js
 //
-// Configuration and ops management for client-side effect ops. UI portion is
+// Configuration and block management for client-side effect ops. UI portion is
 // handled in flowchart.js
 //
 ////////////////////////////////////
@@ -112,28 +112,6 @@ const TYPE = {
 
 function saveChart() {
   setSaved(CHARTKEY, CHART);
-}
-
-function getOpListing(opargs) {
-  if (!opargs || Object.keys(opargs).length == 0) {
-    return [EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-            EL('label', "No parameters"),
-           ];
-  }
-  const children = [];
-  for (const k of Object.keys(opargs).sort()) {
-    children.push(EL('label', {}, k));
-  }
-  return children;
 }
 
 function newImageJS(name, path, pos) {

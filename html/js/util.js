@@ -60,12 +60,16 @@ function addAttrs(el, attrs) {
 // DOM: Make elements. EL('div', EL('span', "Text here"));
 function EL(name, attrs, ...children) {
   const ret = document.createElement(name);
-  if (typeof(attrs) === 'string' || attrs.append) {
-    children.unshift(attrs);
-  } else {
-    addAttrs(ret, attrs);
+  if (attrs) {
+    if (typeof(attrs) === 'string' || attrs.append) {
+      children.unshift(attrs);
+    } else {
+      addAttrs(ret, attrs);
+    }
   }
-  appendChildren(ret, children);
+  if (children && children.length > 0) {
+    appendChildren(ret, children);
+  }
   return ret;
 }
 

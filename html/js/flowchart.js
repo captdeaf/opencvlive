@@ -82,7 +82,7 @@ addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
 function updateOpBlock(block, opjs) {
   populateElement(block, {
     '.block-head': opjs.name,
-    '.oplisting': getOpListing(opjs.args),
+    '.oplisting': getOpListing(block.effect, opjs.args),
   });
 
   block.style.top = opjs.pos.top + 'px';

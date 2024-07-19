@@ -15,13 +15,13 @@ thresholdTarget = T.select({
     "Truncated": cv.THRESH_TRUNC,
     "ToZero": cv.THRESH_TOZERO,
     "ToZero Inverted": cv.THRESH_TOZERO_INV,
-})
+}, title="Threshold target")
 
 colorChannel = T.select({
     "BLUE": 0,
     "GREEN": 1,
     "RED": 2,
-})
+}, title="Color channel")
 
 @EF.register("Adaptive Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="AT'd")
 def adaptiveThreshold(frame,
@@ -35,10 +35,10 @@ def adaptiveThreshold(frame,
 
 @EF.register("Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="Thresholded")
 def threshold(frame,
-            low : T.byte = 128,
-            high : T.byte = 255,
+            low : T.byte(title="Below this is black") = 128,
+            high : T.byte(title="Above this is white") = 255,
             target : thresholdTarget = cv.THRESH_BINARY,
-            otsu : T.bool = False,
+            otsu : T.bool(title="Use Otsu thresholding") = False,
         ):
     if otsu:
         target |= cv.THRESH_OTSU
@@ -63,7 +63,7 @@ def removeColor(image, channel : colorChannel  = 1):
     return image
 
 @EF.register("Blur", EF.ANY, EF.SAME, desc="Blurry")
-def blur(frame, amount : T.int(min=1, flag='odd') = 5):
+def blur(frame, amount : T.int(min=1, step=2, max=255, title="Pixel range to blur (odd number)") = 5):
     return cv.medianBlur(frame, amount)
 
 @EF.register("Write text", EF.ANY, EF.BGR, desc="Inscribed")
