@@ -69,9 +69,12 @@ def watchAndRestart(bind, port):
 
     watcher = inotify.adapters.Inotify()
 
+    with open('.runeffect.watch', 'w') as fout:
+        fout.write('watching')
+
     # I do this instead of watching the directory because
     # otherwise it triggers on my editor .swp file changes.
-    for path in ['cvlib/*.py', 'appli/*.pyb', '*.py']:
+    for path in ['cvlib/*.py', 'appli/*.pyb', '*.py', '.runeffect.watch']:
         for file in glob(path):
             print(f"Watching {file}")
             watcher.add_watch(file)
@@ -86,10 +89,8 @@ def watchAndRestart(bind, port):
                 RESTART=True
                 break
 
-        if RESTART: break
+        if not RUNNING: break
    
-
-    print("File changed. Triggering restart.")
     s = socket.socket()
     s.connect((bind, port))
     s.close()
@@ -112,30 +113,37 @@ def main(bind, port, test=False):
         thread = Thread(target=watchAndRestart, args=(bind, port))
         thread.start()
 
-    while RUNNING:
-        client, addr = server.accept()
-        if test:
-            handle(client)
-            client.close()
-            return
-        kid = os.fork()
-        if kid == 0:
-            server.close()
-            try:
+    try:
+        while RUNNING:
+            client, addr = server.accept()
+            if test:
                 handle(client)
                 client.close()
-            except Exception as err:
-                client.close()
-            sys.exit(0)
-        # Close parent's copy.
-        client.close()
+                return
+            kid = os.fork()
+            if kid == 0:
+                server.close()
+                try:
+                    handle(client)
+                    client.close()
+                except Exception as err:
+                    client.close()
+                sys.exit(0)
+            # Close parent's copy.
+            client.close()
+    except:
+        pass
 
     print("Shutting down")
+    if RUNNING: # We got an interrupt
+        os.remove('.runeffect.watch')
+        if (inotify.adapters):
+            thread.join()
+        sys.exit(0)
+    server.close()
     if (inotify.adapters):
         thread.join()
-    server.close()
     print("Closed")
-    return
 
 
 if __name__ == '__main__':
@@ -153,7 +161,9 @@ if __name__ == '__main__':
         port = int(port)
         main(bind, port, test=test)
         if RESTART:
-            print("Restarting")
+            print("File changed. Triggering restart.")
             os.execv(cmd, sys.argv)
+        else:
+            sys.exit(0)
     else:
         print("Invalid command")
