@@ -31,5 +31,10 @@ Lots of stuff left to do here. In no particular order:
  - Multi-image inputs: for, e.g: cv.merge
  - Non-image processes and arguments. e.g: Find a polygon in one, render it in
    another?
+ - More complicated inputs. e.g: polygons? color wheel?
  - Populate the effects list with as many opencv calls as can be done. I'm
    still just a newb working the basics.
+ - QoL stuff: Save an output image to uploads. Save+load multiple 'documents'
+ - Delete from uploads.
+ - Shave that yak next door.
+ - Lots of other things.
