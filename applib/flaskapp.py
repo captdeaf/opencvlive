@@ -8,7 +8,7 @@
 #####################################
 
 # Where the html and js files are.
-STATIC_DIR  = 'html'
+STATIC_DIR  = 'html/'
 
 # Directories where uploads are kept. Ideally a subdirectory of STATIC_DIR
 UPLOAD_DIR     = "html/uploads"

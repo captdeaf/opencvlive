@@ -44,9 +44,12 @@
 //
 ////////////////////////////////////
 
+// Our demonstration chart. It ... doesn't do much. It also demonstrates
+// the structure of the CHART object.
 const DEMO_CHART = {
   ops: {
     opsuuid1: {
+      type: 'ops',
       uuid: 'opsuuid1',
       name: 'Demo Blur',
       effect: 'blur',
@@ -59,52 +62,58 @@ const DEMO_CHART = {
         }
       },
       pos: {
-        left: 100,
-        top: 80,
+        x: 100,
+        y: 80,
       },
       nodes: [
         {
+          type: 'nodes',
           opid: 'opsuuid1',
           uuid: 'nodeuuid1',
-          sources: [{sourceid: 'imguuid1', opts: {color: 'red'}}],
+          sources: [{sourceid: 'imagesuuid1', opts: {color: 'red'}}],
           name: 'Blurry Sunset',
         },
       ],
     },
     opsuuid2: {
+      type: 'ops',
       uuid: 'opsuuid2',
       name: 'Demo Invert',
       effect: 'invert',
       args: {},
       pos: {
-        left: 200,
-        top: 180,
+        x: 200,
+        y: 180,
       },
       nodes: [
         {
+          type: 'nodes',
           opid: 'opsuuid2',
           uuid: 'nodeuuid2',
-          sources: [{op: 'opsuuid1', sourceid: 'nodeuuid1', opts: {color: 'green'}}],
+          sources: [{sourceid: 'nodeuuid1', opts: {color: 'green'}}],
           name: "Inverted blurry sunset",
         }
       ],
     },
   },
   images: {
-    imguuid1: {
-      uuid: 'imguuid1',
+    imagesuuid1: {
+      type: 'images',
+      uuid: 'imagesuuid1',
       name: 'Sunset',
       path: 'uploads/demo_sunset.png',
       pos: {
-        left: 10,
-        top: 140,
+        x: 10,
+        y: 140,
       },
     },
   },
 };
 
 const CHARTKEY = 'chart';
+
 let CHART = DEMO_CHART;
+let CCACHE = {};
 
 const TYPE = {
   ops: 'ops',
@@ -112,39 +121,71 @@ const TYPE = {
   image: 'images',
 }
 
+////////////////////////////////////
+//
+//  Save and load charts, add and remove items.
+//
+////////////////////////////////////
+
 function saveChart() {
   setSaved(CHARTKEY, CHART);
 }
 
+// Not wildly useful now, but it helps create separation between the JS blocks
+// and the DOM blocks.
+function updateChart(func) {
+  func();
+  saveChart();
+}
+
+function loadChart(chart) {
+  CHART = chart;
+  saveChart();
+}
+
+// UUID gen, using timestamp in ms.
+// e.g: ops123124, nodes12314124, images123214124
+function makeUUID(type) {
+  return type + (new Date().getTime()).toFixed();
+}
+
+////////////////////////////////////
+//
+//  Manipulating CHART. We use JS at the end of each function
+//  to separate it from any DOM-manipulating functions.
+//
+//  e.g: moveBlock calls moveBlockJS. addImage calls newImageJS.
+//
+////////////////////////////////////
+
+// Create a new imageJS
 function newImageJS(name, path, pos) {
-  const uuid = TYPE.image + (new Date().getTime()).toFixed();
+  const uuid = makeUUID(TYPE.image);
   const img = {
     uuid: uuid,
     name: name,
     path: path,
-    pos: {
-      left: pos.x,
-      top: pos.y,
-    },
+    pos: pos,
     nodes: []
   };
 
   // Update our chart
   CHART.images[img.uuid] = img;
   saveChart();
+
+  // And return to let flowchart render it.
   return img;
 }
 
+// Create a new opJS
 function newOpJS(effect, pos) {
-  const uuid = TYPE.ops + (new Date().getTime()).toFixed();
+  const uuid = makeUUID(TYPE.ops);
   const op = {
+    type: TYPE.ops,
     uuid: uuid,
     name: effect.displayname,
     effect: effect.name,
-    pos: {
-      left: pos.x,
-      top: pos.y,
-    },
+    pos: pos,
     nodes: []
   };
   op.args = Object.assign({}, effect.args);
@@ -152,43 +193,109 @@ function newOpJS(effect, pos) {
   // Update our chart
   CHART.ops[op.uuid] = op;
   saveChart();
+
+  // And return to let flowchart render it.
   return op;
 }
 
-function moveBlockJS(eltype, elid, pos) {
-  console.log("moving: '" + eltype + "." + elid);
-  if (!CHART[eltype][elid]) {
-    // Probably deleted by removeElement on trash can.
-    return;
-  }
+// Move either an image or an op.
+function moveBlockJS(blockjs, pos) {
+  blockjs.pos = pos;
+  saveChart();
+}
 
-  CHART[eltype][elid].pos = {
-    left: pos.x,
-    top: pos.y,
+////////////////////////////////////
+//
+//  Forming new links.
+//
+//  We can have:
+//  
+//    - image->node
+//    - node->node
+//
+//  Binding an image to an op is acceptable, but creates a new node.
+//
+//  Binding a node or image to an existing node will currently reset its source.
+//  This may change as support is added for multi-image inputs.
+//
+////////////////////////////////////
+
+// A variety of colors for each line to help separate them from each other.
+const COLORS = "cyan red green blue orange black brown purple".split(' ');
+let colori = 0;
+function pickColor() {
+  colori += 1;
+  if (colori >= COLORS.length) colori = 0;
+  return COLORS[colori];
+}
+
+// Bind two JS objects to each other.
+// If target is an op: Create a node.
+// If target is a node: Reset its source.
+// In both cases, its source is set to source.
+function bindJS(sourcejs, targetjs) {
+  console.log("Attempting to bind", sourcejs, targetjs);
+  const source = {
+    type: sourcejs.type,
+    sourceid: sourcejs.uuid,
+    opts: {
+      color: pickColor(),
+    },
   };
-  
+
+  if (targetjs.type === TYPE.ops) {
+    const newNode = {
+      type: TYPE.node,
+      uuid: makeUUID(TYPE.node),
+      sources: [source],
+      name: 'Untitled',
+    };
+
+    newNode.opid = targetjs.uuid;
+    
+    if (!targetjs.nodes) targetjs.nodes = [];
+    targetjs.nodes.push(newNode);
+  } else if (targetjs.type === TYPE.node) {
+    targetjs.sources = [source];
+  }
+
   saveChart();
 }
 
-function findJSBlock(uuid) {
-  if (uuid.startsWith(TYPE.ops)) {
-    return CHART.ops[uuid];
-  } else if (uuid.startsWith(TYPE.image)) {
-    return CHART.images[uuid];
+////////////////////////////////////
+//
+//  Removing objects.
+//
+//  Since nodes are part of ops, and both images and nodes can be sources in
+//  other nodes, we need to cleanly remove all sources referring to it in all
+//  nodes.
+//
+////////////////////////////////////
+
+function removeSourcesJS(uuid) {
+  for (const op of Object.values(CHART.ops)) {
+    for (const node of Object.values(op.nodes)) {
+      if (node.sources) {
+        node.sources = node.sources.filter((source) => source.sourceid !== uuid)
+      }
+    }
   }
-  throw("Wrong UUID for findJSBlock");
 }
 
-function removeBlockJS(eltype, elid) {
-  if (eltype === TYPE.ops || eltype === TYPE.image) {
-    delete CHART[eltype][elid];
+function removeBlockJS(blockjs) {
+  if (blockjs.type === TYPE.ops) {
+    for (const node of Object.values(blockjs.nodes)) {
+      removeSourcesJS(node.uuid);
+    }
+    delete CHART.ops[blockjs.uuid];
+  } else if (blockjs.type === TYPE.image) {
+    removeSourcesJS(blockjs.uuid);
+    delete CHART.images[blockjs.uuid];
   } else {
-    alertUser("Unknown removed block", eltype);
+    removeSourcesJS(blockjs.uuid);
+    const op = CHART.ops[blockjs.opid];
+    op.nodes = op.nodes.filter((node) => node.uuid !== blockjs.uuid);
   }
-  saveChart();
-}
-
-function bindJSToOp(source, target) {
 }
 
 addInitializer(() => {

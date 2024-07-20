@@ -22,7 +22,8 @@ function get(identifier, par) {
   }
   const result = par.querySelector(identifier);
   if (!result) {
-    throw(par, identifier);
+    console.log(par);
+    throw(identifier);
   }
   return result;
 }

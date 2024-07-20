@@ -44,13 +44,31 @@ TYPEDEFS['int'] = {
   },
 };
 
+TYPEDEFS['string'] = {
+  build: (name, arg) => {
+    return EL('input', {
+      type: 'string',
+      'data-onchange': 'opChange',
+      'data-cname': 'string',
+      'data-name': name,
+      ...arg
+    });
+  },
+  parse: (name, el, arg) => {
+    return el.value;
+  },
+};
+
 // Whenever a value changes, save and trigger refreshes.
 addTrigger('opChange', function(el, evt) {
   const opblock = findParent(el, '.block-master');
-  const label = findParent(el, 'label');
-  const opjs = findJSBlock(opblock.id);
+  const opjs = opblock.blockData;
   const name = el.dataset.name;
-  opjs.args[name].value = TYPEDEFS[el.dataset.cname].parse(name, el, opjs.args[name]);
+  if (el.dataset.cname in TYPEDEFS && TYPEDEFS[el.dataset.cname].parse) {
+    opjs.args[name].value = TYPEDEFS[el.dataset.cname].parse(name, el, opjs.args[name]);
+  } else {
+    opjs.args[name].value = TYPEDEFS['string'].parse(name, el, opjs.args[name]);
+  }
   saveChart();
   refreshOpImages();
 });
@@ -64,7 +82,11 @@ function renderOp(name, oparg, argdef) {
   const item = EL('label', lattrs, name);
   const cname = oparg.cname;
   oparg = Object.assign(oparg, argdef);
-  appendChildren(item, TYPEDEFS[cname].build(name, oparg));
+  if (cname in TYPEDEFS && TYPEDEFS[cname].build) {
+    appendChildren(item, TYPEDEFS[cname].build(name, oparg));
+  } else {
+    appendChildren(item, TYPEDEFS['string'].build(name, oparg));
+  }
   return enableTriggers(item);
 }
 
@@ -154,6 +176,13 @@ async function processNode(nodejs, dependencies, torefresh) {
       deps: dependencies,
     });
     nodejs.hash = hash;
+  } else {
+    const path = "/cached/" + nodejs.hash + ".png"
+    const frame = get('#' + nodejs.uuid + ' .block-image-frame', get('#' + nodejs.opid));
+    appendChildren(frame, EL('img', {
+      class: 'block-image',
+      src: path,
+    }));
   }
   return hash;
 }

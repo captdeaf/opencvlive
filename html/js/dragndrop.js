@@ -175,7 +175,6 @@ function addMouseDrag(dragMe) {
   const actions = {};
 
   let lineStart;
-  let lineTargetOff;
 
   actions.start = function() {
     // Track time, if this is < 200ms, we consider it a click.
@@ -195,13 +194,12 @@ function addMouseDrag(dragMe) {
     bounds = boundTo.getBoundingClientRect();
 
     if (method === 'point') {
-      dragged = EL('div', {class: 'drag-pointer'}, "&#x25CE;");
-      dragged.innerHTML = "&rarr;";
+      dragged = EL('div', {class: 'drag-pointer'}, "( )");
+      dragged.innerHTML = "&bull;";
       appendChildren(EL.floats, dragged);
       const pointerRect = dragged.getBoundingClientRect();
-      lineTargetOff = pointerRect.width/2;
       mouseOff = {
-        left: pointerRect.width,
+        left: pointerRect.width/2,
         top: pointerRect.height/2,
         right: -pointerRect.width/2,
         bottom: -pointerRect.height/2,
@@ -251,12 +249,11 @@ function addMouseDrag(dragMe) {
       const line = EL('line', {
         x1: lineStart.centerX,
         y1: lineStart.centerY,
-        x2: objPos.centerX + lineTargetOff,
+        x2: objPos.centerX,
         y2: objPos.centerY,
         stroke: 'black',
       });
       svgLines.append(line);
-      console.log(line);
       // This works to switch the namespaces of the element ... *facepalm*
       svgLines.innerHTML = svgLines.innerHTML;
     }
@@ -307,6 +304,7 @@ function addMouseDrag(dragMe) {
     if (dragMe.dataset.dropOk) {
       const sel = dragMe.dataset.dropOk + '[data-drop]';
       let dropElements = listElementsMatching(droppedOn, sel);
+      console.log(dropElements);
       for (const element of dropElements) {
         trigger(element.dataset.drop, dragMe, evt, fixedPos, droppedOn, relativePos);
       }

@@ -12,25 +12,42 @@
 //    - Node block: Below ops blocks. An instance of an operation, with an
 //                  image input and output.
 //
-//    - Image (an output-only 'node')
+//    - Image (an output-only block)
 //
+////////////////////////////////////
+
+// Utility functions. Block titles should eventually be editable
+// so this is the plan.
+function setBlockName(block, title) {
+
+  // Update in the chart.
+  updateChart(() => block.blockData.name = title)
+
+  const head = get('.block-head', block);
+  head.innerText = title;
+}
+
+function moveBlock(block, blockjs) {
+  block.style.left = blockjs.pos.x + 'px';
+  block.style.top = blockjs.pos.y + 'px';
+}
+
 ////////////////////////////////////
 //
 //  Image Block flow:
 //
-//  1) We need a new imgjs, they call chart's newImageJS() with ...
-//      - on renderAll: (fetches from passed chart)
-//      - addEffectAt: newImageJS(name, path, pos) to generate new opjs
-//  2) addImageBlock(imgjs): Creates DOM block and configures it.
-//  3) updateImageBlock(block, imgjs)
+//  Events here:
+//    1) On load, render all Image Blocks.
+//    2) On creating a new Image block.
+//    3) Deleting an Image block.
 //
 ////////////////////////////////////
 
-const RENDERED_BLOCKS = {};
+// Add a single Image JS object from the chart.
+function addImageBlock(imgjs) {
+  const block = template('block-image');
 
-function updateImageBlock(block, imgjs) {
   populateElement(block, {
-    '.block-head': imgjs.name,
     '.block-image-frame': EL('img', {
       class: "block-image",
       src: imgjs.path,
@@ -38,21 +55,11 @@ function updateImageBlock(block, imgjs) {
     }),
   });
 
-  block.style.top = imgjs.pos.top + 'px';
-  block.style.left = imgjs.pos.left + 'px';
-  return block;
-}
-
-// Add a single Image JS object from the chart.
-function addImageBlock(imgjs) {
-  const effect = ALL_EFFECTS.effects[imgjs.effect];
-
-  const block = template('block-image');
+  block.blockData = imgjs;
   block.id = imgjs.uuid;
-  block.dataset.type = TYPE.image;
-  updateImageBlock(block, imgjs);
-
-  RENDERED_BLOCKS[imgjs.uuid] = block;
+  block.dataset.type = imgjs.type;
+  moveBlock(block, imgjs);
+  setBlockName(block, imgjs.name);
 
   appendChildren(EL.flowchart, block);
 }
@@ -62,6 +69,7 @@ addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
                               parentElement, relativePos) {
   const imgName = libraryElement.dataset.name;
   const imgPath = libraryElement.dataset.path;
+
   const imgjs = newImageJS(imgName, imgPath, relativePos);
   addImageBlock(imgjs);
 });
@@ -70,125 +78,68 @@ addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
 //
 //  Op Block flow:
 //
-//  1) We need a new opjs, they call chart's createOpJS with ...
-//      - on renderAll: (fetches from passed chart)
-//      - addEffectAt: newOpJS(effect, pos) to generate new opjs
-//  2) addOpBlock(opjs): Creates DOM block and configures it.
-//  3) updateOpBlock(block, opjs)
+//  Events here:
+//    1) On load, render all Op Blocks.
+//    2) On creating a new Op block.
+//    3) Deleting an Op block.
 //
 ////////////////////////////////////
-
-// Populate or change a block w/ new chart js.
-function updateOpBlock(block, opjs) {
-  populateElement(block, {
-    '.block-head': opjs.name,
-    '.oplisting': getOpListing(block.effect, opjs.args),
-  });
-
-  block.style.top = opjs.pos.top + 'px';
-  block.style.left = opjs.pos.left + 'px';
-  return block;
-}
 
 // Add a single op JS object from the chart.
 function addOpBlock(opjs) {
   const effect = ALL_EFFECTS.effects[opjs.effect];
   const block = template('block-op');
-  block.id = opjs.uuid;
-  block.dataset.effect = effect.name;
-  block.dataset.type = TYPE.ops;
+
   block.effect = effect;
-  updateOpBlock(block, opjs);
+  block.id = opjs.uuid;
+  block.dataset.type = opjs.type;
+
+  populateElement(block, {
+    '.oplisting': getOpListing(effect, opjs.args),
+  });
+
+  block.blockData = opjs;
+  setBlockName(block, opjs.name);
+  moveBlock(block, opjs);
 
   appendChildren(EL.flowchart, block);
-  RENDERED_BLOCKS[opjs.uuid] = block;
   return block;
 }
 
-function clearNodeLines() {
-  EL.flowlines.innerHTML = '';
-  const fcbox = EL.flowchart.getBoundingClientRect();
-  EL.flowlines.style.width = fcbox.width;
-  EL.flowlines.style.height = fcbox.height;
-}
-
-function calculateLinePoint(block, loc) {
-  let sel;
-  if (loc === 'in') {
-    sel = ".block-arr.block-input";
-  } else if (loc === 'out') {
-    sel = ".block-arr.block-output";
-  }
-
-  const el = get(sel, block);
-
-  // Differences between middle of el and top-left of block
-  const elBox = el.getBoundingClientRect();
-  const chartBox = EL.flowchart.getBoundingClientRect();
-
-
-  return {
-    x: elBox.left - chartBox.left + (elBox.width/2),
-    y: elBox.top - chartBox.top + (elBox.height/2),
-  }
-}
-
-function drawNodeLineSVG(source, target, opts) {
-  const spoint = calculateLinePoint(source, 'out');
-  const tpoint = calculateLinePoint(target, 'in');
-  EL.flowlines.append(EL('line', {
-    x1: spoint.x,
-    y1: spoint.y,
-    x2: tpoint.x,
-    y2: tpoint.y,
-    stroke: opts.color,
-  }));
-  EL.flowlines.innerHTML = EL.flowlines.innerHTML;
-}
-
-function drawNodeLineJS(fromuuid, touuid, opts) {
-  let fromjs;
-  // Cheap hack to get around dragndrop's hiding the
-  // original element.
-  const toBlocks = getAll('#' + touuid);
-  const fromBlocks = getAll('#' + fromuuid);
-  const toBlock = toBlocks[toBlocks.length - 1];
-  const fromBlock = fromBlocks[fromBlocks.length - 1];
-  drawNodeLineSVG(fromBlock, toBlock, opts);
-}
-
-function redrawAllNodeLines() {
-  clearNodeLines();
-  for (const opjs of Object.values(CHART.ops)) {
-    if (opjs.nodes) {
-      for (const nodejs of Object.values(opjs.nodes)) {
-        if (nodejs.sources) {
-          for (const sourcejs of Object.values(nodejs.sources)) {
-            drawNodeLineJS(sourcejs.sourceid, nodejs.uuid, sourcejs.opts);
-          }
-        }
-      }
-    }
-  }
-}
-
-addTrigger('redrawAllNodeLines', () => {
-  redrawAllNodeLines();
+// Generate new JS block and render it.
+addTrigger('addOpAt', function(effectElement, evt, fixedPos,
+                              parentElement, relativePos) {
+  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
+  const opjs = newOpJS(effect, relativePos);
+  addOpBlock(opjs);
 });
 
-function updateNodeItem(tpl, opjs, nodejs) {
-}
+////////////////////////////////////
+//
+//  Nodes: These are subordinate to ops blocks. They are contained inside the
+//  .op-master of the 'parent' ops block, and get much of their data from the
+//  ops block. While they are draggable to trash, they are not actually movable.
+//
+////////////////////////////////////
 
+// Adds a single node item.
 function addNodeItem(opBlock, opjs, nodejs) {
-  const effect = opBlock.effect;
+  const effect = opBlock.blockData.effect;
   const nodeBlock = template('opnode', {});
   nodeBlock.id = nodejs.uuid;
-  updateNodeItem(nodeBlock, opjs, nodejs)
+
+  nodeBlock.opdata = opjs;
+  nodeBlock.blockData = nodejs;
+  nodeBlock.dataset.type = nodejs.type;
+
+  nodeBlock.dataset.type = TYPE.node;
+  nodeBlock.dataset.opid = opjs.uuid;
   opBlock.appendChild(nodeBlock);
 }
 
 // Render all blocks from Chart JS
 function renderAllBlocks(chart) {
+  EL.flowchart.innerHTML = '';
   for (const [uuid, opjs] of Object.entries(chart.ops)) {
     const block = addOpBlock(opjs);
     // Their child nodes.
@@ -206,33 +157,130 @@ function renderAllBlocks(chart) {
   refreshOpImages();
 }
 
-// Generate new JS block and render it.
-addTrigger('addEffectAt', function(effectElement, evt, fixedPos,
-                              parentElement, relativePos) {
-  const effect = ALL_EFFECTS.effects[effectElement.dataset.effectName];
-  const op = newOpJS(effect, relativePos);
-  addOpBlock(op);
+////////////////////////////////////
+//
+//  Nodelines: drawing between:
+//
+//    - image->node
+//    - node->node
+//
+//  This section is only for drawing nodes for existing connections.
+//
+//  Fortunately, all drawing sources are nodes.
+//
+//  A connection is defined as a node.sources[id].
+//
+//  At time of writing, only one source is supported in the js operations, but
+//  I expect that to change as a number of opencv calls require more than a
+//  single image to be passed.
+//
+//  As such, all sources are arrays. (in case order matters)
+//
+////////////////////////////////////
+
+
+// Our blocks have 'in' points and 'out' points. But the
+// saved position of each block is its Top-Left corner. So
+// this just gets us the correct point for in or out for
+// the given block.
+function calculateLinePoint(block, loc) {
+  // Get the element defining the side.
+  if (loc === 'in') {
+    var sel = ".block-arr.block-input";
+  } else if (loc === 'out') {
+    var sel = ".block-arr.block-output";
+  }
+  const el = get(sel, block);
+  const elBox = el.getBoundingClientRect();
+
+  // Compare to the flowchart top-left, since that is the only comparison our
+  // <line>s in <svg>s use. Doesn't matter where the .block-container or
+  // .block-master is
+  const chartBox = EL.flowchart.getBoundingClientRect();
+
+  return {
+    x: elBox.left - chartBox.left + (elBox.width/2),
+    y: elBox.top - chartBox.top + (elBox.height/2),
+  }
+}
+
+// Draw a node line between a source and a target, using their
+// arrow and bullseye locations.
+function drawNodeLineSVG(source, target, opts) {
+  const spoint = calculateLinePoint(source, 'out');
+  const tpoint = calculateLinePoint(target, 'in');
+  EL.flowlines.append(EL('line', {
+    x1: spoint.x, y1: spoint.y,
+    x2: tpoint.x, y2: tpoint.y,
+    stroke: opts.color,
+  }));
+  // Stupid, stupid svg. It can't accept DOM objects, but it can accept new
+  // innerHTML. Since none of the lines we make are interactable with, I'm just
+  // gonna use this shortcut.
+  EL.flowlines.innerHTML = EL.flowlines.innerHTML;
+}
+
+// BLAH TODO: REPLACE
+function drawNodeLine(fromuuid, touuid, opts) {
+  let fromjs;
+  // Cheap hack to get around dragndrop's hiding the
+  // original element.
+  const toBlocks = getAll('#' + touuid);
+  const fromBlocks = getAll('#' + fromuuid);
+  const toBlock = toBlocks[toBlocks.length - 1];
+  const fromBlock = fromBlocks[fromBlocks.length - 1];
+
+  drawNodeLineSVG(fromBlock, toBlock, opts);
+}
+
+function redrawAllNodeLines() {
+  // Clear
+  EL.flowlines.innerHTML = '';
+  const fcbox = EL.flowchart.getBoundingClientRect();
+  EL.flowlines.style.width = fcbox.width;
+  EL.flowlines.style.height = fcbox.height;
+
+  // Redraw.
+  for (const opjs of Object.values(CHART.ops)) {
+    if (opjs.nodes) {
+      for (const nodejs of Object.values(opjs.nodes)) {
+        if (nodejs.sources) {
+          for (const sourcejs of Object.values(nodejs.sources)) {
+            drawNodeLine(sourcejs.sourceid, nodejs.uuid, sourcejs.opts);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Add an event for whenever something else needs us to redraw the lines.
+// e.g: window resize or drag+drop move.
+addTrigger('redrawAllNodeLines', () => {
+  redrawAllNodeLines();
 });
 
 addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) {
   if (el && el.dataset.type) {
-    moveBlockJS(el.dataset.type, el.id, relativePos);
+    moveBlockJS(el.blockData, relativePos);
   }
   redrawAllNodeLines();
 });
 
-addTrigger('bindToOperation', function(el, evt, fixedPos, matchedElements, relativePos) {
-  el = findParent(el, '[data-type]');
-  const opBlock = findParent(matchedElements[0], '[data-type]');
+addTrigger('bindToTarget', function(el, evt, fixedPos, matchedElements, relativePos) {
+  const sourceBlock = findParent(el, '[data-type]');
+  const targetBlock = findParent(matchedElements[0], '[data-type]');
 
-  bindJSToOp(el.id, opBlock.id);
+  bindJS(sourceBlock.blockData, targetBlock.blockData);
+  renderAllBlocks(CHART);
 });
 
 // Remove an element from both Chart JS and HTML
 // el can be: an op, a node, an image.
 addTrigger('removeElement', (el, evt) => {
-  removeBlockJS(el.dataset.type, el.id);
+  removeBlockJS(el.blockData);
   removeElement(el);
+  renderAllBlocks(CHART);
 });
 
 addInitializer(() => {

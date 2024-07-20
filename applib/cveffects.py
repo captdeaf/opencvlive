@@ -18,6 +18,8 @@ UPLOAD_DIR = 'uploads'
 
 
 def loadImage(dep):
+    dep = dep.strip('/')
+
     filepath = f"{BASE_PATH}/{CACHE_DIR}/{dep}.png"
 
     if dep.startswith(f'{UPLOAD_DIR}/'):
@@ -32,6 +34,7 @@ def generateCVImage():
     b64input = request.args.get('p')
     jsobj = ejson.loads(base64.b64decode(b64input))
 
+    debug(ejson.dumps(jsobj, indent=2))
     newpath = f"{BASE_PATH}/{CACHE_DIR}/{jsobj['outhash']}.png"
     if os.path.isfile(newpath):
         return {}
