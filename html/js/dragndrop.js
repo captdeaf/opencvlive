@@ -304,7 +304,6 @@ function addMouseDrag(dragMe) {
     if (dragMe.dataset.dropOk) {
       const sel = dragMe.dataset.dropOk + '[data-drop]';
       let dropElements = listElementsMatching(droppedOn, sel);
-      console.log(dropElements);
       for (const element of dropElements) {
         trigger(element.dataset.drop, dragMe, evt, fixedPos, droppedOn, relativePos);
       }

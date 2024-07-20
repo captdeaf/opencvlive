@@ -27,8 +27,8 @@ colorChannel = T.select({
 def adaptiveThreshold(frame,
             cmax : T.int(min=0, max=255) = 255,
             method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-            target : thresholdTarget = cv.THRESH_BINARY,
-            blockSize : T.int(min=1, step=2, title="Must be odd") = 127,
+            target : T.select({"BINARY": cv.THRESH_BINARY, "INVERTED": cv.THRESH_BINARY_INV}) = cv.THRESH_BINARY,
+            blockSize : T.int(min=1, step=2, title="Must be odd") = 27,
             weight : T.int = 2
         ):
     return cv.adaptiveThreshold(frame, cmax, method, target, blockSize, weight)
@@ -103,9 +103,6 @@ def colorToGray(image, channel : colorChannel = 1):
 @EF.register("Color from Grayscale", EF.GRAYSCALE, EF.BGR, desc="Color-channeled")
 def grayToColor(image, channel : colorChannel = 1):
     shape = image.shape + tuple([3])
-    print("!!!!!!!!!!")
-    print(shape)
-    print("!!!!!!!!!!")
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image
     return colored

@@ -12,9 +12,8 @@
 function alertUser(...all) {
   const paras = [];
   const alertDialog = showFloater('Alert', 'user-alert', function(alerter) {
-    console.log(all);
+    console.log(...all);
     for (const msgs of Object.values(all)) {
-      console.log(msgs);
       appendChildren(alerter,
         EL('p', msgs)
       );

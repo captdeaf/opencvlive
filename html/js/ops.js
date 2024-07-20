@@ -242,7 +242,6 @@ async function updateImage(nodejs, opjs, deps) {
   const path = "/cached/" + nodejs.hash + ".png"
 
   try {
-    console.log("...", '#gen' + nodejs.hash, path);
     const img = get('#gen' + nodejs.hash);
     if (img !== undefined) return;
   } catch (err) {}

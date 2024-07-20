@@ -133,9 +133,21 @@ function refreshEffectBlocks() {
         ALL_EFFECTS = resp;
         const parentElement = EL.blockselection;
         parentElement.innerHTML = '';
-        for (const effect of Object.values(resp.effects)) {
-          appendChildren(parentElement, buildEffectBlock(effect));
+        let sorted = Object.values(resp.effects);
+        sorted = sorted.sort(function(a, b) {
+          return a.displayname.toLowerCase().localeCompare(b.displayname.toLowerCase());
+        });
+        const custom = [];
+        const normal = [];
+        for (const effect of sorted) {
+          if (effect.sort === 'custom') {
+            custom.push(buildEffectBlock(effect));
+          } else {
+            normal.push(buildEffectBlock(effect));
+          }
         }
+        appendChildren(parentElement, custom);
+        appendChildren(parentElement, normal);
       },
     }
   );

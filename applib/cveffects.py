@@ -29,11 +29,13 @@ from .util import debug
 
 EF_BIND = 'localhost'
 EF_PORT = 8839
+EF_RESTART = True
 
 # Launch the runeffect.py fork server. Fire and forget because
 # it'll exit if it's already running, which is no problem.
 def EFLaunchServer(bind, port):
     global EF_BIND, EF_PORT
+
     EF_BIND = bind
     EF_PORT = port
 
