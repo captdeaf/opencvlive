@@ -188,7 +188,7 @@ function newOpJS(effect, pos) {
     pos: pos,
     nodes: []
   };
-  op.args = Object.assign({}, effect.args);
+  op.args = deepCopy(effect.args);
 
   // Update our chart
   CHART.ops[op.uuid] = op;
@@ -234,7 +234,6 @@ function pickColor() {
 // If target is a node: Reset its source.
 // In both cases, its source is set to source.
 function bindJS(sourcejs, targetjs) {
-  console.log("Attempting to bind", sourcejs, targetjs);
   const source = {
     type: sourcejs.type,
     sourceid: sourcejs.uuid,

@@ -22,7 +22,6 @@ function get(identifier, par) {
   }
   const result = par.querySelector(identifier);
   if (!result) {
-    console.log(par);
     throw(identifier);
   }
   return result;
@@ -256,6 +255,10 @@ async function easyFetch(path, opts, cbs) {
 
   // Complete
   if (cbs.complete) { cbs.complete(resp); }
+}
+
+function deepCopy(obj) {
+  return structuredClone(obj);
 }
 
 async function sha256(source) {
