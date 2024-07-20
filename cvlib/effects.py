@@ -261,7 +261,8 @@ def isColor(image):
 
 def jsApply(effect, images, args):
     if hasattr(Effects, effect):
-        return getattr(Effects, effect)(images[0], **args)
+        lazy = getattr(EF, effect)(**args)
+    return EF.apply(images[0], lazy)
 
 def cvread(filename):
     return cv.imread(filename)

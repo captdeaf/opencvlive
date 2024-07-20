@@ -86,6 +86,8 @@ function isSafeIterable(obj) {
     return false;
   }
 
+  if (obj instanceof HTMLElement) return false;
+
   return typeof(obj[Symbol.iterator]) === 'function';
 }
 

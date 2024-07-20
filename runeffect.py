@@ -47,7 +47,6 @@ def handle(client):
     newimg = jsApply(jsobj['effect'], deps, jsobj['args'])
 
     cvwrite(newimg, newpath)
-    debug("Done")
     # Close forked copy.
     client.close()
 

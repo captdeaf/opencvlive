@@ -106,14 +106,13 @@ addTrigger('showLargeImage', function(img) {
 });
 
 function buildEffectBlock(effect) {
-  // TODO: Use a default if not found.
   const imagePath = 'samples/' + effect.name + '.png';
 
   const block = template('block-effect', (block) => {
     const img = get('img', block);
     img.src = imagePath;
     img.name = effect.name;
-    get('span', block).innerText = effect.name;
+    get('span', block).innerText = effect.displayname;
   });
 
   block.dataset.name = effect.name;

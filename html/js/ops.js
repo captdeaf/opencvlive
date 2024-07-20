@@ -29,51 +29,84 @@
 
 const TYPEDEFS = {}
 
+// I'm making them individually instead of one giant object because some will
+// just reuse earlier build/parse methods.
 TYPEDEFS['int'] = {
-  build: (name, arg) => {
+  build: (name, args) => {
     return EL('input', {
       type: 'number',
-      'data-onchange': 'opChange',
-      'data-cname': arg.cname,
-      'data-name': name,
-      ...arg
+      ...args
     });
   },
-  parse: (name, el, arg) => {
+  parse: (name, el, args) => {
     return parseInt(el.value);
   },
 };
 
+TYPEDEFS['float'] = {
+  build: TYPEDEFS.int.build,
+  parse: (name, el, args) => {
+    return parseFloat(el.value);
+  },
+};
+
 TYPEDEFS['string'] = {
-  build: (name, arg) => {
+  build: (name, args) => {
     return EL('input', {
       type: 'string',
-      'data-onchange': 'opChange',
-      'data-cname': 'string',
-      'data-name': name,
-      ...arg
+      ...args
     });
   },
-  parse: (name, el, arg) => {
+  parse: (name, el, args) => {
     return el.value;
   },
 };
 
 TYPEDEFS['percent'] = {
-  build: (name, arg) => {
+  build: (name, args) => {
     return EL('input', {
       type: 'range',
-      'data-name': name,
-      'data-cname': 'percent',
-      'data-onchange': 'opChange',
       step: 0.01,
       min: 0.0,
       max: 1.0,
-      ...arg
+      ...args
     });
   },
-  parse: (name, el, arg) => {
+  parse: (name, el, args) => {
     return parseFloat(el.value);
+  },
+};
+
+TYPEDEFS['bool'] = {
+  build: (name, args) => {
+    const cargs = Object.assign({}, args);
+    if (args.value === 'true' || args.value === true) {
+      cargs.checked = true;
+    }
+    return EL('input', {
+      type: 'checkbox',
+      ...cargs
+    });
+  },
+  parse: (name, el, args) => {
+    return el.checked;
+  },
+};
+
+TYPEDEFS['select'] = {
+  build: (name, args) => {
+    const children = [];
+    for (const [k, v] of Object.entries(args.args[0])) {
+      children.push(EL('option', {
+        value: '' + v,
+      }, k));
+    }
+    const select = EL('select', args, children);
+    select.value = args.value;
+    return select
+  },
+  parse: (name, el, args) => {
+    return parseInt(el.value);
   },
 };
 
@@ -92,19 +125,28 @@ addTrigger('opChange', function(el, evt) {
 });
 
 // A single parameter to render.
-function renderOp(name, oparg, argdef) {
+function renderOp(name, opargs, argdef) {
   const lattrs = {};
   if (argdef.title) {
     lattrs.title = argdef.title;
   }
   const item = EL('label', lattrs, name);
-  const cname = oparg.cname;
-  oparg = Object.assign({}, argdef, oparg);
+  const cname = opargs.cname;
+
+  const jsargs = {
+    'data-cname': cname,
+    'data-name': name,
+    'data-onchange': 'opChange',
+  };
+
+
+  const myargs = Object.assign({}, jsargs, argdef, opargs);
   if (cname in TYPEDEFS && TYPEDEFS[cname].build) {
-    appendChildren(item, TYPEDEFS[cname].build(name, oparg));
+    var input = TYPEDEFS[cname].build(name, myargs);
   } else {
-    appendChildren(item, TYPEDEFS['string'].build(name, oparg));
+    var input = TYPEDEFS['string'].build(name, myargs);
   }
+  appendChildren(item, input);
   return enableTriggers(item);
 }
 
@@ -187,21 +229,12 @@ async function processNode(nodejs, dependencies, torefresh) {
     }
   }
   const hash = await sha256(queryString);
-  if (nodejs.hash !== hash) {
-    torefresh.push({
-      node: nodejs,
-      opjs: opjs,
-      deps: dependencies,
-    });
-    nodejs.hash = hash;
-  } else {
-    const path = "/cached/" + nodejs.hash + ".png"
-    const frame = get('#' + nodejs.uuid + ' .block-image-frame', get('#' + nodejs.opid));
-    appendChildren(frame, EL('img', {
-      class: 'block-image',
-      src: path,
-    }));
-  }
+  torefresh.push({
+    node: nodejs,
+    opjs: opjs,
+    deps: dependencies,
+  });
+  nodejs.hash = hash;
   return hash;
 }
 
@@ -219,9 +252,9 @@ async function updateImage(nodejs, opjs, deps) {
   args.outhash = nodejs.hash;
   args.dependencies = deps;
 
-  const jsargs = btoa(JSON.stringify(args));
+  const bargs = btoa(JSON.stringify(args));
 
-  await fetch(genpath + jsargs);
+  await fetch(genpath + bargs);
 
   const frame = get('#' + nodejs.uuid + ' .block-image-frame', get('#' + opjs.uuid));
   frame.innerHTML = '';

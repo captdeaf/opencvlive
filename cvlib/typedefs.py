@@ -210,6 +210,8 @@ class TBool(TJSON):
 
 @T('select')
 class TSelect(TString):
+    def fromJSON(self, jsonarg):
+        debug(f'{type(jsonarg)} - {jsonarg}')
     pass
 
 @T('noop')
