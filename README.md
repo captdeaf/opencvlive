@@ -1,26 +1,35 @@
 # opencvlive
 
-Uhh how am I gonna do this. Gigantic tree (with N roots). uuid for each node?
+OpenCVLive is a small service that lets you see, in real time, the effects of
+opencv's calls on images. In a chain:
 
-No direct references to each other (prevent nesting)
+image->blur->grayscale->threshold->find arucos? Add a bit for finding arucos
+if it doesn't already exist, and you can see if it improves or declines by
+changing 'blur' from 3 to 7? Or threshold's block size from 83 to 191?
 
-nodes = {
-  'nodeuuid': node
-}
+You can have multiple chains, and trees. And see the results of all changed
+images live.
 
-What a node needs to know:
+Upload an image, select some effects, and have fun!
 
-   - name
-   - effect type
-   - effect args
-   - effect values
-   - image name/location
-   - ids of output nodes it pulls its sources from
-     + cosmetic: locations of source points.
+## Why make it?
 
-Two items:
-   - An operation: A set of instructions
-   - A node: a single in+out of an operation.
+OpenCVLive is my attempt at reducing the difficulty curve for me to understand
+what steps I need to take in OpenCV to get the result I need.
 
-Generates them:
-   - Server-&gt;Client
+I've been constantly amazed by people I ask who can say "Yeah, I think you can
+do X, Y, then Z to get the ideal image for it." They can see it in their head.
+I can't do that at all. (Aphantasia, for those who know the term).
+
+Hence, OpenCVLive: Lets me chain opencv calls in a row and see, real time, the
+effects that, say, changing the threshold value from 73 to 127 will have.
+
+## TODO:
+
+Lots of stuff left to do here. In no particular order:
+
+ - Multi-image inputs: for, e.g: cv.merge
+ - Non-image processes and arguments. e.g: Find a polygon in one, render it in
+   another?
+ - Populate the effects list with as many opencv calls as can be done. I'm
+   still just a newb working the basics.
