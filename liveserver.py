@@ -67,8 +67,7 @@ def main():
 
     args = parser.parse_args()
 
-    if not os.path.exists(LATEST_SAMPLE):
-        rebuildEffectImages()
+    rebuildEffectImages()
 
     if args.browser:
         import webbrowser
@@ -83,7 +82,7 @@ def main():
 
     try:
         cveffects.EFLaunchServer(args.ebind, args.eport)
-        app.run(host=args.bind, port=args.port, threaded=True, debug=True, use_reloader=False)
+        app.run(host=args.bind, port=args.port, threaded=True, debug=True, use_reloader=True)
     except KeyboardInterrupt:
         pass
 
