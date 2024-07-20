@@ -42,18 +42,6 @@ from cvlib import EF, INFO
 from applib import cveffects
 
 from applib.imagegen import rebuildEffectImages
-from applib.util import buildTemplates
-
-####################################
-#
-# Rebuild the templates.
-#
-####################################
-
-indexhtml = buildTemplates(TEMPLATE_BASE, TEMPLATE_DIR)
-
-with open(TEMPLATE_OUT, 'w', encoding='utf-8') as fout:
-    fout.write(indexhtml)
 
 ####################################
 #

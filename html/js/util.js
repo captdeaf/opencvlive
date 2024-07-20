@@ -233,6 +233,7 @@ function maybeCall(func, ...args) {
 let FETCH_COUNT = 0;
 // A fetcher with callback style I prefer.
 async function easyFetch(path, opts, cbs) {
+  if (cbs === undefined) cbs = {};
   // Request
   FETCH_COUNT += 1;
   let request = fetch(path, opts);

@@ -18,6 +18,9 @@ UPLOAD_DIR     = "html/uploads"
 
 UPLOAD_TO_PATH = lambda p: p[len(STATIC_DIR):]
 
+TEMPLATE_BASE = 'index'
+TEMPLATE_DIR = 'templates'
+TEMPLATE_OUT = 'html/index.html'
 
 ####################################
 #
@@ -29,7 +32,7 @@ UPLOAD_TO_PATH = lambda p: p[len(STATIC_DIR):]
 from flask import Flask, request, redirect, url_for, send_from_directory
 import os, sys, json
 from glob import glob
-from .util import ejson
+from .util import ejson, buildTemplates
 
 app = Flask('cvliveserver',
     static_url_path = '',
@@ -45,6 +48,11 @@ app = Flask('cvliveserver',
 # Index.html
 @app.route('/')
 def static_index():
+    indexhtml = buildTemplates(TEMPLATE_BASE, TEMPLATE_DIR)
+
+    with open(TEMPLATE_OUT, 'w', encoding='utf-8') as fout:
+        fout.write(indexhtml)
+
     return send_from_directory('html', 'index.html')
 
 # Static files, including from uploads.

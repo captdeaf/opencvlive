@@ -51,6 +51,22 @@ body {
   -webkit-text-fill-color: blue;
 }
 
+.cachehead {
+  float: right;
+  font-weight: bold;
+  bottom: 0.5em;
+  right: 1em;
+  font-size: 70%;
+  margin-left: 4em;
+  -webkit-text-stroke: 0px darkred;
+  -webkit-text-fill-color: darkred;
+}
+
+#clearcache {
+  font-size: 75%;
+  margin-top: 0;
+}
+
 #topbar div {
   position: relative;
   bottom: 0;
@@ -80,7 +96,7 @@ body {
   overflow-y: scroll;
 }
 
-#about .toggle-about {
+#about .header-subtext {
   cursor: pointer;
   position: absolute;
   font-weight: bold;

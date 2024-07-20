@@ -17,10 +17,9 @@
 # Hence the server-server solution! :-D.
 #
 ####################################
-import os, sys
+import os, sys, socket
 import base64
-
-import socket
+from glob import glob
 
 from flask import request
 
@@ -46,6 +45,15 @@ def EFLaunchServer(bind, port):
 def getCVEffects():
     return ejson.loads(ejson.dumps(INFO))
 
+# Clear our cache.
+@app.route('/cv/clearCache', methods=['POST'])
+def clearCache():
+    for file in glob('html/cached/*.png'):
+        os.remove(file)
+    return dict(
+        cachesize = len(glob('html/cached/*.png')),
+    )
+
 # Generate an opencv image, using passed parameters.
 @app.route('/cv/imagegen')
 def generateCVImage():
@@ -57,4 +65,7 @@ def generateCVImage():
     sock.send(bout)
     sock.shutdown(socket.SHUT_WR)
     sock.recv(1024)
-    return {}
+
+    return dict(
+        cachesize = len(glob('html/cached/*.png')),
+    )

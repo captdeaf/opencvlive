@@ -241,6 +241,12 @@ async function processNode(nodejs, dependencies, torefresh) {
 async function updateImage(nodejs, opjs, deps) {
   const path = "/cached/" + nodejs.hash + ".png"
 
+  try {
+    console.log("...", '#gen' + nodejs.hash, path);
+    const img = get('#gen' + nodejs.hash);
+    if (img !== undefined) return;
+  } catch (err) {}
+
   let genpath = "/cv/imagegen?p="
   const args = {};
   args.effect = opjs.effect;
@@ -254,14 +260,21 @@ async function updateImage(nodejs, opjs, deps) {
 
   const bargs = btoa(JSON.stringify(args));
 
-  await fetch(genpath + bargs);
+  resp = await fetch(genpath + bargs);
 
-  const frame = get('#' + nodejs.uuid + ' .block-image-frame', get('#' + opjs.uuid));
+  const opElement = get('#' + opjs.uuid);
+  const frame = get('#' + nodejs.uuid + ' .block-image-frame', opElement);
   frame.innerHTML = '';
   appendChildren(frame, EL('img', {
+    id: 'gen' + nodejs.hash,
     class: 'block-image',
     src: path,
   }));
+  if (resp.status === 200) {
+    resp.json().then((js) => {
+      get('#cachesize').innerText = js.cachesize;
+    });
+  }
 }
 
 // This handles the image generation for all nodes.
@@ -282,10 +295,6 @@ async function processNodeImages(images, sequence) {
     }
     const hash = await processNode(nodejs, deps, torefresh);
     dependencies[nodejs.uuid] = hash;
-  }
-  for (const obj of Object.values(torefresh)) {
-    const frame = get('#' + obj.node.uuid + ' .block-image-frame', get('#' + obj.opjs.uuid));
-    frame.innerHTML = '';
   }
 
   for (const obj of Object.values(torefresh)) {

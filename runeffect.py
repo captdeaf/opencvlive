@@ -33,22 +33,20 @@ def handle(client):
     # Parse input for args.
     b64input = client.recv(16384)
     jsobj = ejson.loads(base64.b64decode(b64input))
-    # debug(ejson.dumps(jsobj, indent=2))
 
     # What is our hashed outfile going to be?
     newpath = f"{BASE_PATH}/{CACHE_DIR}/{jsobj['outhash']}.png"
     if os.path.isfile(newpath):
-        return {}
+        return
 
     # Load images we're basing off of.
 
     deps = [cvread(getPath(dep)) for dep in jsobj['dependencies']]
 
+    
     newimg = jsApply(jsobj['effect'], deps, jsobj['args'])
 
     cvwrite(newimg, newpath)
-    # Close forked copy.
-    client.close()
 
 
 def main(bind, port, test=False):
@@ -67,11 +65,17 @@ def main(bind, port, test=False):
         client, addr = server.accept()
         if test:
             handle(client)
+            client.close()
             return
         kid = os.fork()
         if kid == 0:
             server.close()
-            handle(client)
+            try:
+                handle(client)
+                client.close()
+            except Exception as err:
+                client.close()
+                raise err
             return
         # Close parent's copy.
         client.close()

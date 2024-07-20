@@ -28,7 +28,7 @@ def adaptiveThreshold(frame,
             cmax : T.int(min=0, max=255) = 255,
             method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
             target : thresholdTarget = cv.THRESH_BINARY,
-            blockSize : T.int(min=1) = 11,
+            blockSize : T.int(min=1, step=2, title="Must be odd") = 127,
             weight : T.int = 2
         ):
     return cv.adaptiveThreshold(frame, cmax, method, target, blockSize, weight)

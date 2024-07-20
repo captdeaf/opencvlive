@@ -173,12 +173,13 @@
   width: 100%;
 }
 
-.oplisting label input {
+.oplisting label input,select {
   position: absolute;
+  font-size: 80%;
   right: 0;
   top: 0;
-  width: 80%;
-  max-width: 6em;
+  width: 70%;
+  max-width: 10em;
 }
 
 .oplisting [type="number"] {

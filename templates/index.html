@@ -24,6 +24,7 @@
     <script type="text/javascript" src="js/ops.js"></script>
     <script type="text/javascript" src="js/flowchart.js"></script>
     <script type="text/javascript" src="js/toolbox.js"></script>
+    <script type="text/javascript" src="js/other.js"></script>
   </head>
   <body>
     {{about}}
@@ -38,7 +39,14 @@
     </div>
     <div id="head" class="cvstyle">
       <div id="topbar">
-        <div id="title" class="toggle-about" data-onclick="toggle" data-target="#about">OpenCVLive&nbsp;<span id="qmark">(About)</span></div>
+        <div id="title" class="header-subtext" data-onclick="toggle" data-target="#about">
+          OpenCVLive&nbsp;
+          <span id="qmark">(About)</span>
+        </div>
+        <div class="header-subtext" class="cachehead">
+          Cache Size: <span id='cachesize'>??</span> images.
+          <button id="clearcache" data-onclick="clearCache">Clear</button>
+        </div>
         <div id="topbar-filler"></div>
       </div>
     </div>

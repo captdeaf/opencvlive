@@ -191,10 +191,7 @@ class TInt(TJSON): pass
 @T('string')
 class TString(TJSON): pass
 
-@T('byte')
-class TByte(TInt):
-    min = 0
-    max = 255
+T.byte = T.int(min=0, max=255)
 
 @T('float')
 class TFloat(TInt): pass
