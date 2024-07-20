@@ -87,8 +87,6 @@ def watchAndRestart(bind, port):
                 break
 
         if RESTART: break
-
-        print("Watching again?")
    
 
     print("File changed. Triggering restart.")
