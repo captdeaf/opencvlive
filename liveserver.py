@@ -68,8 +68,13 @@ def main():
         description="Creates a mini webserver that lets you experiment with opencv's functions, live.",
     )
 
-    parser.add_argument('-p', '--port', default='8838', type=int)
+    # This server.
     parser.add_argument('-b', '--bind', default="", type=str)
+    parser.add_argument('-p', '--port', default='8838', type=int)
+    # Effect fork-and-process server
+    parser.add_argument('-e', '--ebind', default='localhost', type=str)
+    parser.add_argument('-f', '--eport', default='8839', type=int)
+    # Launch browser?
     parser.add_argument('-w', '--browser', action='store_true', default=False)
 
     args = parser.parse_args()
@@ -89,6 +94,7 @@ def main():
         browserthread.start()
 
     try:
+        cveffects.EFLaunchServer(args.ebind, args.eport)
         app.run(host=args.bind, port=args.port, threaded=True, debug=True, use_reloader=False)
     except KeyboardInterrupt:
         pass
