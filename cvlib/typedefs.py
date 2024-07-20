@@ -211,5 +211,11 @@ class TSelect(TString):
         debug(f'{type(jsonarg)} - {jsonarg}')
     pass
 
+T.colorChannel = T.select({
+    "BLUE": 0,
+    "GREEN": 1,
+    "RED": 2,
+}, title="Color channel", ctype='int')
+
 @T('noop')
 class TNOOP(TJSON): pass

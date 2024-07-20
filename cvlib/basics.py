@@ -17,12 +17,6 @@ thresholdTarget = T.select({
     "ToZero Inverted": cv.THRESH_TOZERO_INV,
 }, title="Threshold target", ctype='int')
 
-colorChannel = T.select({
-    "BLUE": 0,
-    "GREEN": 1,
-    "RED": 2,
-}, title="Color channel", ctype='int')
-
 @EF.register("Adaptive Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="AT'd")
 def adaptiveThreshold(frame,
             cmax : T.int(min=0, max=255) = 255,
@@ -58,7 +52,7 @@ def colorize(image):
     return image
 
 @EF.register("Remove Color", EF.BGR, EF.BGR, desc="Plucked")
-def removeColor(image, channel : colorChannel  = 1):
+def removeColor(image, channel : T.colorChannel = 1):
     image[:,:,channel] = 0
     return image
 
@@ -97,11 +91,11 @@ def writeOn(frame,
     return frame
 
 @EF.register("Grayscale from Color", EF.BGR, EF.GRAYSCALE, desc="Color-plucked")
-def colorToGray(image, channel : colorChannel = 1):
+def colorToGray(image, channel : T.colorChannel = 1):
     return image[:,:,channel]
 
 @EF.register("Color from Grayscale", EF.GRAYSCALE, EF.BGR, desc="Color-channeled")
-def grayToColor(image, channel : colorChannel = 1):
+def grayToColor(image, channel : T.colorChannel = 1):
     shape = image.shape + tuple([3])
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image

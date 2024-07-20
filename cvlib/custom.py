@@ -31,3 +31,11 @@ def rotate(image, right : T.bool(title="Rotate right or left?") = True):
     ret[:,:,2] = r
 
     return ret
+
+@register("Swap colors", EF.BGR, EF.BGR, desc="Swap two colors")
+def swap(image, a: T.colorChannel(desc='Color 1') = 0, b: T.colorChannel(desc='Color 2') = 1):
+    dest = image.copy()
+    dest[:,:,a] = image[:,:,b]
+    dest[:,:,b] = image[:,:,a]
+
+    return dest
