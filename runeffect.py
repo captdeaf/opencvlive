@@ -69,16 +69,26 @@ def watchAndRestart(bind, port):
 
     watcher = inotify.adapters.Inotify()
 
-    for path in ['cvlib/*.py', 'applib/*.py', '*.py']:
+    # I do this instead of watching the directory because
+    # otherwise it triggers on my editor .swp file changes.
+    for path in ['cvlib/*.py', 'appli/*.pyb', '*.py']:
         for file in glob(path):
+            print(f"Watching {file}")
             watcher.add_watch(file)
 
     print("Watching for file changes.")
 
     for event in watcher.event_gen(yield_nones=False):
-        RUNNING=False
-        RESTART=True
-        break
+        (_, type_names, path, filename) = event
+        for tname in type_names:
+            if tname in ['IN_MOVE_SELF', 'IN_DELETE_SELF', 'IN_CLOSE_WRITE']:
+                RUNNING=False
+                RESTART=True
+                break
+
+        if RESTART: break
+
+        print("Watching again?")
    
 
     print("File changed. Triggering restart.")
@@ -90,10 +100,6 @@ def watchAndRestart(bind, port):
 def main(bind, port, test=False):
     signal.signal(signal.SIGCHLD, cleanchild)
 
-    if (inotify.adapters):
-        thread = Thread(target=watchAndRestart, args=(bind, port))
-        thread.start()
-
     try:
         server = socket.socket()
         server.bind((bind, port))
@@ -101,8 +107,12 @@ def main(bind, port, test=False):
     except:
         print("runeffect.py unable to open socket.")
         print("Usually means it's already running and flask restarted.")
-        print("No worries.")
+        print("No worries, exiting..")
         return
+
+    if (inotify.adapters):
+        thread = Thread(target=watchAndRestart, args=(bind, port))
+        thread.start()
 
     while RUNNING:
         client, addr = server.accept()
