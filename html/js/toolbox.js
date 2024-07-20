@@ -36,14 +36,14 @@ function refreshLibrary() {
 // Show the upload dialog, and reset it as a form (clear inputs)
 // Also clear its file state listing.
 addTrigger('showUploadDialog', (el, evt) => {
-  const allInputs = EL.upload.querySelectorAll('input');
+  const allInputs = getAll('input', EL.upload);
   allInputs[0].form.reset();
 
   for (const input of allInputs) {
     input.disabled = false;
   }
 
-  uploadDiv.style.display = 'block';
+  EL.upload.style.display = 'block';
 
   get('#upload-list', EL.upload).innerHTML = '';
 });
@@ -95,7 +95,9 @@ addTrigger('showLargeChildImage', function(el) {
   let name = el.dataset.name;
   if (!name) { name = img.dataset.name; }
   showFloater(name, 'large-image', (el) => {
-    get('img', el).src = img.src;
+    const large = get('img', el);
+    large.src = img.src;
+    large.dataset.uuid = img.dataset.uuid;
   });
 });
 

@@ -71,7 +71,6 @@ def uploadFile():
     except: pass
 
     for data in request.files.getlist("file"):
-        debug(data)
         if data.filename:
             data.save(os.path.join(UPLOAD_DIR, data.filename))
 

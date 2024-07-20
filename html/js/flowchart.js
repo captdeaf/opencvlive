@@ -87,23 +87,30 @@ addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
 
 // Add a single op JS object from the chart.
 function addOpBlock(opjs) {
-  const effect = ALL_EFFECTS.effects[opjs.effect];
-  const block = template('block-op');
+  if (opjs.effect in ALL_EFFECTS.effects) {
+    const effect = ALL_EFFECTS.effects[opjs.effect];
+    const block = template('block-op');
 
-  block.effect = effect;
-  block.id = opjs.uuid;
-  block.dataset.type = opjs.type;
+    block.effect = effect;
+    block.id = opjs.uuid;
+    block.dataset.type = opjs.type;
 
-  populateElement(block, {
-    '.oplisting': getOpListing(effect, opjs.args),
-  });
+    populateElement(block, {
+      '.oplisting': getOpListing(effect, opjs.args),
+    });
 
-  block.blockData = opjs;
-  setBlockName(block, opjs.name);
-  moveBlock(block, opjs);
+    block.blockData = opjs;
+    setBlockName(block, opjs.name);
+    moveBlock(block, opjs);
 
-  appendChildren(EL.flowchart, block);
-  return block;
+    appendChildren(EL.flowchart, block);
+    return block;
+  } else {
+    const block = template('block-op');
+    block.blockData = {};
+    setBlockName(block, "Unknown op");
+    return block;
+  }
 }
 
 // Generate new JS block and render it.
@@ -134,6 +141,8 @@ function addNodeItem(opBlock, opjs, nodejs) {
 
   nodeBlock.dataset.type = TYPE.node;
   nodeBlock.dataset.opid = opjs.uuid;
+
+  setBlockName(nodeBlock, nodejs.name);
   opBlock.appendChild(nodeBlock);
 }
 

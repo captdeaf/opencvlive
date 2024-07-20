@@ -267,8 +267,13 @@ async function updateImage(nodejs, opjs, deps) {
   appendChildren(frame, EL('img', {
     id: 'gen' + nodejs.hash,
     class: 'block-image',
+    'data-uuid': nodejs.uuid,
     src: path,
   }));
+  for (const large of getAll('.large-image[data-uuid="' + nodejs.uuid + '"]')) {
+    console.log("Updating", large, path);
+    large.src = path;
+  }
   if (resp.status === 200) {
     resp.json().then((js) => {
       get('#cachesize').innerText = js.cachesize;

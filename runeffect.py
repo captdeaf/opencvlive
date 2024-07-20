@@ -85,6 +85,7 @@ def watchAndRestart(bind, port):
         (_, type_names, path, filename) = event
         for tname in type_names:
             if tname in ['IN_MOVE_SELF', 'IN_DELETE_SELF', 'IN_CLOSE_WRITE']:
+                print(f"Quitting because of {path} and {filename} for {tname}")
                 RUNNING=False
                 RESTART=True
                 break
@@ -113,7 +114,8 @@ def main(bind, port, test=False):
         thread = Thread(target=watchAndRestart, args=(bind, port))
         thread.start()
 
-    try:
+    # try:
+    if True:
         while RUNNING:
             client, addr = server.accept()
             if test:
@@ -131,8 +133,7 @@ def main(bind, port, test=False):
                 sys.exit(0)
             # Close parent's copy.
             client.close()
-    except:
-        pass
+    # except: pass
 
     print("Shutting down")
     if RUNNING: # We got an interrupt
@@ -161,6 +162,7 @@ if __name__ == '__main__':
         port = int(port)
         main(bind, port, test=test)
         if RESTART:
+            sys.exit(0)
             print("File changed. Triggering restart.")
             os.execv(cmd, sys.argv)
         else:

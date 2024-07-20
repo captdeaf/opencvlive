@@ -12,28 +12,9 @@ from .effects import EF, cv, T
 def register(*args, **kwargs):
     return EF.register(*args, **kwargs, sort='custom');
 
-# Silly custom register for rotation. As it uses @register above,
-# it will get sorted to the top of the list in the toolbox.
-@register("Rotate colors", EF.BGR, EF.BGR, desc="Inverted")
-def rotate(image, right : T.bool(title="Rotate right or left?") = True):
-    b = image[:,:,0]
-    g = image[:,:,1]
-    r = image[:,:,2]
-
-    if right:
-        b, g, r = r, b, g
-    else:
-        b, g, r = g, r, b
-
-    ret = np.zeros(image.shape, dtype="uint8")
-    ret[:,:,0] = b
-    ret[:,:,1] = g
-    ret[:,:,2] = r
-
-    return ret
-
-@register("Swap colors", EF.BGR, EF.BGR, desc="Swap two colors")
-def swap(image, a: T.colorChannel(desc='Color 1') = 0, b: T.colorChannel(desc='Color 2') = 1):
+# @register("Swap colors", EF.BGR, EF.BGR, desc="Swap two colors")
+def swap(image, a: T.colorChannel(desc='Color 1') = 0,
+                b: T.colorChannel(desc='Color 2') = 1):
     dest = image.copy()
     dest[:,:,a] = image[:,:,b]
     dest[:,:,b] = image[:,:,a]

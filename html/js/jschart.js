@@ -162,6 +162,7 @@ function makeUUID(type) {
 function newImageJS(name, path, pos) {
   const uuid = makeUUID(TYPE.image);
   const img = {
+    type: TYPE.image,
     uuid: uuid,
     name: name,
     path: path,
@@ -247,7 +248,7 @@ function bindJS(sourcejs, targetjs) {
       type: TYPE.node,
       uuid: makeUUID(TYPE.node),
       sources: [source],
-      name: 'Untitled',
+      name: targetjs.name,
     };
 
     newNode.opid = targetjs.uuid;
@@ -291,8 +292,8 @@ function removeBlockJS(blockjs) {
     removeSourcesJS(blockjs.uuid);
     delete CHART.images[blockjs.uuid];
   } else {
-    removeSourcesJS(blockjs.uuid);
     const op = CHART.ops[blockjs.opid];
+    removeSourcesJS(blockjs.uuid);
     op.nodes = op.nodes.filter((node) => node.uuid !== blockjs.uuid);
   }
 }
