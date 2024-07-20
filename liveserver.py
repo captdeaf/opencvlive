@@ -89,7 +89,7 @@ def main():
         browserthread.start()
 
     try:
-        app.run(host=args.bind, port=args.port, debug=True, extra_files=glob('templates/*.html'))
+        app.run(host=args.bind, port=args.port, threaded=True, debug=True, use_reloader=False)
     except KeyboardInterrupt:
         pass
 

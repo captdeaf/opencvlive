@@ -59,6 +59,24 @@ TYPEDEFS['string'] = {
   },
 };
 
+TYPEDEFS['percent'] = {
+  build: (name, arg) => {
+    return EL('input', {
+      type: 'range',
+      'data-name': name,
+      'data-cname': 'percent',
+      'data-onchange': 'opChange',
+      step: 0.01,
+      min: 0.0,
+      max: 1.0,
+      ...arg
+    });
+  },
+  parse: (name, el, arg) => {
+    return parseFloat(el.value);
+  },
+};
+
 // Whenever a value changes, save and trigger refreshes.
 addTrigger('opChange', function(el, evt) {
   const opblock = findParent(el, '.block-master');
@@ -81,7 +99,7 @@ function renderOp(name, oparg, argdef) {
   }
   const item = EL('label', lattrs, name);
   const cname = oparg.cname;
-  oparg = Object.assign(oparg, argdef);
+  oparg = Object.assign({}, argdef, oparg);
   if (cname in TYPEDEFS && TYPEDEFS[cname].build) {
     appendChildren(item, TYPEDEFS[cname].build(name, oparg));
   } else {
@@ -92,15 +110,15 @@ function renderOp(name, oparg, argdef) {
 
 // Given a set of parameters, generate elements to configure them.
 function getOpListing(effect, opargs) {
-  const ret = EL('div', {});
+  const children = [];
   if (opargs && Object.keys(opargs).length > 0) {
     for (const [name, oparg] of Object.entries(opargs)) {
-      appendChildren(ret, renderOp(name, oparg, effect.args[name]));
+      children.push(renderOp(name, oparg, effect.args[name]));
     }
   } else {
-    appendChildren(ret, "No parameters");
+    children.push("No parameters");
   }
-  return ret;
+  return children;
 }
 
 ////////////////////////////////////
@@ -231,6 +249,10 @@ async function processNodeImages(images, sequence) {
     }
     const hash = await processNode(nodejs, deps, torefresh);
     dependencies[nodejs.uuid] = hash;
+  }
+  for (const obj of Object.values(torefresh)) {
+    const frame = get('#' + obj.node.uuid + ' .block-image-frame', get('#' + obj.opjs.uuid));
+    frame.innerHTML = '';
   }
 
   for (const obj of Object.values(torefresh)) {

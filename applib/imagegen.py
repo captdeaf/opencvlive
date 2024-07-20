@@ -63,7 +63,7 @@ def rebuildEffectImages():
             else:
                 img = defaultCall(name, use)
 
-            img = EF.apply(img, EF.writeOn(name, ypct=0.3, color=[0, 40, 0]))
+            img = EF.apply(img, EF.writeOn(name, ypct=0.3))
 
             cv.imwrite(filename, img)
             print(f"{name}: {filename} written")

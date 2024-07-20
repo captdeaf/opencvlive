@@ -59,6 +59,7 @@
 
 import cv2 as cv
 import numpy as np
+import inspect
 
 from .typedefs import T, JSDict
 
@@ -131,21 +132,30 @@ def C(group, **constants):
 def addType(name, **kwargs):
     INFO['types'][name] = kwargs
 
-def dictify(annos):
+def dictify(func):
+    params = inspect.signature(func).parameters
     args = {}
-    for arg, anno in annos.items():
-        if isinstance(anno, JSDict):
-            args[arg] = anno.toDict()
+    imagecount = 0
+    for arg, v in params.items():
+        if v.default != inspect._empty:
+            if isinstance(v.annotation, JSDict):
+                args[arg] = v.annotation.toDict()
+            else:
+                args[arg] = v.annotation
+            args[arg]['value'] = v.default
         else:
-            args[arg] = anno
-    return args
+            imagecount += 1
+
+    return imagecount, args
 
 def addEffectInfo(func, displayname, channelfrom, channelto, **kwargs):
+    icount, args = dictify(func)
     newEffect = dict(
         name = func.__name__,
         displayname = displayname,
         doc = func.__doc__,
-        args = dictify(func.__annotations__),
+        icount = icount,
+        args = args,
         channelfrom = channelfrom,
         channelto = channelto,
         **kwargs

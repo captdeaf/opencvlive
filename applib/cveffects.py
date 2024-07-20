@@ -1,5 +1,7 @@
-import os
+import os, sys
 import base64
+
+from subprocess import Popen, PIPE
 
 from flask import request
 
@@ -12,37 +14,12 @@ from .util import debug
 def getCVEffects():
     return ejson.loads(ejson.dumps(INFO))
 
-BASE_PATH = 'html'
-CACHE_DIR = 'cached'
-UPLOAD_DIR = 'uploads'
-
-
-def loadImage(dep):
-    dep = dep.strip('/')
-
-    filepath = f"{BASE_PATH}/{CACHE_DIR}/{dep}.png"
-
-    if dep.startswith(f'{UPLOAD_DIR}/'):
-        filepath = f"{BASE_PATH}/{dep}"
-
-    debug(f"cvreading {filepath}")
-    return cvread(filepath)
-
 # Generate an opencv image, using passed parameters.
 @app.route('/cv/imagegen')
 def generateCVImage():
     b64input = request.args.get('p')
-    jsobj = ejson.loads(base64.b64decode(b64input))
 
-    debug(ejson.dumps(jsobj, indent=2))
-    newpath = f"{BASE_PATH}/{CACHE_DIR}/{jsobj['outhash']}.png"
-    if os.path.isfile(newpath):
-        return {}
-
-    deps = [loadImage(dep) for dep in jsobj['dependencies']]
-
-    newimg = jsApply(jsobj['effect'], deps, jsobj['args'])
-
-    cvwrite(newimg, newpath)
-
+    # Feed to 
+    subp = Popen('./runeffect.py', text=True, stdin=PIPE)
+    subp.communicate(b64input)
     return {}

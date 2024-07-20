@@ -25,7 +25,7 @@ colorChannel = T.select({
 
 @EF.register("Adaptive Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="AT'd")
 def adaptiveThreshold(frame,
-            cmax : T.int = 255,
+            cmax : T.int(min=0, max=255) = 255,
             method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
             target : thresholdTarget = cv.THRESH_BINARY,
             blockSize : T.int(min=1) = 11,
@@ -71,14 +71,14 @@ def writeOn(frame,
             text : T.string = 'demo',
             xpct : T.percent = 0.2,
             ypct : T.percent = 0.8,
-            color : T.noop = [0, 255, 255],
+            # color : T.noop = [0, 255, 255],
             size : T.int(min=1, max=255) = 4,
             weight : T.int(min=1, max=255) = 10
         ):
 
     # TODO: When we have a good color color picker,
     #       make this an op arg.
-    # color = [255, 255, 255]
+    color = [255, 255, 255]
 
     font = cv.FONT_HERSHEY_SIMPLEX
     weight= 10
@@ -106,17 +106,6 @@ def grayToColor(image, channel : colorChannel = 1):
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image
     return colored
-
-@EF.register("Adjust brightness", EF.BGR, EF.SAME, desc="Brightend/Dimmed")
-def brighten(image, pct : T.percent = 0.75):
-    hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    h, s, v = cv.split(hsv)
-
-    v[:] = (100 * v[:]) / int(100 * pct)
-    v[v > 255] = 255
-
-    newhsv = cv.merge((h, s, v))
-    return cv.cvtColor(newhsv, cv.COLOR_HSV2BGR)
 
 @EF.register("Invert", EF.ANY, EF.SAME, desc="Inverted")
 def invert(image):
