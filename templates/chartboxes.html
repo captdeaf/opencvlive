@@ -21,6 +21,30 @@ Image blocks, for when we drag images onto the flowchart.
   </div>
 </div>
 
+Complex data - edited in JSON.
+<div id="template-block-complex">
+  <div class="block-master" style="width: 9em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="blockDrop" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-move="redrawAllNodeLines">
+    <div class="block-container">
+      <div class="block-contents">
+        <div class="block-input block-edge"></div>
+        <div class="block-center">
+          <span class="drag-start block-head block-drag"></span>
+          <div class="block-lower">
+            <div class="block-image-frame" data-onclick="debugTrigger">
+              <img class="block-image" data-name="Complex input" src="samples/matrixmath.png"/>
+            </div>
+          </div>
+        </div>
+        <div class="block-out">
+          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-drag-drop-on=".accept-complex">
+            <span class="vcenter">[x]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 The big kahunas: the blocks in the flowchart that are movable,
 drop-onable, configurable, removable, added, etc.
 

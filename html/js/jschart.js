@@ -135,6 +135,7 @@ const DEMO_CHART = {
       ]
     }
   },
+  "complexes": {},
   "images": {
     "images1721586619249": {
       "type": "images",
@@ -158,6 +159,7 @@ let CCACHE = {};
 const TYPE = {
   op: 'ops',
   image: 'images',
+  complex: 'complexes',
 }
 
 ////////////////////////////////////
@@ -215,6 +217,28 @@ function newImageJS(name, path, pos) {
 
   // And return to let flowchart render it.
   return img;
+}
+
+// New Complex JS for json data
+function newComplexJS(name, pos) {
+  const uuid = makeUUID(TYPE.complex);
+  const complex = {
+    type: TYPE.complex,
+    uuid: uuid,
+    name: name,
+    pos: pos,
+    json: {},
+  };
+
+  // Update our chart
+  if (!('complexes' in CHART)) {
+    CHART.complexes = {};
+  }
+  CHART.complexes[complex.uuid] = complex;
+  saveChart();
+
+  // And return to let flowchart render it.
+  return complex;
 }
 
 // Create a new opJS
@@ -309,6 +333,9 @@ function removeBlockJS(blockjs) {
   } else if (blockjs.type === TYPE.image) {
     removeSourcesJS(blockjs.uuid);
     delete CHART.images[blockjs.uuid];
+  } else if (blockjs.type === TYPE.complex) {
+    removeSourcesJS(blockjs.uuid);
+    delete CHART.complexes[blockjs.uuid];
   }
 }
 

@@ -177,7 +177,6 @@ function addMouseDrag(dragMe) {
   let lineStart;
 
   actions.start = function() {
-    console.log("Starting drag?");
     // Track time, if this is < 200ms, we consider it a click.
     clickStart = new Date().getTime();
 

@@ -74,6 +74,36 @@ addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
   addImageBlock(imgjs);
 });
 
+addTrigger('addComplexAt', function(libraryElement, evt, fixedPos,
+                              parentElement, relativePos) {
+  const cxName = "Complex JSON";
+
+  const cxjs = newComplexJS(cxName, relativePos);
+  addComplexBlock(cxjs);
+});
+
+////////////////////////////////////
+//
+//  Complex: complex JSON data to feed to zero or more ops.
+//
+//  Events here:
+//    1) On load, render all Complex Blocks.
+//    2) On creating a new Complex block.
+//    3) Deleting a Complex block.
+//
+////////////////////////////////////
+
+function addComplexBlock(cxjs) {
+  const block = template('block-complex');
+
+  block.blockData = cxjs;
+  block.id = cxjs.uuid;
+  block.dataset.type = cxjs.type;
+  moveBlock(block, cxjs);
+  setBlockName(block, cxjs.name);
+
+  appendChildren(EL.flowchart, block);
+}
 ////////////////////////////////////
 //
 //  Op Block flow:
@@ -161,6 +191,10 @@ function renderAllBlocks(chart) {
   }
   for (const [uuid, imgjs] of Object.entries(chart.images)) {
     addImageBlock(imgjs);
+  }
+
+  for (const [uuid, cxjs] of Object.entries(chart.complexes)) {
+    addComplexBlock(cxjs);
   }
 
   redrawAllNodeLines();

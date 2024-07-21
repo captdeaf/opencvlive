@@ -6,7 +6,9 @@ function rebuildLibrary(paths) {
   const library = EL.library;
   library.innerHTML = '';
 
-  function paneLoop(path) {
+  appendChildren(library, template('library-complex', {}));
+
+  for (const path of paths) {
     const name = basename(path);
     const pane = template('library-image', (tpl) => {
       const img = get('img', tpl);
@@ -19,9 +21,6 @@ function rebuildLibrary(paths) {
     pane.dataset.name = name;
     pane.dataset.path = path;
     appendChildren(library, pane);
-  }
-  for (const path of paths) {
-    paneLoop(path);
   }
 }
 

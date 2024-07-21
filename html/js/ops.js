@@ -142,7 +142,6 @@ function renderOp(name, opargs, argdef) {
   };
   const myargs = deepCopy(jsargs, argdef, opargs);
 
-  // We use ".p<name>" to find the element for drawing lines.
   let accepts = 'noaccept';
   if (cname.startsWith('complex')) {
     accepts = 'accept-complex';
@@ -151,7 +150,8 @@ function renderOp(name, opargs, argdef) {
   }
 
   const labelAttrs = {
-    'class': ['p' + name, accepts, 'block-accept'].join(' '),
+    'class': [accepts, 'block-accept'].join(' '),
+    'data-arg': name,
   };
 
   if (argdef.title) {
@@ -242,11 +242,9 @@ function getProviderListing(effect, opjs) {
 //  refreshOpImages: Load or reload every image that we have.
 //
 //  This one is a little complex:
-//    1) Generate a sorted list of nodes. Sorted such that a given node
-//       (NOT op - only nodes) will come after all nodes and images that
-//       come before it. In other words: I generate a tree branch, working
-//       backwards, for every node. Then starting with images, generate the
-//       list.
+//    1) Generate a sorted list of Ops. Sorted such that a given op will come
+//       after all ops, complexes, and images that come before it.
+//    2) This uses a cache to make loops no-ops.
 //
 ////////////////////////////////////
 function refreshOpImages() {
