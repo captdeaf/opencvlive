@@ -7,107 +7,147 @@
 //
 //  Three types of blocks:
 //
-//    - Ops block: a single operation and its settings. No i/o,
-//                 though it displays an input, inputs generate
-//                 new nodes.
+//    - Ops block: a single operation and its settings.
 //
-//    - Node block: Below ops blocks. An instance of an operation, with an
-//                  image input and output.
+//    - JSON/Complex block. Output-only. For user-entered numpy arrays.
 //
 //    - Picture (an output-only 'node')
+//
+//  All three need:
+//    - configurable name (?)
+//    - pos
 //
 //  Image block needs:
 //    - image path
 //
-//  Ops block and Image block need:
-//    - pos
-//    - Nonstandard styles, if any?
+//  Complex block needs:
+//    - JSON of arrays/matrices
 //
 //  Ops block needs:
 //
-//    - Configurable name
 //    - Effect name
-//    - Args available and values.
-//    - Input type (BGR/GRAYSCALE)
+//    - Input args (images, complex, and other)
+//    - Output values (images, complex, and other)
 //
-//  Node blocks need:
+//  Inputs:
+//    - Image   (drag to target)
+//    - Complex (drag to target)
+//    - Simple  (Optional drag?)
 //
-//    - input node id (Primary / initial)
-//        + cosmetic: color of line
-//    - input node ids (secondary image inputs)
-//        + cosmetic: color of lines
-//
-//  Node and Image blocks need:
-//
-//    - display name (original image's)
-//    - output image path
+//  Outputs per ops (one or more)
+//    - Image
+//    - Complex
+//    - Simple
 //
 ////////////////////////////////////
 
 // Our demonstration chart. It ... doesn't do much. It also demonstrates
 // the structure of the CHART object.
 const DEMO_CHART = {
-  ops: {
-    opsuuid1: {
-      type: 'ops',
-      uuid: 'opsuuid1',
-      name: 'Demo Blur',
-      effect: 'blur',
-      args: {
-        amount: {
-          cname: 'int',
-          flag: 'odd',
-          min: 1,
-          value: 5,
-        }
+  "ops": {
+    "ops1721586817693": {
+      "type": "ops",
+      "uuid": "ops1721586817693",
+      "name": "Blur",
+      "effect": "blur",
+      "pos": {
+        "x": 311.40000915527344,
+        "y": 301.316650390625
       },
-      pos: {
-        x: 100,
-        y: 80,
-      },
-      nodes: [
+      "nodes": [],
+      "args": [
         {
-          type: 'nodes',
-          opid: 'opsuuid1',
-          uuid: 'nodeuuid1',
-          sources: [{sourceid: 'imagesuuid1', opts: {color: 'red'}}],
-          name: 'Blurry Sunset',
+          "cname": "image",
+          "name": "image",
+          "required": true,
+          "type": "ANY"
         },
-      ],
-    },
-    opsuuid2: {
-      type: 'ops',
-      uuid: 'opsuuid2',
-      name: 'Demo Invert',
-      effect: 'invert',
-      args: {},
-      pos: {
-        x: 200,
-        y: 180,
-      },
-      nodes: [
         {
-          type: 'nodes',
-          opid: 'opsuuid2',
-          uuid: 'nodeuuid2',
-          sources: [{sourceid: 'nodeuuid1', opts: {color: 'green'}}],
-          name: "Inverted blurry sunset",
+          "cname": "int",
+          "max": 255,
+          "min": 1,
+          "name": "amount",
+          "step": 2,
+          "title": "Pixel range to blur (odd number)",
+          "value": 5
         }
-      ],
+      ]
     },
-  },
-  images: {
-    imagesuuid1: {
-      type: 'images',
-      uuid: 'imagesuuid1',
-      name: 'Sunset',
-      path: 'uploads/demo_sunset.png',
-      pos: {
-        x: 10,
-        y: 140,
+    "ops1721586820964": {
+      "type": "ops",
+      "uuid": "ops1721586820964",
+      "name": "Adaptive Threshold",
+      "effect": "adaptiveThreshold",
+      "pos": {
+        "x": 298.40000915527344,
+        "y": 132.95001220703125
       },
-    },
+      "nodes": [],
+      "args": [
+        {
+          "cname": "image",
+          "name": "image",
+          "required": true,
+          "type": "ANY"
+        },
+        {
+          "cname": "int",
+          "max": 255,
+          "min": 0,
+          "name": "cmax",
+          "value": 255
+        },
+        {
+          "args": [
+            {
+              "Gaussian": 1,
+              "Mean": 1
+            }
+          ],
+          "cname": "select",
+          "name": "method",
+          "value": 1
+        },
+        {
+          "args": [
+            {
+              "BINARY": 0,
+              "INVERTED": 1
+            }
+          ],
+          "cname": "select",
+          "name": "target",
+          "value": 0
+        },
+        {
+          "cname": "int",
+          "min": 1,
+          "name": "blockSize",
+          "step": 2,
+          "title": "Must be odd",
+          "value": 27
+        },
+        {
+          "cname": "int",
+          "name": "weight",
+          "value": 2
+        }
+      ]
+    }
   },
+  "images": {
+    "images1721586619249": {
+      "type": "images",
+      "uuid": "images1721586619249",
+      "name": "demo_landscape",
+      "path": "uploads/demo_landscape.png",
+      "pos": {
+        "x": 85.83334350585938,
+        "y": 185.78334045410156
+      },
+      "nodes": []
+    }
+  }
 };
 
 const CHARTKEY = 'chart';
@@ -116,8 +156,7 @@ let CHART = DEMO_CHART;
 let CCACHE = {};
 
 const TYPE = {
-  ops: 'ops',
-  node: 'nodes',
+  op: 'ops',
   image: 'images',
 }
 
@@ -180,23 +219,22 @@ function newImageJS(name, path, pos) {
 
 // Create a new opJS
 function newOpJS(effect, pos) {
-  const uuid = makeUUID(TYPE.ops);
-  const op = {
-    type: TYPE.ops,
-    uuid: uuid,
+  const opjs = {
+    type: TYPE.op,
+    uuid: makeUUID(TYPE.op),
     name: effect.displayname,
     effect: effect.name,
     pos: pos,
     nodes: []
   };
-  op.args = deepCopy(effect.args);
+  opjs.args = effect.args.map((a) => deepCopy(a));
 
   // Update our chart
-  CHART.ops[op.uuid] = op;
+  CHART.ops[opjs.uuid] = opjs;
   saveChart();
 
   // And return to let flowchart render it.
-  return op;
+  return opjs;
 }
 
 // Move either an image or an op.
@@ -232,7 +270,6 @@ function pickColor() {
 
 // Bind two JS objects to each other.
 // If target is an op: Create a node.
-// If target is a node: Reset its source.
 // In both cases, its source is set to source.
 function bindJS(sourcejs, targetjs) {
   const source = {
@@ -243,20 +280,8 @@ function bindJS(sourcejs, targetjs) {
     },
   };
 
-  if (targetjs.type === TYPE.ops) {
-    const newNode = {
-      type: TYPE.node,
-      uuid: makeUUID(TYPE.node),
-      sources: [source],
-      name: targetjs.name,
-    };
-
-    newNode.opid = targetjs.uuid;
-    
-    if (!targetjs.nodes) targetjs.nodes = [];
-    targetjs.nodes.push(newNode);
-  } else if (targetjs.type === TYPE.node) {
-    targetjs.sources = [source];
+  if (targetjs.type === TYPE.op) {
+    // TODO: Node rewrite
   }
 
   saveChart();
@@ -266,24 +291,17 @@ function bindJS(sourcejs, targetjs) {
 //
 //  Removing objects.
 //
-//  Since nodes are part of ops, and both images and nodes can be sources in
-//  other nodes, we need to cleanly remove all sources referring to it in all
-//  nodes.
-//
 ////////////////////////////////////
 
 function removeSourcesJS(uuid) {
   for (const op of Object.values(CHART.ops)) {
-    for (const node of Object.values(op.nodes)) {
-      if (node.sources) {
-        node.sources = node.sources.filter((source) => source.sourceid !== uuid)
-      }
-    }
+    // TODO: Node rewrite
   }
 }
 
 function removeBlockJS(blockjs) {
-  if (blockjs.type === TYPE.ops) {
+  // TODO: Node rewrite
+  if (blockjs.type === TYPE.op) {
     for (const node of Object.values(blockjs.nodes)) {
       removeSourcesJS(node.uuid);
     }
@@ -291,10 +309,6 @@ function removeBlockJS(blockjs) {
   } else if (blockjs.type === TYPE.image) {
     removeSourcesJS(blockjs.uuid);
     delete CHART.images[blockjs.uuid];
-  } else {
-    const op = CHART.ops[blockjs.opid];
-    removeSourcesJS(blockjs.uuid);
-    op.nodes = op.nodes.filter((node) => node.uuid !== blockjs.uuid);
   }
 }
 

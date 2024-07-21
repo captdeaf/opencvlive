@@ -98,8 +98,12 @@ function appendChildren(el, children) {
   }
   let allChildren = [...children].flat();
   for (const child of Object.values(allChildren)) {
-    if (child !== null) {
-      el.append(child);
+    if (typeof(child) === 'string') {
+      el.innerHTML += child;
+    } else {
+      if (child !== null) {
+        el.append(child);
+      }
     }
   }
   return el;
@@ -163,6 +167,7 @@ function populateElement(tpl, contents) {
         alertUser("populateElement: Selector not found", sel);
       } else {
         for (const par of pars) {
+          par.innerHTML = '';
           appendChildren(par, children);
         }
       }
@@ -257,8 +262,11 @@ async function easyFetch(path, opts, cbs) {
   if (cbs.complete) { cbs.complete(resp); }
 }
 
-function deepCopy(obj) {
-  return structuredClone(obj);
+// This works with both Object.assign() and a deep copy.
+// let x = deepCopy({title: 'foo'}, argdef, etc);
+function deepCopy(...objs) {
+  const newobj = Object.assign({}, ...objs);
+  return structuredClone(newobj);
 }
 
 async function sha256(source) {

@@ -9,6 +9,17 @@
 import numpy as np
 from .effects import EF, cv, T
 
+@EF.register("Adaptive Threshold", T.grayscale)
+def adaptiveThreshold(
+            image : T.grayscale,
+            cmax : T.int(min=0, max=255) = 255,
+            method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+            target : T.select({"BINARY": cv.THRESH_BINARY, "INVERTED": cv.THRESH_BINARY_INV}) = cv.THRESH_BINARY,
+            blockSize : T.int(min=1, step=2, title="Must be odd") = 27,
+            weight : T.int = 2
+        ):
+    return cv.adaptiveThreshold(image, cmax, method, target, blockSize, weight)
+
 thresholdTarget = T.select({
     "Binary": cv.THRESH_BINARY,
     "Binary Inverted":cv.THRESH_BINARY_INV,
@@ -17,18 +28,10 @@ thresholdTarget = T.select({
     "ToZero Inverted": cv.THRESH_TOZERO_INV,
 }, title="Threshold target", ctype='int')
 
-@EF.register("Adaptive Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="AT'd")
-def adaptiveThreshold(frame,
+@EF.register("Threshold", T.grayscale)
+def threshold(
+            image : T.grayscale,
             cmax : T.int(min=0, max=255) = 255,
-            method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-            target : T.select({"BINARY": cv.THRESH_BINARY, "INVERTED": cv.THRESH_BINARY_INV}) = cv.THRESH_BINARY,
-            blockSize : T.int(min=1, step=2, title="Must be odd") = 27,
-            weight : T.int = 2
-        ):
-    return cv.adaptiveThreshold(frame, cmax, method, target, blockSize, weight)
-
-@EF.register("Threshold", EF.GRAYSCALE, EF.GRAYSCALE, desc="Thresholded")
-def threshold(frame,
             low : T.byte(title="Below this is black") = 128,
             high : T.byte(title="Above this is white") = 255,
             target : thresholdTarget = cv.THRESH_BINARY,
@@ -36,36 +39,42 @@ def threshold(frame,
         ):
     if otsu:
         target |= cv.THRESH_OTSU
-    _, ret = cv.threshold(frame, low, high, target)
+    _, ret = cv.threshold(image, low, high, target)
     return ret
 
-@EF.register("Convert to Grayscale", EF.ANY, EF.GRAYSCALE, desc="Grayed")
-def grayscale(image):
+@EF.register("Convert to Grayscale", T.grayscale)
+def grayscale(image : T.grayscale):
     if not EF.isColor(image):
         return image
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-@EF.register("Convert to Color", EF.ANY, EF.BGR, desc="Colored")
-def colorize(image):
+@EF.register("Grayscale to Color", T.color)
+def colorize(image : T.grayscale):
     if not EF.isColor(image):
         return cv.cvtColor(image, cv.COLOR_GRAY2BGR)
     return image
 
-@EF.register("Remove Color", EF.BGR, EF.BGR, desc="Plucked")
-def removeColor(image, channel : T.colorChannel = 1):
+@EF.register("Remove Color", T.color)
+def removeColor(
+            image : T.color,
+            channel : T.colorChannel = 1
+        ):
     image[:,:,channel] = 0
     return image
 
-@EF.register("Blur", EF.ANY, EF.SAME, desc="Blurry")
-def blur(frame, amount : T.int(min=1, step=2, max=255, title="Pixel range to blur (odd number)") = 5):
-    return cv.medianBlur(frame, amount)
+@EF.register("Blur", T.image)
+def blur(
+        image : T.image,
+        amount : T.int(min=1, step=2, max=255, title="Pixel range to blur (odd number)") = 5):
+    return cv.medianBlur(image, amount)
 
-@EF.register("Write text", EF.ANY, EF.BGR, desc="Inscribed")
-def writeOn(frame,
+@EF.register("Write text", T.color)
+def writeOn(
+            image : T.image,
             text : T.string = 'demo',
             xpct : T.percent = 0.2,
             ypct : T.percent = 0.8,
-            # color : T.noop = [0, 255, 255],
+            # color : T.color = [0, 255, 255],
             size : T.int(min=1, max=255) = 4,
             weight : T.int(min=1, max=255) = 10
         ):
@@ -77,30 +86,53 @@ def writeOn(frame,
     font = cv.FONT_HERSHEY_SIMPLEX
     weight= 10
     if text is None or len(text) == 0:
-        return frame
+        return image
 
-    if not EF.isColor(frame):
-        frame = colorize(frame)
-    height, width, _ = frame.shape
+    if not EF.isColor(image):
+        image = colorize(image)
+    height, width, _ = image.shape
 
     calcx = int(width * xpct)
     calcy = int(height * ypct)
     font = cv.FONT_HERSHEY_SIMPLEX
 
-    frame = cv.putText(frame, text, (calcx, calcy), font, size, color, weight)
-    return frame
+    image = cv.putText(image, text, (calcx, calcy), font, size, color, weight)
+    return image
 
-@EF.register("Grayscale from Color", EF.BGR, EF.GRAYSCALE, desc="Color-plucked")
-def colorToGray(image, channel : T.colorChannel = 1):
+@EF.register("Grayscale from Color", T.grayscale)
+def colorToGray(
+            image : T.color,
+            channel : T.colorChannel = 1
+        ):
     return image[:,:,channel]
 
-@EF.register("Color from Grayscale", EF.GRAYSCALE, EF.BGR, desc="Color-channeled")
-def grayToColor(image, channel : T.colorChannel = 1):
+@EF.register("Color from Grayscale", T.color)
+def grayToColor(
+            image : T.grayscale,
+            channel : T.colorChannel = 1
+        ):
     shape = image.shape + tuple([3])
     colored = np.zeros(shape, dtype="uint8")
     colored[:,:,channel] = image
     return colored
 
-@EF.register("Invert", EF.ANY, EF.SAME, desc="Inverted")
-def invert(image):
+@EF.register("Invert", T.image)
+def invert(image : T.image):
     return 255 - image
+
+@EF.register("Blend", T.image)
+def blend(
+            imageA : T.image,
+            imageB : T.image,
+            weightA : T.percent = 0.5,
+            weightB : T.percent = 0.5,
+            gamma : T.byte = 0,
+        ):
+    return cv.addWeighted(imageA, weightA, imageB, weightB, gamma)
+
+@EF.register("Draw Polygon", T.image)
+def drawPoly(
+            image : T.image,
+            poly  : T.complexArray,
+        ):
+    pass

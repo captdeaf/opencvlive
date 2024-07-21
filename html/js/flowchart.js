@@ -97,6 +97,7 @@ function addOpBlock(opjs) {
 
     populateElement(block, {
       '.oplisting': getOpListing(effect, opjs.args),
+      '.block-out': getProviderListing(effect, opjs),
     });
 
     block.blockData = opjs;
@@ -152,11 +153,11 @@ function renderAllBlocks(chart) {
   for (const [uuid, opjs] of Object.entries(chart.ops)) {
     const block = addOpBlock(opjs);
     // Their child nodes.
-    if (opjs.nodes) {
-      for (const nodejs of Object.values(opjs.nodes)) {
-        addNodeItem(block, opjs, nodejs)
-      }
-    }
+//    if (opjs.nodes) {
+//      for (const nodejs of Object.values(opjs.nodes)) {
+//        addNodeItem(block, opjs, nodejs)
+//      }
+//    }
   }
   for (const [uuid, imgjs] of Object.entries(chart.images)) {
     addImageBlock(imgjs);
@@ -243,6 +244,8 @@ function drawNodeLine(fromuuid, touuid, opts) {
 }
 
 function redrawAllNodeLines() {
+  // TODO: Fix
+  return
   // Clear
   EL.flowlines.innerHTML = '';
   const fcbox = EL.flowchart.getBoundingClientRect();
@@ -279,6 +282,8 @@ addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) 
 addTrigger('bindToTarget', function(el, evt, fixedPos, matchedElements, relativePos) {
   const sourceBlock = findParent(el, '[data-type]');
   const targetBlock = findParent(matchedElements[0], '[data-type]');
+
+  console.log("Bind:",sourceBlock,targetBlock);
 
   bindJS(sourceBlock.blockData, targetBlock.blockData);
   renderAllBlocks(CHART);

@@ -116,16 +116,25 @@ function addTriggerFunction(selector, func) {
   MORE_ACTIONS.push({'selector': selector, 'func': func});
 }
 
-function enableTriggers(parentElement) {
+function enableTriggers(parentElement, includeParent) {
   // Add onclick events to all elements with data-click.
   for (const evt of ALL_EVENTS) {
-    for (const el of getAll('[data-' + evt + ']', parentElement)) {
+    const datastr = '[data-' + evt +']';
+    const allfound = getAll(datastr, parentElement);
+    if (includeParent && parentElement.matches(datastr)) {
+      allfound.unshift(parentElement);
+    }
+    for (const el of allfound) {
       el[evt] = lazyTrigger(el.dataset[evt], el);
     }
   }
 
   for (const act of MORE_ACTIONS) {
-    for (const el of getAll(act.selector, parentElement)) {
+    const allfound = getAll(act.selector, parentElement);
+    if (includeParent && parentElement.matches(act.selector)) {
+      allfound.unshift(parentElement);
+    }
+    for (const el of allfound) {
       act.func(el);
     }
   }

@@ -125,42 +125,116 @@ addTrigger('opChange', function(el, evt) {
 });
 
 // A single parameter to render.
+// name: name of arg.
+// opargs: existing json from previous changes or reloads.
+// argdef: the canonical definition from ALL_EFFECTS.effects
 function renderOp(name, opargs, argdef) {
-  const lattrs = {};
-  if (argdef.title) {
-    lattrs.title = argdef.title;
-  }
-  const item = EL('label', lattrs, name);
+  // cname: Which builder+parser do we use?
   const cname = opargs.cname;
 
+  // Creating myargs: the label input's unique
+  // copy of args. If the args change from the server,
+  // this will probably need to be recreated.
   const jsargs = {
     'data-cname': cname,
     'data-name': name,
     'data-onchange': 'opChange',
   };
+  const myargs = deepCopy(jsargs, argdef, opargs);
 
-
-  const myargs = Object.assign({}, jsargs, argdef, opargs);
-  if (cname in TYPEDEFS && TYPEDEFS[cname].build) {
-    var input = TYPEDEFS[cname].build(name, myargs);
-  } else {
-    var input = TYPEDEFS['string'].build(name, myargs);
+  // We use ".p<name>" to find the element for drawing lines.
+  let accepts = 'noaccept';
+  if (cname.startsWith('complex')) {
+    accepts = 'accept-complex';
+  } else if (cname === 'image') {
+    accepts = 'accept-image';
   }
+
+  const labelAttrs = {
+    'class': ['p' + name, accepts, 'block-accept'].join(' '),
+  };
+
+  if (argdef.title) {
+    labelAttrs.title = argdef.title;
+  }
+
+  // If the arg is a complex, it is a target
+  // only.
+  let prefix = '&bull; ';
+  let input = '';
+  if (cname.startsWith('complex')) {
+    prefix = EL('span', {}, '[x]')
+  } else if (cname === 'image') {
+    prefix = EL('span', {}, '&#128444;')
+  } else {
+    // Build it, and they will come.
+    let type = cname;
+    if (!(type in TYPEDEFS)) {
+      type = 'string';
+    }
+    input = TYPEDEFS[type].build(name, myargs);
+  }
+
+  // Build the actual label.
+  const item = EL('label', labelAttrs, prefix, name, input);
+
   appendChildren(item, input);
-  return enableTriggers(item);
+  return enableTriggers(item, true);
 }
 
 // Given a set of parameters, generate elements to configure them.
 function getOpListing(effect, opargs) {
+  const required = [];
   const children = [];
-  if (opargs && Object.keys(opargs).length > 0) {
-    for (const [name, oparg] of Object.entries(opargs)) {
-      children.push(renderOp(name, oparg, effect.args[name]));
+  if (opargs && opargs.length > 0) {
+    for (const oparg of opargs) {
+      const argdef = effect.args.filter((x) => x.name === oparg.name)[0];
+      const arginput = renderOp(oparg.name, oparg, argdef);
+      if (oparg.required) {
+        required.push(arginput);
+      } else {
+        children.push(arginput);
+      }
     }
   } else {
     children.push("No parameters");
   }
-  return children;
+  return [required, children];
+}
+
+// Depending on what type of output an op generates:
+//   'image': image
+//   'complex*': complex
+function getProviderListing(effect, opjs) {
+  const attrs = {
+    class: "block-output block-edge block-provider",
+    'data-drag': "point",
+    'data-drag-bind': "#flowchart",
+    'data-drag-drop': "debugTrigger",
+  };
+
+  const spanAttrs = {
+    class: 'vcenter',
+  };
+
+  const children = [];
+  for (const outp of effect.output) {
+    let child = EL('span', {}, '??');
+    if (outp.cname.startsWith('complex')) {
+      attrs['data-drag-drop-on'] = ".accept-complex";
+      attrs['title'] = "Drag complex output to an input";
+      child = EL('span', spanAttrs, '[x]');
+    } else if (outp.cname === 'image') {
+      attrs['data-drag-drop-on'] = ".accept-image"
+      attrs['title'] = "Drag image output to an input";
+      child = EL('span', spanAttrs, '&#128444;')
+    }
+    children.push(child);
+  }
+
+  const parentDiv = EL('div', attrs);
+  appendChildren(parentDiv, children);
+  return enableTriggers(parentDiv, true);
 }
 
 ////////////////////////////////////
@@ -176,6 +250,8 @@ function getOpListing(effect, opargs) {
 //
 ////////////////////////////////////
 function refreshOpImages() {
+  return
+  // TODO: Node Rewrite
   const cache = {};
   for (const op of Object.values(CHART.ops)) {
     if (op.nodes) {
@@ -271,7 +347,6 @@ async function updateImage(nodejs, opjs, deps) {
     src: path,
   }));
   for (const large of getAll('.large-image[data-uuid="' + nodejs.uuid + '"]')) {
-    console.log("Updating", large, path);
     large.src = path;
   }
   if (resp.status === 200) {
@@ -300,6 +375,9 @@ async function processNodeImages(images, sequence) {
     const hash = await processNode(nodejs, deps, torefresh);
     dependencies[nodejs.uuid] = hash;
   }
+
+  return;
+  // TODO: Node rewrite.
 
   for (const obj of Object.values(torefresh)) {
     const nodejs = obj.node;

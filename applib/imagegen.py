@@ -54,8 +54,6 @@ def rebuildEffectImages():
         filename = f"{EFFECT_IMAGE_DIR}/{name}.png"
 
         use = colored
-        if (eff['channelfrom'] == EF.GRAYSCALE):
-            use = grayed
 
         try:
             if name in SPECIAL:

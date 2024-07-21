@@ -71,7 +71,7 @@ span.quote {
 }
 
 .drag-start {
-  cursor: grab;
+  cursor: move;
 }
 
 .disabled {

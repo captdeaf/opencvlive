@@ -217,5 +217,21 @@ T.colorChannel = T.select({
     "RED": 2,
 }, title="Color channel", ctype='int')
 
-@T('noop')
-class TNOOP(TJSON): pass
+@T('image')
+class TImage(TString):
+    type = 'ANY'
+    # Complex one, need to convert TString to a path?
+    pass
+
+T.grayscale = T.image(type='Grayscale')
+T.bgr = T.image(type='Color')
+T.color = T.bgr
+
+@T('complex')
+class TComplex(TJSON):
+    # TODO: Complex nparray
+    pass
+
+@T('complexArray')
+class TArray(TComplex):
+    pass

@@ -21,17 +21,17 @@
   position: relative;
 }
 
-#flowcanvas {
+#flowchart {
   z-index: 199;
+}
+
+#flowlines {
+  z-index: 200;
   pointer-events: none;
   user-select: none;
 }
 
-#flowchart {
-  z-index: 200;
-}
-
-#flowlines {
+#templines {
   z-index: 201;
   user-select: none;
 }
@@ -79,6 +79,10 @@
   max-width: 14em;
 }
 
+.block-op {
+  max-height: 14em;
+}
+
 .block-contents {
   position: absolute;
   top: 0;
@@ -89,12 +93,27 @@
   height: 100%;
 }
 
-.block-arr {
+.block-edge {
   flex: 0 0 auto;
-  display: block;
+  display: flex;
+  flex-flow: column;
   height: 100%;
-  width: 1em;
+  width: 1.5em;
   user-select: none;
+}
+
+.block-edge div {
+  position: relative;
+  display: block;
+  height: 1%;
+  flex-grow: 1;
+
+}
+
+.opaccept span {
+  padding-top: 4px;
+  margin-bottom: 1px;
+  margin-right: 4px;
 }
 
 .block-input {
@@ -211,4 +230,19 @@
 
 .opnode {
   background-color: #7a7;
+}
+
+.dragzoom {
+  -moz-transform: scale(25%);
+  zoom: 25%;
+  max-width: 3em;
+  max-height: 3em;
+}
+
+.block-accept {
+  cursor: cell;
+}
+
+.block-provider {
+  cursor: copy;
 }
