@@ -192,6 +192,7 @@
   height: 2em;
   position: relative;
   width: 100%;
+  user-select: none;
 }
 
 .oplisting label input,select {
@@ -245,4 +246,31 @@
 
 .block-provider {
   cursor: copy;
+}
+
+.jsoneditor {
+  height: 100%;
+}
+
+.edit-buttons {
+  margin-top: 5px;
+  position: relative;
+  height: 2em;
+}
+
+.edit-buttons .edit-save {
+  display: inline-block;
+  position: absolute;
+  right: 0px;
+  width: 12em;
+  border-radius: 4em;
+}
+
+.edit-buttons .edit-close {
+  display: inline-block;
+  position: absolute;
+  left: 0px;
+  width: 8em;
+  border: 2px solid red;
+  border-radius: 4em;
 }

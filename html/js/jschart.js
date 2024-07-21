@@ -227,7 +227,7 @@ function newComplexJS(name, pos) {
     uuid: uuid,
     name: name,
     pos: pos,
-    json: {},
+    json: [],
   };
 
   // Update our chart
