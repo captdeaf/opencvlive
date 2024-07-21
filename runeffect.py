@@ -63,7 +63,10 @@ def handle(client):
 RUNNING = True
 RESTART = False
 
-def watchAndRestart(bind, port):
+def stopWatcher():
+    os.remove('.runeffect.watch')
+
+def startWatcher(bind, port):
     global RUNNING
     global RESTART
 
@@ -82,6 +85,9 @@ def watchAndRestart(bind, port):
     print("Watching for file changes.")
 
     for event in watcher.event_gen(yield_nones=False):
+        # Main thread's check on the watcher..
+        if not RUNNING: break
+
         (_, type_names, path, filename) = event
         for tname in type_names:
             if tname in ['IN_MOVE_SELF', 'IN_DELETE_SELF', 'IN_CLOSE_WRITE']:
@@ -89,8 +95,6 @@ def watchAndRestart(bind, port):
                 RUNNING=False
                 RESTART=True
                 break
-
-        if not RUNNING: break
    
     s = socket.socket()
     s.connect((bind, port))
@@ -98,6 +102,8 @@ def watchAndRestart(bind, port):
 
 
 def main(bind, port, test=False):
+    global RUNNING
+    global RESTART
     signal.signal(signal.SIGCHLD, cleanchild)
 
     try:
@@ -111,11 +117,10 @@ def main(bind, port, test=False):
         return
 
     if (inotify.adapters):
-        thread = Thread(target=watchAndRestart, args=(bind, port))
+        thread = Thread(target=startWatcher, args=(bind, port))
         thread.start()
 
-    # try:
-    if True:
+    try:
         while RUNNING:
             client, addr = server.accept()
             if test:
@@ -133,14 +138,13 @@ def main(bind, port, test=False):
                 sys.exit(0)
             # Close parent's copy.
             client.close()
-    # except: pass
-
-    print("Shutting down")
-    if RUNNING: # We got an interrupt
-        os.remove('.runeffect.watch')
+    except KeyboardInterrupt as kbe:
+        RUNNING=False
+        stopWatcher()
         if (inotify.adapters):
             thread.join()
         sys.exit(0)
+
     server.close()
     if (inotify.adapters):
         thread.join()
@@ -162,7 +166,6 @@ if __name__ == '__main__':
         port = int(port)
         main(bind, port, test=test)
         if RESTART:
-            sys.exit(0)
             print("File changed. Triggering restart.")
             os.execv(cmd, sys.argv)
         else:

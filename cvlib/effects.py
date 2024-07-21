@@ -241,6 +241,7 @@ def applyEffects(image, *all_effects, copy=True):
 
     for effect in all_effects:
         if effect.channelfrom != channel and effect.channelfrom != EF.ANY:
+            print(f"Error with {effect.func.__name__}, converting {channel} to {effect.channelfrom}. Do this explicitly?")
             if effect.channelfrom == EF.BGR:
                 image = cv.cvtColor(image, cv.COLOR_GRAY2BGR)
                 channel = EF.BGR
@@ -264,7 +265,8 @@ def jsApply(effect, images, args):
     return EF.apply(images[0], lazy)
 
 def cvread(filename):
-    return cv.imread(filename)
+    # filename passed around is .png. Convert to .tiff
+    return cv.imread(filename, cv.IMREAD_UNCHANGED)
 
 def cvwrite(img, filename):
     return cv.imwrite(filename, img)
