@@ -14,6 +14,9 @@ function loadConstants() {
     flowchart: '#flowchart',
     flowlines: '#flowlines',
     drawlines: '#templines',
+
+    chartEditor: '#jsonchart',
+    chartDialog: '#jsonchart-dialog',
     editor: '#jsoneditor',
     editDialog: '#jsonedit-dialog',
 

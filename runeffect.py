@@ -72,12 +72,15 @@ def handle(client):
         outs = jsobj['outputs']
 
         if len(outs) > 1:
-            pass
+            for out, result in zip(outs, results):
+                cvwrite(result, 'html/' + out['path'])
         else:
             cvwrite(results, 'html/' + outs[0]['path'])
+        return True
     except Exception as err:
         print("error")
         print(traceback.format_exc())
+        return False
 
 RUNNING = True
 RESTART = False
@@ -150,7 +153,10 @@ def main(bind, port, test=False):
             if kid == 0:
                 server.close()
                 try:
-                    handle(client)
+                    if handle(client):
+                        client.send('1')
+                    else:
+                        client.send('0')
                     client.close()
                 except Exception as err:
                     client.close()

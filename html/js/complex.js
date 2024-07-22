@@ -3,11 +3,10 @@
 // UI and more management for the 'complex' boxes: Edit json arrays, etc.
 //
 
-var JSEditor;
-
 addInitializer(() => {
-  JSEditor = new JSONEditor(EL.editor, {
+  const JSEditor = new JSONEditor(EL.editor, {
     mode: 'code',
+    indentation: 2,
   });
 
   // Which node is currently editing its code?
@@ -21,46 +20,41 @@ addInitializer(() => {
     el.blockData.code = JSEditor.get();
     saveChart();
   };
-});
 
-// Add an event for whenever something else needs us to redraw the lines.
-// e.g: window resize or drag+drop move.
-addTrigger('editElementJSON', (el) => {
-  const pel = findParent(el, '[data-type]');
-  if (JSEditor.editing === pel.blockData) {
-    EL.editDialog.style.display = 'block';
-    return;
-  }
-  function startEditing() {
-    get('#json-editing').innerText = pel.blockData.name;
-    JSEditor.editing = pel.blockData;
-    JSEditor.set(pel.blockData.json);
-    EL.editDialog.style.display = 'block';
-  }
-  if (JSEditor.editing !== undefined) {
+  addTrigger('editElementJSON', (el) => {
+    const pel = findParent(el, '[data-type]');
+    if (JSEditor.editing === pel.blockData) {
+      EL.editDialog.style.display = 'block';
+      return;
+    }
+    function startEditing() {
+      get('#json-editing').innerText = pel.blockData.name;
+      JSEditor.editing = pel.blockData;
+      JSEditor.set(pel.blockData.json);
+      EL.editDialog.style.display = 'block';
+    }
+    if (JSEditor.editing !== undefined) {
+      JSEditor.editing = undefined;
+      JSEditor.set('');
+      setTimeout(() => {
+        startEditing();
+      }, 300);
+    } else {
+      startEditing();
+    }
+  });
+
+  addTrigger('saveEditor', () => {
+    JSEditor.editing.json = JSEditor.get();
+    saveChart();
+    refreshOutputs();
+    JSEditor.editing = undefined;
+    EL.editDialog.style.display = 'none';
+  });
+
+  addTrigger('stopEditor', () => {
     JSEditor.editing = undefined;
     JSEditor.set('');
-    EL.editor.style.display = 'none';
-    setTimeout(() => {
-      startEditing();
-    }, 300);
-  } else {
-    startEditing();
-  }
+    EL.editDialog.style.display = 'none';
+  });
 });
-
-addTrigger('saveEditor', () => {
-  JSEditor.editing.json = JSEditor.get();
-  saveChart();
-  refreshOutputs();
-  JSEditor.editing = undefined;
-  EL.editDialog.style.display = 'none';
-});
-
-addTrigger('stopEditor', () => {
-  JSEditor.editing = undefined;
-  JSEditor.set('');
-  EL.editDialog.style.display = 'none';
-});
-
-

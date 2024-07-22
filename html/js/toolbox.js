@@ -89,6 +89,11 @@ addTrigger('fileDialogChange', (el, evt) => {
   );
 });
 
+addTrigger('showLargeJSON', function(el) {
+  const json = get('code', el).innerText;
+  showJSONFloater("Raw Complex JSON", json);
+});
+
 addTrigger('showLargeChildImage', function(el) {
   const img = get('img', el);
   let name = el.dataset.name;
@@ -97,12 +102,6 @@ addTrigger('showLargeChildImage', function(el) {
     const large = get('img', el);
     large.src = img.src;
     large.dataset.uuid = img.dataset.uuid;
-  });
-});
-
-addTrigger('showLargeImage', function(img) {
-  showFloater(img.dataset.name, 'large-image', (el) => {
-    get('img', el).src = img.src;
   });
 });
 

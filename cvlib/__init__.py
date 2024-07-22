@@ -13,7 +13,7 @@ from .effects import EF, Effects, register, INFO, jsApply
 import cv2 as cv
 
 # Now the actual effects.
-from . import basics, custom
+from . import basics, generators, custom
 
 from .typedefs import T, JSDict, TYPE_DECODERS
 

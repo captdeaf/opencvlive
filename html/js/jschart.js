@@ -199,24 +199,32 @@ function bindJS(sourcejs, targetjs, argname, idx) {
 ////////////////////////////////////
 //
 //  Removing objects.
+// 
+//  removeBlockJS accepts an optional 'chart' arg for removing images from a
+//  displayed chart json for copying.
 //
 ////////////////////////////////////
 
-function removeSourcesJS(uuid) {
-  for (const op of Object.values(CHART.ops)) {
+function removeSourcesJS(uuid, chart) {
+  for (const op of Object.values(chart.ops)) {
     for (const arg of op.args) {
       if (arg.source && arg.source.sourceid === uuid) {
         delete arg['source'];
       }
     }
   }
-  saveChart();
 }
 
-function removeBlockJS(blockjs) {
-  removeSourcesJS(blockjs.uuid);
-
-  delete CHART[blockjs.type][blockjs.uuid];
+function removeBlockJS(blockjs, chart) {
+  if (chart !== undefined) {
+    chart = CHART;
+    removeSourcesJS(blockjs.uuid, chart);
+    delete chart[blockjs.type][blockjs.uuid];
+  } else {
+    removeSourcesJS(blockjs.uuid, CHART);
+    delete CHART[blockjs.type][blockjs.uuid];
+    saveChart();
+  }
 }
 
 addInitializer(() => {
