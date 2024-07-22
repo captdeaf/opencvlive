@@ -22,6 +22,8 @@ function loadConstants() {
 
     library: '#library',
     blockselection: '#block-selection',
+
+    cacheCount: '#cachesize',
   }
   for (const [k, v] of Object.entries(all)) {
     EL[k] = get(v);

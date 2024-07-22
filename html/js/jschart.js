@@ -54,7 +54,6 @@ const DEMO_CHART = {
         "x": 311.40000915527344,
         "y": 301.316650390625
       },
-      "nodes": [],
       "args": [
         {
           "cname": "image",
@@ -82,7 +81,6 @@ const DEMO_CHART = {
         "x": 298.40000915527344,
         "y": 132.95001220703125
       },
-      "nodes": [],
       "args": [
         {
           "cname": "image",
@@ -146,7 +144,6 @@ const DEMO_CHART = {
         "x": 85.83334350585938,
         "y": 185.78334045410156
       },
-      "nodes": []
     }
   }
 };
@@ -158,8 +155,11 @@ let CCACHE = {};
 
 const TYPE = {
   op: 'ops',
+  ops: 'ops',
   image: 'images',
+  images: 'images',
   complex: 'complexes',
+  complexes: 'complexes',
 }
 
 ////////////////////////////////////
@@ -208,7 +208,6 @@ function newImageJS(name, path, pos) {
     name: name,
     path: path,
     pos: pos,
-    nodes: []
   };
 
   // Update our chart
@@ -249,7 +248,6 @@ function newOpJS(effect, pos) {
     name: effect.displayname,
     effect: effect.name,
     pos: pos,
-    nodes: []
   };
   opjs.args = effect.args.map((a) => deepCopy(a));
 

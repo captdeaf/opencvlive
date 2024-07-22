@@ -3,17 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <title>OpenCVLive - Live image manipulation.</title>
-    <!-- From: highlightjs.org -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" />
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
     <!-- OpenCVLive style and script. -->
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/site.css" />
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="css/toolbox.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/10.1.0/jsoneditor.min.css" />
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/10.1.0/jsoneditor.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="thirdparty/jsoneditor.min.css" />
+
+    <script type="text/javascript" src="thirdparty/spark-md5.min.js"></script>
+    <script type="text/javascript" src="thirdparty/jsoneditor.min.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/constants.js"></script>
     <script type="text/javascript" src="js/triggers.js"></script>
@@ -55,7 +53,7 @@
           <span id="qmark">(About)</span>
         </div>
         <div class="header-subtext" class="cachehead">
-          Cache Size: <span id='cachesize'>??</span> images.
+          Cache Size: <span id='cachesize'>??</span> files.
           <button id="clearcache" data-onclick="clearCache">Clear</button>
         </div>
         <div id="topbar-filler"></div>

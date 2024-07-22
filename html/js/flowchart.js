@@ -163,7 +163,7 @@ function renderAllBlocks(chart) {
   }
 
   redrawAllLines();
-  // refreshOutputs();
+  refreshOutputs();
 }
 
 ////////////////////////////////////
@@ -237,7 +237,7 @@ function drawSourceLine(fromuuid, touuid, arg) {
 
   // Now to find the actual points.
   const fromPos = calculateLinePoint(fromBlock, '.block-provider', 0.5, 0.5);
-  const toPos = calculateLinePoint(toBlock, '[data-arg="' + arg.name + '"]', 0.04, 0.2);
+  const toPos = calculateLinePoint(toBlock, '[data-arg="' + arg.name + '"] .point', 0.5, 0.5);
   drawLineSVG(fromPos, toPos);
 }
 
@@ -256,7 +256,6 @@ function redrawAllLines() {
       if (arg.source) {
         const from = CHART[arg.source.type][arg.source.sourceid];
         const to = opjs;
-        console.log("From, to", from, to, arg);
         drawSourceLine(arg.source.sourceid, opjs.uuid, arg);
       }
     }

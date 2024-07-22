@@ -229,9 +229,9 @@ T.color = T.bgr
 
 @T('complex')
 class TComplex(TJSON):
-    # TODO: Complex nparray
-    pass
-
-@T('complexArray')
-class TArray(TComplex):
-    pass
+    def fromJSON(self, jsonarg):
+        if type(jsonarg) == str and jsonarg.endswith('.json'):
+            # TODO: load from cache file instead.
+            return jsonarg
+        else:
+            return jsonarg

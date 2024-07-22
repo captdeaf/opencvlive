@@ -33,6 +33,7 @@ addTrigger('editElementJSON', (el) => {
     return;
   }
   function startEditing() {
+    get('#json-editing').innerText = pel.blockData.name;
     JSEditor.editing = pel.blockData;
     JSEditor.set(pel.blockData.json);
     EL.editDialog.style.display = 'block';
@@ -52,6 +53,7 @@ addTrigger('editElementJSON', (el) => {
 addTrigger('saveEditor', () => {
   JSEditor.editing.json = JSEditor.get();
   saveChart();
+  refreshOutputs();
   JSEditor.editing = undefined;
   EL.editDialog.style.display = 'none';
 });

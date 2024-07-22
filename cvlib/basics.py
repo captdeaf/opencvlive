@@ -133,6 +133,12 @@ def blend(
 @EF.register("Draw Polygon", T.image)
 def drawPoly(
             image : T.image,
-            poly  : T.complexArray,
+            poly  : T.complex(title="2D Polygon array"),
         ):
     pass
+
+# Register a way for complex to save itself. In theory, it
+# should return it as is just to be written.
+@EF.register("saveComplex", T.complex, sort="hidden")
+def saveComplex(inp: T.complex):
+    return inp

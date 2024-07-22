@@ -23,7 +23,7 @@ from glob import glob
 
 from flask import request
 
-from cvlib import INFO, Effects, cvread, cvwrite, jsApply
+from cvlib import INFO, Effects, jsApply
 from .flaskapp import app, ejson
 from .util import debug
 
@@ -50,24 +50,23 @@ def getCVEffects():
 # Clear our cache.
 @app.route('/cv/clearCache', methods=['POST'])
 def clearCache():
-    for file in glob('html/cached/*.png'):
+    for file in glob('html/cached/*'):
         os.remove(file)
     return dict(
-        cachesize = len(glob('html/cached/*.png')),
+        cachesize = len(glob('html/cached/*')),
     )
 
 # Generate an opencv image, using passed parameters.
 @app.route('/cv/imagegen')
 def generateCVImage():
     b64input = request.args.get('p')
-
     sock = socket.socket()
     sock.connect((EF_BIND, EF_PORT))
     bout = bytes(b64input, 'utf-8')
     sock.send(bout)
     sock.shutdown(socket.SHUT_WR)
-    sock.recv(1024)
+    sock.recv(1)
 
     return dict(
-        cachesize = len(glob('html/cached/*.png')),
+        cachesize = len(glob('html/cached/*')),
     )

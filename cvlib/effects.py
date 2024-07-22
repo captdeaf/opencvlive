@@ -263,17 +263,8 @@ def applyEffects(image, *all_effects, copy=True):
 def isColor(image):
     return len(image.shape) == 3
 
-def jsApply(effect, images, args):
-    if hasattr(Effects, effect):
-        lazy = getattr(EF, effect)(**args)
-    return EF.apply(images[0], lazy)
-
-def cvread(filename):
-    # filename passed around is .png. Convert to .tiff
-    return cv.imread(filename, cv.IMREAD_UNCHANGED)
-
-def cvwrite(img, filename):
-    return cv.imwrite(filename, img)
+def jsApply(effect, args):
+    return getattr(Effects, effect)(**args)
 
 # Shorthand for implementation .py files:
 EF.isColor = isColor

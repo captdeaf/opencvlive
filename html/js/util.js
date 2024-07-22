@@ -87,6 +87,8 @@ function isSafeIterable(obj) {
 
   if (obj instanceof HTMLElement) return false;
 
+  if (typeof(obj) === 'object') return true;
+
   return typeof(obj[Symbol.iterator]) === 'function';
 }
 
@@ -269,10 +271,22 @@ function deepCopy(...objs) {
   return structuredClone(newobj);
 }
 
-async function sha256(source) {
-  // From Yoz on stackoverflow
-  const sourceBytes = new TextEncoder().encode(source);
-  const digest = await crypto.subtle.digest("SHA-256", sourceBytes);
-  const resultBytes = [...new Uint8Array(digest)];
-  return resultBytes.map(x => x.toString(16).padStart(2, '0')).join("");
+// Generate a consistent hash for an object. JSON.stringify isn't consistent
+// in its ordering.
+function hashObject(obj) {
+  const stringValues = [];
+  function add(v) {
+    const ret = [];
+    if (isSafeIterable(v)) {
+      for (const k of Object.keys(v).sort()) {
+        add(k);
+        add(v[k]);
+      }
+    } else {
+      stringValues.push(v)
+    }
+  }
+  add(obj);
+
+  return SparkMD5.hash(stringValues.join('.'));
 }

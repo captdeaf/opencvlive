@@ -6,10 +6,15 @@
 //
 /////////////////////////////////////
 
+// Update the cache size in the UI, this expects an integer
+function updateCacheSize(count) {
+  EL.cacheCount.innerText = count;
+}
+
 addTrigger('clearCache', () => {
   easyFetch('/cv/clearCache', {method: 'POST'}, {
     success: (js) => {
-      get('#cachesize').innerText = js.cachesize;
+      updateCacheSize(js.cachesize);
     }
   });
 });

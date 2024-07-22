@@ -26,7 +26,22 @@ if cwd not in sys.path:
     sys.path.append(cwd)
 
 from applib.util import ejson, debug
-from cvlib import INFO, Effects, cvread, cvwrite, jsApply
+from cvlib import INFO, Effects, jsApply, cv
+
+def cvread(filename):
+    debug(f"Reading {filename}")
+    if filename.endswith('.json'):
+        with open(filename, 'r', encoding='utf-8') as fin:
+            return ejson.load(fin)
+    # filename passed around is .png. Convert to .tiff
+    return cv.imread(filename, cv.IMREAD_UNCHANGED)
+
+def cvwrite(img, filename):
+    debug(f"Writing {filename}")
+    if filename.endswith('.json'):
+        with open(filename, 'w', encoding='utf-8') as fout:
+            return ejson.dump(img, fout)
+    return cv.imwrite(filename, img)
 
 def getPath(dep):
     dep = dep.strip('/')
@@ -43,22 +58,30 @@ def handle(client):
     # Parse input for args.
     try:
         b64input = client.recv(16384)
+
         jsobj = ejson.loads(base64.b64decode(b64input))
 
-        # What is our hashed outfile going to be?
-        newpath = f"{BASE_PATH}/{CACHE_DIR}/{jsobj['outhash']}.png"
-        if os.path.isfile(newpath):
-            return
+        print("We got")
+        print(jsobj)
 
-        # Load images we're basing off of.
+        effect = jsobj['effect']
+        args = jsobj['args']
 
-        deps = [cvread(getPath(dep)) for dep in jsobj['dependencies']]
-
+        if 'dependencies' in jsobj:
+            for k, v in jsobj['dependencies'].items():
+                args[k] = cvread('html/' + v)
         
-        newimg = jsApply(jsobj['effect'], deps, jsobj['args'])
+        results = jsApply(jsobj['effect'], args)
 
-        cvwrite(newimg, newpath)
-    except: pass
+        outs = jsobj['outputs']
+
+        if len(outs) > 1:
+            pass
+        else:
+            cvwrite(results, 'html/' + outs[0])
+    except Exception as err:
+        print("error")
+        print(err)
 
 RUNNING = True
 RESTART = False

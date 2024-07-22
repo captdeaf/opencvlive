@@ -143,7 +143,7 @@ function refreshEffectBlocks() {
         for (const effect of sorted) {
           if (effect.sort === 'custom') {
             custom.push(buildEffectBlock(effect));
-          } else {
+          } else if (effect.sort !== 'hidden') {
             normal.push(buildEffectBlock(effect));
           }
         }

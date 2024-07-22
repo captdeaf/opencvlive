@@ -118,9 +118,9 @@ TYPEDEFS['image'] = {
   },
 };
 
-TYPEDEFS['complexArray'] = {
+TYPEDEFS['complex'] = {
   build: (name, args) => {
-    return EL('div', {}, '[x]')
+    return EL('div', {}, '[...]')
   },
   parse: (name, el, args) => {
     return el.blockData.json;
@@ -129,16 +129,16 @@ TYPEDEFS['complexArray'] = {
 
 // Whenever a value changes, save and trigger refreshes.
 addTrigger('opChange', function(el, evt) {
-  const opblock = findParent(el, '.block-master');
-  const opjs = opblock.blockData;
-  const name = el.dataset.name;
-  if (el.dataset.cname in TYPEDEFS && TYPEDEFS[el.dataset.cname].parse) {
-    opjs.args[name].value = TYPEDEFS[el.dataset.cname].parse(name, el, opjs.args[name]);
+  // TODO: Fix
+  const label = findParent(el, 'label');
+  const cname = el.dataset.cname;
+  if (cname in TYPEDEFS && TYPEDEFS[cname].parse) {
+    label.args.value = TYPEDEFS[cname].parse(name, el, label.args.name);
   } else {
-    opjs.args[name].value = TYPEDEFS['string'].parse(name, el, opjs.args[name]);
+    label.args.value = TYPEDEFS['string'].parse(name, el, label.args.name);
   }
   saveChart();
-  refreshOpImages();
+  refreshOutputs();
 });
 
 // A single parameter to render.
@@ -177,7 +177,7 @@ function renderOp(name, opargs, argdef) {
 
   // If the arg is a complex, it is a target
   // only.
-  const prefix = '&bull; ';
+  const prefix = '<span class="point">&bull;</span> ';
 
   // Build it, and they will come.
   let type = cname;
@@ -188,6 +188,7 @@ function renderOp(name, opargs, argdef) {
 
   // Build the actual label.
   const item = EL('label', labelAttrs, prefix, name, input);
+  item.args = opargs;
 
   appendChildren(item, input);
   return enableTriggers(item, true);
@@ -234,7 +235,7 @@ function getProviderListing(effect, opjs) {
     if (outp.cname.startsWith('complex')) {
       attrs['data-drag-drop-on'] = ".accept-complex";
       attrs['title'] = "Drag complex output to an input";
-      child = EL('span', spanAttrs, '[x]');
+      child = EL('span', spanAttrs, '[...]');
     } else if (outp.cname === 'image') {
       attrs['data-drag-drop-on'] = ".accept-image"
       attrs['title'] = "Drag image output to an input";
@@ -250,101 +251,191 @@ function getProviderListing(effect, opjs) {
 
 ////////////////////////////////////
 //
-//  refreshOpImages: Load or reload every image that we have.
+//  refreshOutputs: Load or reload every image that we have, that isn't
+//                   up to date.
 //
-//  This one is a little complex:
-//    1) Generate a sorted list of Ops. Sorted such that a given op will come
-//       after all ops, complexes, and images that come before it.
-//    2) This uses a cache to make loops no-ops.
+//  Generate a sorted list of Ops. Sorted such that a given op will come after
+//  all ops, complexes, and images that it depends on.
+//
+//  An op is clear if its sources all terminate in images or complexes.
+//  Images and Complexes are 'clear'
+//
+//  Recursively travel down each op's sources until an op is seen as clear, or
+//  a loop is found.
 //
 ////////////////////////////////////
-function refreshOpImages() {
-  return
-  // TODO: Node Rewrite
-  const cache = {};
-  for (const op of Object.values(CHART.ops)) {
-    if (op.nodes) {
-      for (const node of Object.values(op.nodes)) {
-        if (node.sources) {
-          for (const source of Object.values(node.sources)) {
-            if (!cache[source.sourceid]) cache[source.sourceid] = [];
-            cache[source.sourceid].push(node);
-          }
-        }
+function refreshOutputs() {
+  // sourceCache: A dictionary of [uuid]: [dependencies]
+  const sourceCache = {};
+  const opcalls = {};
+  for (const [uuid, op] of Object.entries(CHART.ops)) {
+    const sources = [];
+    console.log("op", op);
+    const opcall = {
+      uuid: uuid,
+      effect: op.effect,
+      type: TYPE.op,
+      output: ALL_EFFECTS.effects[op.effect].output,
+      args: {},
+      dependencies: {},
+    };
+    // An op is 'good' if all its args have inputs or values.
+    // It is not necessarily 'clean'
+    let good = true;
+    for (const arg of op.args) {
+      if (arg.source && arg.source.sourceid) {
+        sources.push(arg.source.sourceid);
+        opcall.dependencies[arg.name] = arg.source.sourceid;
+      } else if (arg.value !== undefined) {
+        opcall.args[arg.name] = arg.value;
+      } else {
+        good = false;
       }
+    }
+    if (good) {
+      sourceCache[uuid] = sources;
+      opcalls[uuid] = opcall;
     }
   }
 
-  const chains = [];
+  const clear = {};
 
-  // All chains start with an image. Load up chains with their dependencies.
   for (const image of Object.values(CHART.images)) {
-    if (image.uuid in cache) {
-      for (const dependency of Object.values(cache[image.uuid])) {
-        chains.push(dependency);
+    clear[image.uuid] = true;
+  }
+
+  for (const complex of Object.values(CHART.complexes)) {
+    clear[complex.uuid] = true;
+  }
+
+  // Recursively check up the sources.
+  // 'seen' also works as a cache for bad ops.
+  const seen = {};
+  const ready = [];
+
+  function checkClear(uuid) {
+    if (clear[uuid]) { return true; }
+    if (seen[uuid]) { return false; }
+
+    seen[uuid] = true;
+    if (!(uuid in sourceCache)) return false;
+
+    for (const nextuuid of sourceCache[uuid]) {
+      if (!checkClear(nextuuid)) {
+        return false;
       }
     }
+    seen[uuid] = false;
+    clear[uuid] = true;
+    ready.push(uuid);
+    return true;
   }
 
-  const fullchain = [];
+  for (const opuuid of Object.keys(sourceCache)) {
+    checkClear(opuuid);
+  }
 
-  while (chains.length > 0) {
-    const next = chains.shift();
-    fullchain.push(next);
-    if (next.uuid in cache) {
-      for (const dep of Object.values(cache[next.uuid])) {
-        chains.push(dep);
-      }
+  const readyCalls = ready.map((r) => opcalls[r])
+
+  // Now we enter async. Fire and forget.
+  beginOpProcessing(readyCalls);
+};
+
+async function beginOpProcessing(readyCalls) {
+  // 'opCache' is a cache (updated by processOpUpdate) of hashes and values
+  // passed along. As 'ready' is ordered, any dependencies will be in it.
+  // It also contains the information of images and complexes.
+  const opCache = {};
+
+  for (const image of Object.values(CHART.images)) {
+    opCache[image.uuid] = image.path;
+  }
+
+  // Save our complexes on server side.
+  for (const complex of Object.values(CHART.complexes)) {
+    const result = await processOpUpdate({
+      uuid: complex.uuid,
+      effect: 'saveComplex',
+      type: 'complex',
+      args: {inp: complex.json},
+      output: [{cname: 'complex'}]
+    }, opCache);
+
+    console.log("complexout", result);
+    result.outputs
+
+    opCache[complex.uuid] = 'cached/' + result.hash + '.0.json';
+  }
+
+  // 'ready' is now consisting of ops uuids, in order of which they should be
+  // performed.
+  for (const call of readyCalls) {
+    const result = await processOpUpdate(call, opCache);
+    opCache[call.uuid] = result.hash;
+    console.log("opout", result);
+  }
+}
+
+// TODO: this.
+// Process a single op action.
+// opcall has the information needed: uuid, effect, output, args.
+// opcache is to ID earlier hashes for dependencies.
+//
+// Once hashed, opcall needs it before being passed as a json
+// object btoa'd.
+//
+// opcall may have a dependencies: {name: uuids}, which should
+// be replaced with hashes from opCache, to look like
+// {name: 'cached/{hash}.png' for image.
+// {name: 'cached/{hash}.json' for complex.
+async function processOpUpdate(opcall, opCache) {
+  console.log("processOpUpdate", opcall, opCache);
+
+  const jsargs = {
+    effect: opcall.effect,
+    args: opcall.args,
+    dependencies: {},
+    outputs: [],
+  }
+
+  if (opcall.dependencies) {
+    for (const [k, v] of Object.entries(opcall.dependencies)) {
+      jsargs.dependencies[k] = opCache[v];
     }
   }
 
-  processNodeImages(CHART.images, fullchain);
-}
 
-const IMAGE_CACHE = {};
+  const result = {
+    outputs: [],
+  };
 
-async function processNode(nodejs, dependencies, torefresh) {
-  let queryString = nodejs.uuid + dependencies.join('.');
-  const opjs = CHART.ops[nodejs.opid];
-  if (opjs.args) {
-    for (const k of Object.values(Object.keys(opjs.args).sort())) {
-      const v = opjs.args[k];
-      queryString += '&';
-      queryString += k + '=' + v.value;
+  result.hash = hashObject(opcall);
+  jsargs.hash = result.hash;
+
+  for (const [idx, output] of Object.entries(opcall.output)) {
+    let path;
+    if (output.cname === 'image') {
+      path = 'cached/' + result.hash + '.' + idx + '.png';
+    } else {
+      path = 'cached/' + result.hash + '.' + idx + '.json';
     }
+    result.outputs.push(path);
+    jsargs.outputs.push(path);
   }
-  const hash = await sha256(queryString);
-  torefresh.push({
-    node: nodejs,
-    opjs: opjs,
-    deps: dependencies,
-  });
-  nodejs.hash = hash;
-  return hash;
-}
 
-async function updateImage(nodejs, opjs, deps) {
-  const path = "/cached/" + nodejs.hash + ".png"
+  const genpath = "/cv/imagegen?p=";
 
-  try {
-    const img = get('#gen' + nodejs.hash);
-    if (img !== undefined) return;
-  } catch (err) {}
+  const bargs = btoa(JSON.stringify(jsargs));
 
-  let genpath = "/cv/imagegen?p="
-  const args = {};
-  args.effect = opjs.effect;
-  args.ops = opjs;
-  args.args = {};
-  for (const [k, v] of Object.entries(opjs.args)) {
-    args.args[k] = v.value;
+  const resp = await fetch(genpath + bargs);
+
+  if (resp.status === 200) {
+    resp.json().then((js) => {
+      updateCacheSize(js.cachesize);
+    });
   }
-  args.outhash = nodejs.hash;
-  args.dependencies = deps;
 
-  const bargs = btoa(JSON.stringify(args));
-
-  resp = await fetch(genpath + bargs);
+  return result;
 
   const opElement = get('#' + opjs.uuid);
   const frame = get('#' + nodejs.uuid + ' .block-image-frame', opElement);
@@ -357,42 +448,5 @@ async function updateImage(nodejs, opjs, deps) {
   }));
   for (const large of getAll('.large-image[data-uuid="' + nodejs.uuid + '"]')) {
     large.src = path;
-  }
-  if (resp.status === 200) {
-    resp.json().then((js) => {
-      get('#cachesize').innerText = js.cachesize;
-    });
-  }
-}
-
-// This handles the image generation for all nodes.
-// It is asynchronous: For all images that require updating,
-// it waits until earlier ones are complete.
-async function processNodeImages(images, sequence) {
-  const dependencies = {};
-  const torefresh = [];
-
-  for (const image of Object.values(images)) {
-    dependencies[image.uuid] = image.path;
-  }
-
-  for (const nodejs of Object.values(sequence)) {
-    const deps = [];
-    for (const source of Object.values(nodejs.sources)) {
-      deps.push(dependencies[source.sourceid]);
-    }
-    const hash = await processNode(nodejs, deps, torefresh);
-    dependencies[nodejs.uuid] = hash;
-  }
-
-  return;
-  // TODO: Node rewrite.
-
-  for (const obj of Object.values(torefresh)) {
-    const nodejs = obj.node;
-    const opjs = obj.opjs;
-    const deps = obj.deps;
-
-    const generated = await updateImage(nodejs, opjs, deps);
   }
 }
