@@ -259,6 +259,22 @@
   height: 140%;
 }
 
+.opout-text-frame {
+  display: block;
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  max-height: 6em;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  border: 1px solid black;
+}
+
+.opout-text {
+  white-space: wrap;
+}
+
 .op-edge {
   border: none;
 }

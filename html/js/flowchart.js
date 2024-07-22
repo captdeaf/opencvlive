@@ -239,19 +239,15 @@ function drawSourceLine(source, opjs, arg) {
   const toBlock = toBlocks[toBlocks.length - 1];
   const fromBlock = fromBlocks[fromBlocks.length - 1];
 
-  console.log("drawSL", source, opjs);
-
   let idx = source.idx;
   if (!idx) idx = 0;
 
   const opProviders = getAll('.op-provider', fromBlock);
-  console.log("drawSLops", opProviders);
   if (!opProviders || opProviders.length === 0) return;
 
   const provider = opProviders[idx];
 
   // Now to find the actual points.
-  console.log("cLP", provider, toBlock);
   const fromPos = calculateLinePoint(provider, '.op-provider', 0.5, 0.5);
   const toPos = calculateLinePoint(toBlock, '[data-arg="' + arg.name + '"] .point', 0.5, 0.5);
   drawLineSVG(fromPos, toPos);

@@ -2,7 +2,10 @@
 #
 ####################################
 #
-# Basic effects for cv2 and EF/Effects
+# Well, supposed to be basics, but just a hodge-podge since I'm adding
+# things more to test them than for actual use.
+# Do be sure to keep saveComplex, that's a hidden op for the backend of
+# complex drag+drops (for entering, e.g: arrays or polygons, etc).
 #
 ####################################
 
@@ -119,6 +122,13 @@ def grayToColor(
 @EF.register("Invert", T.image)
 def invert(image : T.image):
     return 255 - image
+
+@EF.register("Find Corners", [T.complex])
+def findCorners(image : T.grayscale):
+    corners = cv.goodFeaturesToTrack(image, 25, 0.01, 10)
+    corners = np.int0(corners)
+    return corners
+
 
 @EF.register("Blend", T.image)
 def blend(

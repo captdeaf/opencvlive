@@ -129,7 +129,6 @@ TYPEDEFS['complex'] = {
 
 // Whenever a value changes, save and trigger refreshes.
 addTrigger('opChange', function(el, evt) {
-  // TODO: Fix
   const label = findParent(el, 'label');
   const cname = el.dataset.cname;
   if (cname in TYPEDEFS && TYPEDEFS[cname].parse) {
@@ -457,7 +456,7 @@ async function processOpUpdate(opcall, opCache) {
       ret.path = 'cached/' + result.hash + '.' + idx + '.png';
       ret.type = TYPE.image;
     } else {
-      path = 'cached/' + result.hash + '.' + idx + '.json';
+      ret.path = 'cached/' + result.hash + '.' + idx + '.json';
       ret.type = TYPE.complex;
     }
     ret.idx = idx;
@@ -507,7 +506,23 @@ function updateOpResult(opcall, result) {
         img.src = output.path;
       }
     } else if (output.type === TYPE.complex) {
-      // TODO: complex output.
+      console.log("complex output", output, result, opcall);
+      easyFetch(output.path, {}, {
+        success: (json) => {
+          console.log("result", json);
+          JSON.stringify(json);
+          const complexTpl = template('opout-complex', {
+            '.opout-text-frame': EL('pre', {
+                'data-uuid': result.uuid,
+                class: 'opout-text',
+              },
+              EL('code', {}, JSON.stringify(json)),
+            ),
+            '.block-output.op-edge': getProviderElement(opcall, output),
+          });
+          appendChildren(opOutputs, complexTpl);
+        },
+      });
     }
   }
 

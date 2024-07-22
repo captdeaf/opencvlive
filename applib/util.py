@@ -4,6 +4,7 @@
 import re
 import json
 import sys, os
+import numpy as np
 
 # This is ganked from another project of mine. All it really does is
 # make class objects default to __dict__. They may optionally have a
@@ -11,15 +12,16 @@ import sys, os
 class EasyEncoder(json.JSONEncoder):
     def default(self, o):
         ret = dict()
+        if isinstance(o, np.ndarray):
+            return o.tolist()
         if hasattr(o, 'toDict'):
             return o.toDict()
-        elif type(o) == object:
+        if type(o) == object:
             ret.update(o.__dict__)
             for ign in getattr(o, '__json_ignore__', []):
                 ret.pop(ign)
             return ret
-        else:
-            return super().default(o)
+        return super().default(o)
 
 # A wrapper around EasyEncoder + json
 class ejson(object):

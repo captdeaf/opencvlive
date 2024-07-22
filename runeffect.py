@@ -9,7 +9,7 @@ CACHE_DIR = 'cached'
 UPLOAD_DIR = 'uploads'
 
 from threading import Thread
-import os, sys, socket, signal
+import os, sys, socket, signal, traceback
 import base64
 
 from glob import glob
@@ -77,7 +77,7 @@ def handle(client):
             cvwrite(results, 'html/' + outs[0]['path'])
     except Exception as err:
         print("error")
-        print(err)
+        print(traceback.format_exc())
 
 RUNNING = True
 RESTART = False

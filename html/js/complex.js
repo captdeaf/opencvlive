@@ -8,7 +8,6 @@ var JSEditor;
 addInitializer(() => {
   JSEditor = new JSONEditor(EL.editor, {
     mode: 'code',
-    format: 'compact',
   });
 
   // Which node is currently editing its code?
@@ -63,3 +62,5 @@ addTrigger('stopEditor', () => {
   JSEditor.set('');
   EL.editDialog.style.display = 'none';
 });
+
+
