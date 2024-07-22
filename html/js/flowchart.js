@@ -51,6 +51,8 @@ function addImageBlock(imgjs) {
       class: "block-image",
       src: imgjs.path,
       'data-name': imgjs.name,
+      'data-uuid': imgjs.uuid,
+      'data-idx': 0,
     }),
   });
 
@@ -282,7 +284,7 @@ addTrigger('bindToTarget', function(el, evt, fixedPos, matchedElements, relative
   const targetInput = findParent(matchedElements[0], '[data-arg]');
   const targetBlock = findParent(targetInput, '[data-type]');
 
-  bindJS(sourceBlock.blockData, targetBlock.blockData, targetInput.dataset.arg);
+  bindJS(sourceBlock.blockData, targetBlock.blockData, targetInput.dataset.arg, el.dataset.idx);
   renderAllBlocks(CHART);
 });
 

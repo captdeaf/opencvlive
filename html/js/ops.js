@@ -230,23 +230,24 @@ function getProviderListing(effect, opjs) {
   };
 
   const children = [];
-  for (const outp of effect.output) {
+  for (const [idx, outp] of Object.entries(effect.output)) {
     let child = EL('span', {}, '??');
     if (outp.cname.startsWith('complex')) {
       attrs['data-drag-drop-on'] = ".accept-complex";
       attrs['title'] = "Drag complex output to an input";
+      attrs['data-idx'] = idx;
       child = EL('span', spanAttrs, '[...]');
     } else if (outp.cname === 'image') {
       attrs['data-drag-drop-on'] = ".accept-image"
       attrs['title'] = "Drag image output to an input";
+      attrs['data-idx'] = idx;
       child = EL('span', spanAttrs, '&#128444;')
     }
-    children.push(child);
+    const pdiv = EL('div', attrs, child);
+    children.push(enableTriggers(pdiv, true));
   }
 
-  const parentDiv = EL('div', attrs);
-  appendChildren(parentDiv, children);
-  return enableTriggers(parentDiv, true);
+  return children;
 }
 
 ////////////////////////////////////
@@ -270,7 +271,6 @@ function refreshOutputs() {
   const opcalls = {};
   for (const [uuid, op] of Object.entries(CHART.ops)) {
     const sources = [];
-    console.log("op", op);
     const opcall = {
       uuid: uuid,
       effect: op.effect,
@@ -285,7 +285,7 @@ function refreshOutputs() {
     for (const arg of op.args) {
       if (arg.source && arg.source.sourceid) {
         sources.push(arg.source.sourceid);
-        opcall.dependencies[arg.name] = arg.source.sourceid;
+        opcall.dependencies[arg.name] = arg.source;
       } else if (arg.value !== undefined) {
         opcall.args[arg.name] = arg.value;
       } else {
@@ -356,12 +356,11 @@ async function beginOpProcessing(readyCalls) {
     const result = await processOpUpdate({
       uuid: complex.uuid,
       effect: 'saveComplex',
-      type: 'complex',
+      type: TYPE.complex,
       args: {inp: complex.json},
       output: [{cname: 'complex'}]
     }, opCache);
 
-    console.log("complexout", result);
     result.outputs
 
     opCache[complex.uuid] = 'cached/' + result.hash + '.0.json';
@@ -372,11 +371,9 @@ async function beginOpProcessing(readyCalls) {
   for (const call of readyCalls) {
     const result = await processOpUpdate(call, opCache);
     opCache[call.uuid] = result.hash;
-    console.log("opout", result);
   }
 }
 
-// TODO: this.
 // Process a single op action.
 // opcall has the information needed: uuid, effect, output, args.
 // opcache is to ID earlier hashes for dependencies.
@@ -389,7 +386,6 @@ async function beginOpProcessing(readyCalls) {
 // {name: 'cached/{hash}.png' for image.
 // {name: 'cached/{hash}.json' for complex.
 async function processOpUpdate(opcall, opCache) {
-  console.log("processOpUpdate", opcall, opCache);
 
   const jsargs = {
     effect: opcall.effect,
@@ -400,27 +396,39 @@ async function processOpUpdate(opcall, opCache) {
 
   if (opcall.dependencies) {
     for (const [k, v] of Object.entries(opcall.dependencies)) {
-      jsargs.dependencies[k] = opCache[v];
+      if (v.type.startsWith('complex')) {
+        jsargs.dependencies[k] = 'cached/' + opCache[v.sourceid] + '.' + v.idx + '.json';
+      } else {
+        if (v.sourceid.startsWith('images')) {
+          jsargs.dependencies[k] = opCache[v.sourceid];
+        } else {
+          jsargs.dependencies[k] = 'cached/' + opCache[v.sourceid] + '.' + v.idx + '.png';
+        }
+      }
     }
   }
 
-
   const result = {
+    uuid: opcall.uuid,
     outputs: [],
   };
 
-  result.hash = hashObject(opcall);
+  result.hash = hashObject(jsargs);
   jsargs.hash = result.hash;
 
   for (const [idx, output] of Object.entries(opcall.output)) {
-    let path;
+    const ret = {
+      uuid: opcall.uuid,
+    };
     if (output.cname === 'image') {
-      path = 'cached/' + result.hash + '.' + idx + '.png';
+      ret.path = 'cached/' + result.hash + '.' + idx + '.png';
+      ret.type = TYPE.image;
     } else {
       path = 'cached/' + result.hash + '.' + idx + '.json';
+      ret.type = TYPE.complex;
     }
-    result.outputs.push(path);
-    jsargs.outputs.push(path);
+    result.outputs.push(ret);
+    jsargs.outputs.push(ret);
   }
 
   const genpath = "/cv/imagegen?p=";
@@ -435,10 +443,44 @@ async function processOpUpdate(opcall, opCache) {
     });
   }
 
-  return result;
+  updateOpResult(opcall, result);
 
-  const opElement = get('#' + opjs.uuid);
-  const frame = get('#' + nodejs.uuid + ' .block-image-frame', opElement);
+  return result;
+}
+
+// Update the UI of op results.
+// opcall: uuid
+function updateOpResult(opcall, result) {
+  console.log("Updating", opcall, result);
+  return;
+  const opElement = get('#' + result.uuid);
+  const opOutputs = get('.opgenerated', opElement);
+  let cleaned = false;
+
+  // Check if we're using the same hash as before. Still, update current images
+  // if no src exists.
+  for (const output of result.outputs) {
+    if (output.type === TYPE.image) {
+      try {
+        const imgs = get('img[data-uuid="' + result.uuid + '"]');
+        for (const img of imgs) {
+          if (img.src === output.path) {
+            // No need to update?
+            return;
+          } else {
+            img.src = output.path;
+          }
+        }
+      } catch (err) {
+      }
+    } else if (output.type === TYPE.complex) {
+    }
+  }
+
+  opOutputs.innerHTML = '';
+  return;
+
+  const frame = get('.block-image-frame', opElement);
   frame.innerHTML = '';
   appendChildren(frame, EL('img', {
     id: 'gen' + nodejs.hash,

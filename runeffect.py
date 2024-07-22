@@ -43,13 +43,6 @@ def cvwrite(img, filename):
             return ejson.dump(img, fout)
     return cv.imwrite(filename, img)
 
-def getPath(dep):
-    dep = dep.strip('/')
-    if dep.startswith(f'{UPLOAD_DIR}/'):
-        return f"{BASE_PATH}/{dep}"
-
-    return f"{BASE_PATH}/{CACHE_DIR}/{dep}.png"
-
 def cleanchild(*args):
     os.wait()
 
@@ -69,7 +62,10 @@ def handle(client):
 
         if 'dependencies' in jsobj:
             for k, v in jsobj['dependencies'].items():
-                args[k] = cvread('html/' + v)
+                print(v)
+                path = f"{BASE_PATH}/{v}"
+                print(f"{k}: {path}")
+                args[k] = cvread(path)
         
         results = jsApply(jsobj['effect'], args)
 
@@ -78,7 +74,7 @@ def handle(client):
         if len(outs) > 1:
             pass
         else:
-            cvwrite(results, 'html/' + outs[0])
+            cvwrite(results, 'html/' + outs[0]['path'])
     except Exception as err:
         print("error")
         print(err)

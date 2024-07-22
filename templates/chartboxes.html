@@ -12,7 +12,7 @@ Image blocks, for when we drag images onto the flowchart.
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-image">
+          <div class="block-output block-edge block-provider" data-idx="0" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-image">
             <span class="vcenter">&#128444;</span>
           </div>
         </div>
@@ -73,10 +73,12 @@ They have:
         </div>
       </div>
     </div>
+    <div class="opgenerated">
+    </div>
   </div>
 </div>
 
-<div id="template-opout">
+<div id="template-opout-image">
   <div style="max-height: 7em;" class="block-container opnode" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop">
     <div class="block-contents">
       <div class="block-input block-edge"></div>
