@@ -296,7 +296,7 @@ function addMouseDrag(dragMe) {
       y: fixedPos.y - bounds.top,
     };
 
-    let droppedOn = document.elementsFromPoint(fixedPos.x, fixedPos.y);
+    let droppedOn = document.elementsFromPoint(MOUSE.pos.x, MOUSE.pos.y);
     if (dragMe.dataset.dragDropOn) {
       droppedOn = listElementsMatching(droppedOn, dragMe.dataset.dragDropOn);
     }
