@@ -125,7 +125,7 @@ function addOpBlock(opjs) {
 
     populateElement(block, {
       '.oplisting': getOpListing(effect, opjs.args),
-      '.block-out': getProviderListing(effect, opjs),
+      // '.block-out': getProviderListing(effect, opjs),
     });
 
     block.blockData = opjs;
@@ -229,16 +229,30 @@ function drawLineSVG(spoint, tpoint) {
   EL.flowlines.innerHTML = EL.flowlines.innerHTML;
 }
 
-function drawSourceLine(fromuuid, touuid, arg) {
+function drawSourceLine(source, opjs, arg) {
   // Cheap hack to get around dragndrop's hiding the
   // original element.
+  const touuid = opjs.uuid;
+  const fromuuid = source.sourceid;
   const toBlocks = getAll('#' + touuid);
   const fromBlocks = getAll('#' + fromuuid);
   const toBlock = toBlocks[toBlocks.length - 1];
   const fromBlock = fromBlocks[fromBlocks.length - 1];
 
+  console.log("drawSL", source, opjs);
+
+  let idx = source.idx;
+  if (!idx) idx = 0;
+
+  const opProviders = getAll('.op-provider', fromBlock);
+  console.log("drawSLops", opProviders);
+  if (!opProviders || opProviders.length === 0) return;
+
+  const provider = opProviders[idx];
+
   // Now to find the actual points.
-  const fromPos = calculateLinePoint(fromBlock, '.op-provider', 0.5, 0.5);
+  console.log("cLP", provider, toBlock);
+  const fromPos = calculateLinePoint(provider, '.op-provider', 0.5, 0.5);
   const toPos = calculateLinePoint(toBlock, '[data-arg="' + arg.name + '"] .point', 0.5, 0.5);
   drawLineSVG(fromPos, toPos);
 }
@@ -258,7 +272,7 @@ function redrawAllLines() {
       if (arg.source) {
         const from = CHART[arg.source.type][arg.source.sourceid];
         const to = opjs;
-        drawSourceLine(arg.source.sourceid, opjs.uuid, arg);
+        drawSourceLine(arg.source, opjs, arg);
       }
     }
   }

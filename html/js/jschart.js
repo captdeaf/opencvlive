@@ -284,6 +284,7 @@ function moveBlockJS(blockjs, pos) {
 // Bind an output to an input. (Actually we do the reverse:
 // Ops have "sources", rather than outputs having "Destinations".
 function bindJS(sourcejs, targetjs, argname, idx) {
+  console.log("bJS", sourcejs, targetjs, argname, idx);
   const arg = targetjs.args.find((a) => a.name === argname);
   console.log("bind", sourcejs, targetjs, argname, idx);
   arg.source = {

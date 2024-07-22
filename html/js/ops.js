@@ -214,6 +214,37 @@ function getOpListing(effect, opargs) {
   return [required, children];
 }
 
+function getProviderElement(opcall, output) {
+  const attrs = {
+    class: "block-output block-edge op-provider",
+    'data-drag': "point",
+    'data-drag-bind': "#flowchart",
+    'data-drag-drop': "bindToTarget",
+    title: "Drag image output to another's input",
+  };
+
+  const spanAttrs = {
+    class: 'vcenter',
+  };
+
+  const children = [];
+
+  let child = EL('span', {}, '??');
+  if (output.type.startsWith('complex')) {
+    attrs['data-drag-drop-on'] = ".accept-complex";
+    attrs['title'] = "Drag complex output to an input";
+    attrs['data-idx'] = output.idx;
+    child = EL('span', spanAttrs, '[...]');
+  } else if (output.type === TYPE.image) {
+    attrs['data-drag-drop-on'] = ".accept-image"
+    attrs['title'] = "Drag image output to an input";
+    attrs['data-idx'] = output.idx;
+    child = EL('span', spanAttrs, '&#128444;')
+  }
+  const pdiv = EL('div', attrs, child);
+  return enableTriggers(pdiv, true);
+}
+
 // Depending on what type of output an op generates:
 //   'image': image
 //   'complex*': complex
@@ -372,6 +403,8 @@ async function beginOpProcessing(readyCalls) {
     const result = await processOpUpdate(call, opCache);
     opCache[call.uuid] = result.hash;
   }
+
+  redrawAllLines();
 }
 
 // Process a single op action.
@@ -427,6 +460,7 @@ async function processOpUpdate(opcall, opCache) {
       path = 'cached/' + result.hash + '.' + idx + '.json';
       ret.type = TYPE.complex;
     }
+    ret.idx = idx;
     result.outputs.push(ret);
     jsargs.outputs.push(ret);
   }
@@ -465,11 +499,11 @@ function updateOpResult(opcall, result) {
         '.opout-image-frame': EL('img', {
           'data-uuid': result.uuid,
           class: 'opout-image',
-        })
+        }),
+        '.block-output.op-edge': getProviderElement(opcall, output),
       });
       appendChildren(opOutputs, imgTpl);
       for (img of getAll('img[data-uuid="' + result.uuid + '"]')) {
-        console.log("img", img, output.path);
         img.src = output.path;
       }
     } else if (output.type === TYPE.complex) {
