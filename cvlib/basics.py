@@ -129,7 +129,6 @@ def findCorners(image : T.grayscale):
     corners = np.int0(corners)
     return corners
 
-
 @EF.register("Blend", T.image)
 def blend(
             imageA : T.image,
@@ -144,8 +143,13 @@ def blend(
 def drawPoly(
             image : T.image,
             poly  : T.complex(title="2D Polygon array"),
+            color : T.complex(title="color [255, 255, 0]") = [255, 255, 0],
+            filled : T.bool(title="Polygon filled in?") = True,
         ):
-    pass
+    pts = np.array(poly);
+    pts = pts.reshape((-1, 1, 2))
+    cv.polylines(image, [pts], filled, color)
+    return image
 
 # Register a way for complex to save itself. In theory, it
 # should return it as is just to be written.

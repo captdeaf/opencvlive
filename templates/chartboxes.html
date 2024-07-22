@@ -36,7 +36,7 @@ Complex data - edited in JSON.
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge op-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-complex">
+          <div class="block-output block-edge op-provider" data-idx="0" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-complex">
             <span class="vcenter">[x]</span>
           </div>
         </div>
@@ -78,12 +78,12 @@ They have:
 </div>
 
 <div id="template-opout-image">
-  <div style="max-height: 7em;" class="block-container opnode" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop">
+  <div style="max-height: 7em;" class="block-container opnode">
     <div class="block-contents">
       <div class="block-input block-edge op-edge"></div>
       <div class="opout-center">
         <span class="opout-head"></span>
-        <div class="opout-image-frame" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+        <div class="opout-image-frame" data-onclick="showLargeChildImage"/>
         </div>
       </div>
       <div class="block-output block-edge op-edge op-provider"></div>
@@ -92,15 +92,17 @@ They have:
 </div>
 
 <div id="template-opout-complex">
-  <div style="max-height: 7em;" class="block-container opnode" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop">
+  <div style="max-height: 7em;" class="block-container opnode">
     <div class="block-contents">
       <div class="block-input block-edge op-edge"></div>
       <div class="block-center">
         <span class="opout-head"></span>
-        <div class="opout-text-frame" data-onclick="debugTrigger" data-drag-click="debugTrigger"/>
+        <div class="opout-text-frame" data-onclick="debugTrigger"/>
         </div>
       </div>
       <div class="block-output block-edge op-edge op-provider">
+      </div>
+      <div class="opgenerated">
       </div>
     </div>
   </div>

@@ -120,7 +120,7 @@ TYPEDEFS['image'] = {
 
 TYPEDEFS['complex'] = {
   build: (name, args) => {
-    return EL('div', {}, '[...]')
+    return EL('div', {}, '[.]')
   },
   parse: (name, el, args) => {
     return el.blockData.json;
@@ -233,7 +233,7 @@ function getProviderElement(opcall, output) {
     attrs['data-drag-drop-on'] = ".accept-complex";
     attrs['title'] = "Drag complex output to an input";
     attrs['data-idx'] = output.idx;
-    child = EL('span', spanAttrs, '[...]');
+    child = EL('span', spanAttrs, '[.]');
   } else if (output.type === TYPE.image) {
     attrs['data-drag-drop-on'] = ".accept-image"
     attrs['title'] = "Drag image output to an input";
@@ -266,7 +266,7 @@ function getProviderListing(effect, opjs) {
       attrs['data-drag-drop-on'] = ".accept-complex";
       attrs['title'] = "Drag complex output to an input";
       attrs['data-idx'] = idx;
-      child = EL('span', spanAttrs, '[...]');
+      child = EL('span', spanAttrs, '[.]');
     } else if (outp.cname === 'image') {
       attrs['data-drag-drop-on'] = ".accept-image"
       attrs['title'] = "Drag image output to an input";
@@ -393,7 +393,7 @@ async function beginOpProcessing(readyCalls) {
 
     result.outputs
 
-    opCache[complex.uuid] = 'cached/' + result.hash + '.0.json';
+    opCache[complex.uuid] = result.hash;
   }
 
   // 'ready' is now consisting of ops uuids, in order of which they should be
@@ -428,7 +428,8 @@ async function processOpUpdate(opcall, opCache) {
 
   if (opcall.dependencies) {
     for (const [k, v] of Object.entries(opcall.dependencies)) {
-      if (v.type.startsWith('complex')) {
+      console.log("DepWhat", v);
+      if (v.cname.startsWith('complex')) {
         jsargs.dependencies[k] = 'cached/' + opCache[v.sourceid] + '.' + v.idx + '.json';
       } else {
         if (v.sourceid.startsWith('images')) {
@@ -485,7 +486,10 @@ async function processOpUpdate(opcall, opCache) {
 // opcall: uuid
 function updateOpResult(opcall, result) {
   const opElement = get('#' + result.uuid);
-  const opOutputs = get('.opgenerated', opElement);
+  const allOutputs = getAll('.opgenerated', opElement);
+
+  if (!allOutputs || allOutputs.length == 0) return;
+  const opOutputs = allOutputs[0];
 
   if (opElement.dataset.hash === result.hash) return;
   opElement.dataset.hash = result.hash;
@@ -506,11 +510,8 @@ function updateOpResult(opcall, result) {
         img.src = output.path;
       }
     } else if (output.type === TYPE.complex) {
-      console.log("complex output", output, result, opcall);
       easyFetch(output.path, {}, {
         success: (json) => {
-          console.log("result", json);
-          JSON.stringify(json);
           const complexTpl = template('opout-complex', {
             '.opout-text-frame': EL('pre', {
                 'data-uuid': result.uuid,

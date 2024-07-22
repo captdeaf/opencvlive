@@ -44,108 +44,9 @@
 // Our demonstration chart. It ... doesn't do much. It also demonstrates
 // the structure of the CHART object.
 const DEMO_CHART = {
-  "ops": {
-    "ops1721586817693": {
-      "type": "ops",
-      "uuid": "ops1721586817693",
-      "name": "Blur",
-      "effect": "blur",
-      "pos": {
-        "x": 311.40000915527344,
-        "y": 301.316650390625
-      },
-      "args": [
-        {
-          "cname": "image",
-          "name": "image",
-          "required": true,
-          "type": "ANY"
-        },
-        {
-          "cname": "int",
-          "max": 255,
-          "min": 1,
-          "name": "amount",
-          "step": 2,
-          "title": "Pixel range to blur (odd number)",
-          "value": 5
-        }
-      ]
-    },
-    "ops1721586820964": {
-      "type": "ops",
-      "uuid": "ops1721586820964",
-      "name": "Adaptive Threshold",
-      "effect": "adaptiveThreshold",
-      "pos": {
-        "x": 298.40000915527344,
-        "y": 132.95001220703125
-      },
-      "args": [
-        {
-          "cname": "image",
-          "name": "image",
-          "required": true,
-          "type": "ANY"
-        },
-        {
-          "cname": "int",
-          "max": 255,
-          "min": 0,
-          "name": "cmax",
-          "value": 255
-        },
-        {
-          "args": [
-            {
-              "Gaussian": 1,
-              "Mean": 1
-            }
-          ],
-          "cname": "select",
-          "name": "method",
-          "value": 1
-        },
-        {
-          "args": [
-            {
-              "BINARY": 0,
-              "INVERTED": 1
-            }
-          ],
-          "cname": "select",
-          "name": "target",
-          "value": 0
-        },
-        {
-          "cname": "int",
-          "min": 1,
-          "name": "blockSize",
-          "step": 2,
-          "title": "Must be odd",
-          "value": 27
-        },
-        {
-          "cname": "int",
-          "name": "weight",
-          "value": 2
-        }
-      ]
-    }
-  },
+  "ops": {},
   "complexes": {},
-  "images": {
-    "images1721586619249": {
-      "type": "images",
-      "uuid": "images1721586619249",
-      "name": "demo_landscape",
-      "path": "uploads/demo_landscape.png",
-      "pos": {
-        "x": 85.83334350585938,
-        "y": 185.78334045410156
-      },
-    }
-  }
+  "images": {},
 };
 
 const CHARTKEY = 'chart';
@@ -158,8 +59,8 @@ const TYPE = {
   ops: 'ops',
   image: 'images',
   images: 'images',
-  complex: 'complex',
-  complexes: 'complex',
+  complex: 'complexes',
+  complexes: 'complexes',
 }
 
 ////////////////////////////////////
@@ -284,10 +185,9 @@ function moveBlockJS(blockjs, pos) {
 // Bind an output to an input. (Actually we do the reverse:
 // Ops have "sources", rather than outputs having "Destinations".
 function bindJS(sourcejs, targetjs, argname, idx) {
-  console.log("bJS", sourcejs, targetjs, argname, idx);
   const arg = targetjs.args.find((a) => a.name === argname);
-  console.log("bind", sourcejs, targetjs, argname, idx);
   arg.source = {
+    cname: arg.cname,
     type: sourcejs.type,
     sourceid: sourcejs.uuid,
     idx: idx,
