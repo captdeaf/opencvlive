@@ -9,8 +9,7 @@
 //                 though it displays an input, inputs generate
 //                 new nodes.
 //
-//    - Node block: Below ops blocks. An instance of an operation, with an
-//                  image input and output.
+//    - Complex block: (an output-only block for json)
 //
 //    - Image (an output-only block)
 //
@@ -74,14 +73,6 @@ addTrigger('addImageAt', function(libraryElement, evt, fixedPos,
   addImageBlock(imgjs);
 });
 
-addTrigger('addComplexAt', function(libraryElement, evt, fixedPos,
-                              parentElement, relativePos) {
-  const cxName = "Complex JSON";
-
-  const cxjs = newComplexJS(cxName, relativePos);
-  addComplexBlock(cxjs);
-});
-
 ////////////////////////////////////
 //
 //  Complex: complex JSON data to feed to zero or more ops.
@@ -104,14 +95,19 @@ function addComplexBlock(cxjs) {
 
   appendChildren(EL.flowchart, block);
 }
+
+// Generate a new Complex block and render it.
+addTrigger('addComplexAt', function(libraryElement, evt, fixedPos,
+                              parentElement, relativePos) {
+  const cxName = "Complex JSON";
+
+  const cxjs = newComplexJS(cxName, relativePos);
+  addComplexBlock(cxjs);
+});
+
 ////////////////////////////////////
 //
-//  Op Block flow:
-//
-//  Events here:
-//    1) On load, render all Op Blocks.
-//    2) On creating a new Op block.
-//    3) Deleting an Op block.
+//  Op Blocks: Calls out to OpenCV (Or rather, Python).
 //
 ////////////////////////////////////
 
@@ -152,42 +148,11 @@ addTrigger('addOpAt', function(effectElement, evt, fixedPos,
   addOpBlock(opjs);
 });
 
-////////////////////////////////////
-//
-//  Nodes: These are subordinate to ops blocks. They are contained inside the
-//  .op-master of the 'parent' ops block, and get much of their data from the
-//  ops block. While they are draggable to trash, they are not actually movable.
-//
-////////////////////////////////////
-
-// Adds a single node item.
-function addNodeItem(opBlock, opjs, nodejs) {
-  const effect = opBlock.blockData.effect;
-  const nodeBlock = template('opnode', {});
-  nodeBlock.id = nodejs.uuid;
-
-  nodeBlock.opdata = opjs;
-  nodeBlock.blockData = nodejs;
-  nodeBlock.dataset.type = nodejs.type;
-
-  nodeBlock.dataset.type = TYPE.node;
-  nodeBlock.dataset.opid = opjs.uuid;
-
-  setBlockName(nodeBlock, nodejs.name);
-  opBlock.appendChild(nodeBlock);
-}
-
 // Render all blocks from Chart JS
 function renderAllBlocks(chart) {
   EL.flowchart.innerHTML = '';
   for (const [uuid, opjs] of Object.entries(chart.ops)) {
-    const block = addOpBlock(opjs);
-    // Their child nodes.
-//    if (opjs.nodes) {
-//      for (const nodejs of Object.values(opjs.nodes)) {
-//        addNodeItem(block, opjs, nodejs)
-//      }
-//    }
+    addOpBlock(opjs);
   }
   for (const [uuid, imgjs] of Object.entries(chart.images)) {
     addImageBlock(imgjs);
@@ -197,28 +162,21 @@ function renderAllBlocks(chart) {
     addComplexBlock(cxjs);
   }
 
-  redrawAllNodeLines();
-  refreshOpImages();
+  redrawAllLines();
+  // refreshOutputs();
 }
 
 ////////////////////////////////////
 //
-//  Nodelines: drawing between:
+//  Lines: drawing between:
 //
-//    - image->node
-//    - node->node
+//    - image->ops
+//    - complex->ops
+//    - ops->ops
 //
 //  This section is only for drawing nodes for existing connections.
 //
-//  Fortunately, all drawing sources are nodes.
-//
-//  A connection is defined as a node.sources[id].
-//
-//  At time of writing, only one source is supported in the js operations, but
-//  I expect that to change as a number of opencv calls require more than a
-//  single image to be passed.
-//
-//  As such, all sources are arrays. (in case order matters)
+//  Fortunately, all 'sources' are op args.
 //
 ////////////////////////////////////
 
@@ -227,13 +185,8 @@ function renderAllBlocks(chart) {
 // saved position of each block is its Top-Left corner. So
 // this just gets us the correct point for in or out for
 // the given block.
-function calculateLinePoint(block, loc) {
+function calculateLinePoint(block, sel, xmul, ymul) {
   // Get the element defining the side.
-  if (loc === 'in') {
-    var sel = ".block-arr.block-input";
-  } else if (loc === 'out') {
-    var sel = ".block-arr.block-output";
-  }
   const el = get(sel, block);
   const elBox = el.getBoundingClientRect();
 
@@ -243,20 +196,30 @@ function calculateLinePoint(block, loc) {
   const chartBox = EL.flowchart.getBoundingClientRect();
 
   return {
-    x: elBox.left - chartBox.left + (elBox.width/2),
-    y: elBox.top - chartBox.top + (elBox.height/2),
+    x: elBox.left - chartBox.left + (elBox.width*xmul),
+    y: elBox.top - chartBox.top + (elBox.height*ymul),
   }
+}
+// A variety of colors for each line to help separate them from each other.
+const COLORS = "cyan red green blue orange black brown purple".split(' ');
+let colori = 0;
+function pickColor() {
+  colori += 1;
+  if (colori >= COLORS.length) colori = 0;
+  return COLORS[colori];
+}
+
+function resetColors() {
+  colori = 0;
 }
 
 // Draw a node line between a source and a target, using their
 // arrow and bullseye locations.
-function drawNodeLineSVG(source, target, opts) {
-  const spoint = calculateLinePoint(source, 'out');
-  const tpoint = calculateLinePoint(target, 'in');
+function drawLineSVG(spoint, tpoint) {
   EL.flowlines.append(EL('line', {
     x1: spoint.x, y1: spoint.y,
     x2: tpoint.x, y2: tpoint.y,
-    stroke: opts.color,
+    stroke: pickColor(),
   }));
   // Stupid, stupid svg. It can't accept DOM objects, but it can accept new
   // innerHTML. Since none of the lines we make are interactable with, I'm just
@@ -264,9 +227,7 @@ function drawNodeLineSVG(source, target, opts) {
   EL.flowlines.innerHTML = EL.flowlines.innerHTML;
 }
 
-// BLAH TODO: REPLACE
-function drawNodeLine(fromuuid, touuid, opts) {
-  let fromjs;
+function drawSourceLine(fromuuid, touuid, arg) {
   // Cheap hack to get around dragndrop's hiding the
   // original element.
   const toBlocks = getAll('#' + touuid);
@@ -274,27 +235,29 @@ function drawNodeLine(fromuuid, touuid, opts) {
   const toBlock = toBlocks[toBlocks.length - 1];
   const fromBlock = fromBlocks[fromBlocks.length - 1];
 
-  drawNodeLineSVG(fromBlock, toBlock, opts);
+  // Now to find the actual points.
+  const fromPos = calculateLinePoint(fromBlock, '.block-provider', 0.5, 0.5);
+  const toPos = calculateLinePoint(toBlock, '[data-arg="' + arg.name + '"]', 0.04, 0.2);
+  drawLineSVG(fromPos, toPos);
 }
 
-function redrawAllNodeLines() {
-  // TODO: Fix
-  return
+function redrawAllLines() {
   // Clear
   EL.flowlines.innerHTML = '';
   const fcbox = EL.flowchart.getBoundingClientRect();
   EL.flowlines.style.width = fcbox.width;
   EL.flowlines.style.height = fcbox.height;
 
+  resetColors();
+
   // Redraw.
   for (const opjs of Object.values(CHART.ops)) {
-    if (opjs.nodes) {
-      for (const nodejs of Object.values(opjs.nodes)) {
-        if (nodejs.sources) {
-          for (const sourcejs of Object.values(nodejs.sources)) {
-            drawNodeLine(sourcejs.sourceid, nodejs.uuid, sourcejs.opts);
-          }
-        }
+    for (const arg of opjs.args) {
+      if (arg.source) {
+        const from = CHART[arg.source.type][arg.source.sourceid];
+        const to = opjs;
+        console.log("From, to", from, to, arg);
+        drawSourceLine(arg.source.sourceid, opjs.uuid, arg);
       }
     }
   }
@@ -302,24 +265,25 @@ function redrawAllNodeLines() {
 
 // Add an event for whenever something else needs us to redraw the lines.
 // e.g: window resize or drag+drop move.
-addTrigger('redrawAllNodeLines', () => {
-  redrawAllNodeLines();
+addTrigger('redrawAllLines', () => {
+  redrawAllLines();
 });
 
 addTrigger('blockDrop', function(el, evt, fixedPos, parentElement, relativePos) {
   if (el && el.dataset.type) {
     moveBlockJS(el.blockData, relativePos);
   }
-  redrawAllNodeLines();
+  redrawAllLines();
 });
 
+// Bind a source item (image or complex output) to an input item on an op.
 addTrigger('bindToTarget', function(el, evt, fixedPos, matchedElements, relativePos) {
   const sourceBlock = findParent(el, '[data-type]');
-  const targetBlock = findParent(matchedElements[0], '[data-type]');
+  // matchedElements is from drag. We'll just care about the first one.
+  const targetInput = findParent(matchedElements[0], '[data-arg]');
+  const targetBlock = findParent(targetInput, '[data-type]');
 
-  console.log("Bind:",sourceBlock,targetBlock);
-
-  bindJS(sourceBlock.blockData, targetBlock.blockData);
+  bindJS(sourceBlock.blockData, targetBlock.blockData, targetInput.dataset.arg);
   renderAllBlocks(CHART);
 });
 

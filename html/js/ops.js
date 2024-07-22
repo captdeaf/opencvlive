@@ -110,6 +110,23 @@ TYPEDEFS['select'] = {
   },
 };
 
+TYPEDEFS['image'] = {
+  build: (name, args) => {
+   return EL('div', {}, '&#128444;')
+  },
+  parse: (name, el, args) => {
+  },
+};
+
+TYPEDEFS['complexArray'] = {
+  build: (name, args) => {
+    return EL('div', {}, '[x]')
+  },
+  parse: (name, el, args) => {
+    return el.blockData.json;
+  },
+};
+
 // Whenever a value changes, save and trigger refreshes.
 addTrigger('opChange', function(el, evt) {
   const opblock = findParent(el, '.block-master');
@@ -160,20 +177,14 @@ function renderOp(name, opargs, argdef) {
 
   // If the arg is a complex, it is a target
   // only.
-  let prefix = '&bull; ';
-  let input = '';
-  if (cname.startsWith('complex')) {
-    prefix = EL('span', {}, '[x]')
-  } else if (cname === 'image') {
-    prefix = EL('span', {}, '&#128444;')
-  } else {
-    // Build it, and they will come.
-    let type = cname;
-    if (!(type in TYPEDEFS)) {
-      type = 'string';
-    }
-    input = TYPEDEFS[type].build(name, myargs);
+  const prefix = '&bull; ';
+
+  // Build it, and they will come.
+  let type = cname;
+  if (!(type in TYPEDEFS)) {
+    type = 'string';
   }
+  const input = TYPEDEFS[type].build(name, myargs);
 
   // Build the actual label.
   const item = EL('label', labelAttrs, prefix, name, input);
@@ -210,7 +221,7 @@ function getProviderListing(effect, opjs) {
     class: "block-output block-edge block-provider",
     'data-drag': "point",
     'data-drag-bind': "#flowchart",
-    'data-drag-drop': "debugTrigger",
+    'data-drag-drop': "bindToTarget",
   };
 
   const spanAttrs = {

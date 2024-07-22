@@ -184,24 +184,36 @@
 }
 
 .oplisting label {
+  text-align: left;
   font-size: 80%;
   font-weight: bold;
   display: block;
   margin: 0;
-  padding-left: 5px;
   height: 2em;
   position: relative;
   width: 100%;
   user-select: none;
 }
 
-.oplisting label input,select {
+.oplisting label div {
+  float: right;
+  display: inline-block;
   position: absolute;
   font-size: 80%;
   right: 0;
   top: 0;
-  width: 70%;
-  max-width: 10em;
+  width: 8em;
+  margin-right: 1em;
+  margin-top: 0.25em;
+  text-align: right;
+}
+
+.oplisting label input, .oplisting label select {
+  position: absolute;
+  font-size: 80%;
+  right: 0;
+  top: 0;
+  width: 8em;
 }
 
 .oplisting [type="number"] {

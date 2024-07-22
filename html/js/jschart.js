@@ -283,30 +283,14 @@ function moveBlockJS(blockjs, pos) {
 //
 ////////////////////////////////////
 
-// A variety of colors for each line to help separate them from each other.
-const COLORS = "cyan red green blue orange black brown purple".split(' ');
-let colori = 0;
-function pickColor() {
-  colori += 1;
-  if (colori >= COLORS.length) colori = 0;
-  return COLORS[colori];
-}
-
-// Bind two JS objects to each other.
-// If target is an op: Create a node.
-// In both cases, its source is set to source.
-function bindJS(sourcejs, targetjs) {
-  const source = {
+// Bind an output to an input. (Actually we do the reverse:
+// Ops have "sources", rather than outputs having "Destinations".
+function bindJS(sourcejs, targetjs, argname) {
+  const arg = targetjs.args.find((a) => a.name === argname);
+  arg.source = {
     type: sourcejs.type,
     sourceid: sourcejs.uuid,
-    opts: {
-      color: pickColor(),
-    },
   };
-
-  if (targetjs.type === TYPE.op) {
-    // TODO: Node rewrite
-  }
 
   saveChart();
 }
@@ -319,24 +303,19 @@ function bindJS(sourcejs, targetjs) {
 
 function removeSourcesJS(uuid) {
   for (const op of Object.values(CHART.ops)) {
-    // TODO: Node rewrite
+    for (const arg of op.args) {
+      if (arg.source && arg.source.sourceid === uuid) {
+        delete arg['source'];
+      }
+    }
   }
+  saveChart();
 }
 
 function removeBlockJS(blockjs) {
-  // TODO: Node rewrite
-  if (blockjs.type === TYPE.op) {
-    for (const node of Object.values(blockjs.nodes)) {
-      removeSourcesJS(node.uuid);
-    }
-    delete CHART.ops[blockjs.uuid];
-  } else if (blockjs.type === TYPE.image) {
-    removeSourcesJS(blockjs.uuid);
-    delete CHART.images[blockjs.uuid];
-  } else if (blockjs.type === TYPE.complex) {
-    removeSourcesJS(blockjs.uuid);
-    delete CHART.complexes[blockjs.uuid];
-  }
+  removeSourcesJS(blockjs.uuid);
+
+  delete CHART[blockjs.type][blockjs.uuid];
 }
 
 addInitializer(() => {

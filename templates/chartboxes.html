@@ -1,6 +1,6 @@
 Image blocks, for when we drag images onto the flowchart.
 <div id="template-block-image">
-  <div class="block-master" style="width: 9em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="blockDrop" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-move="redrawAllNodeLines">
+  <div class="block-master" style="width: 9em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="blockDrop" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-move="redrawAllLines">
     <div class="block-container">
       <div class="block-contents">
         <div class="block-input block-edge"></div>
@@ -12,7 +12,7 @@ Image blocks, for when we drag images onto the flowchart.
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-drag-drop-on=".accept-image">
+          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-image">
             <span class="vcenter">&#128444;</span>
           </div>
         </div>
@@ -23,7 +23,7 @@ Image blocks, for when we drag images onto the flowchart.
 
 Complex data - edited in JSON.
 <div id="template-block-complex">
-  <div class="block-master" style="width: 9em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="blockDrop" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-move="redrawAllNodeLines">
+  <div class="block-master" style="width: 9em;" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-drag-drop="blockDrop" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-move="redrawAllLines">
     <div class="block-container">
       <div class="block-contents">
         <div class="block-input block-edge"></div>
@@ -36,7 +36,7 @@ Complex data - edited in JSON.
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="debugTrigger" data-drag-drop-on=".accept-complex">
+          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-complex">
             <span class="vcenter">[x]</span>
           </div>
         </div>
@@ -56,7 +56,7 @@ They have:
   - Configurable arguments.
 
 <div id="template-block-op">
-  <div class="block-master block-op" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop" data-drag-move="redrawAllNodeLines">
+  <div class="block-master block-op" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop" data-drag-move="redrawAllLines">
     <div class="block-container">
       <div class="block-contents">
         <div class="block-input block-edge"></div>
