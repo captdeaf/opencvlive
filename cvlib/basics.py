@@ -144,11 +144,11 @@ def drawPoly(
             image : T.image,
             poly  : T.complex(title="2D Polygon array"),
             color : T.complex(title="color [255, 255, 0]") = [255, 255, 0],
-            filled : T.bool(title="Polygon filled in?") = True,
+            close : T.bool(title="Auto-close?") = True,
         ):
     pts = np.array(poly);
     pts = pts.reshape((-1, 1, 2))
-    cv.polylines(image, [pts], filled, color)
+    cv.polylines(image, [pts], close, color)
     return image
 
 # Register a way for complex to save itself. In theory, it
