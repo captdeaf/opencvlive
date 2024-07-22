@@ -238,7 +238,7 @@ function drawSourceLine(fromuuid, touuid, arg) {
   const fromBlock = fromBlocks[fromBlocks.length - 1];
 
   // Now to find the actual points.
-  const fromPos = calculateLinePoint(fromBlock, '.block-provider', 0.5, 0.5);
+  const fromPos = calculateLinePoint(fromBlock, '.op-provider', 0.5, 0.5);
   const toPos = calculateLinePoint(toBlock, '[data-arg="' + arg.name + '"] .point', 0.5, 0.5);
   drawLineSVG(fromPos, toPos);
 }

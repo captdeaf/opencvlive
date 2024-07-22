@@ -1,0 +1,264 @@
+/* chartboxes.css
+ *
+ * UI for the boxes in the charts.
+ **/
+
+/***********************************
+/
+/  Main containers. Draggable, movable.
+/
+/***********************************/
+.block-master {
+  position: absolute;
+  display: flex;
+  flex-flow: column;
+  width: 14em;
+  max-width: 14em;
+}
+
+.block-container {
+  display: block;
+  position: relative;
+  flex: 1 1 content;
+  width: 100%;
+  height: 100%;
+  border: 3px solid black;
+  border-radius: 1em;
+  background-color: #eee;
+  min-height: 8em;
+  max-width: 14em;
+}
+
+.block-contents {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  height: 100%;
+}
+
+/* Draggable header */
+.block-head {
+  position: relative;
+  height: 1.3em;
+  width: 100%;
+  left: 0;
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid black;
+  background-color: #ddf;
+  flex: 0 0 auto;
+  font-size: 70%;
+}
+
+/* Beneath the block-head. Container for what's in the following sections. */
+.block-lower {
+  height: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-flow: row;
+  position: relative;
+}
+
+/* The sides of the .block-contents */
+.block-edge {
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  width: 1.5em;
+  user-select: none;
+}
+
+.block-edge div {
+  position: relative;
+  display: block;
+  height: 1%;
+  flex-grow: 1;
+}
+
+.block-input  { border-right: 1px solid black; }
+.block-output { border-left: 1px solid black; }
+
+/* Container for what's in the following sections. */
+.block-center {
+  flex: 1 1 auto;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+/***********************************
+/
+/  Image chart block.
+/
+/***********************************/
+
+.block-image-frame {
+  display: block;
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  max-height: 6em;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+.block-image {
+  display: block;
+  position: absolute;
+  top: -10%;
+  height: 140%;
+  border-left: 1px solid black;
+}
+
+/***********************************
+/
+/  Operations (ops) block
+/
+/***********************************/
+
+.block-op {
+  max-height: 10em;
+}
+
+.opaccept span {
+  padding-top: 4px;
+  margin-bottom: 1px;
+  margin-right: 4px;
+}
+
+.oplisting {
+  display: block;
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+}
+
+.oplisting label {
+  text-align: left;
+  font-size: 80%;
+  font-weight: bold;
+  display: block;
+  margin: 0;
+  height: 2em;
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+.oplisting label div {
+  float: right;
+  display: inline-block;
+  position: absolute;
+  font-size: 80%;
+  right: 0;
+  top: 0;
+  width: 8em;
+  margin-right: 1em;
+  margin-top: 0.25em;
+  text-align: right;
+}
+
+.oplisting label input, .oplisting label select {
+  position: absolute;
+  font-size: 80%;
+  right: 0;
+  top: 0;
+  width: 8em;
+}
+
+.oplisting [type="number"] {
+  width: 4em;
+}
+
+.ops {
+  height: 100%;
+  width: 100%;
+}
+
+.ops h3 {
+  font-size: 0.8em;
+  margin: 0;
+  padding: 0;
+  display: block;
+  overflow-y: hidden;
+}
+
+.opnode {
+  background-color: #7a7;
+}
+
+/***********************************
+/
+/  Probably move to styles.css: accept and provide cursors.
+/
+/***********************************/
+
+.op-accept {
+  cursor: cell;
+}
+
+.op-provider {
+  cursor: copy;
+}
+
+/***********************************
+/
+/  Output images attached below the op blocks.
+/
+/***********************************/
+
+.opout-center {
+  flex: 1 1 auto;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.opout-head {
+  position: relative;
+  height: 1.3em;
+  width: 100%;
+  left: 0;
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  flex: 0 0 auto;
+  font-size: 70%;
+}
+
+
+.opout-image-frame {
+  display: block;
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  max-height: 6em;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  border: 1px solid black;
+}
+
+.opout-image {
+  display: block;
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  height: 140%;
+}
+
+.op-edge {
+  border: none;
+}

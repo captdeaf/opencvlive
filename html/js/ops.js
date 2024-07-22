@@ -167,7 +167,7 @@ function renderOp(name, opargs, argdef) {
   }
 
   const labelAttrs = {
-    'class': [accepts, 'block-accept'].join(' '),
+    'class': [accepts, 'op-accept'].join(' '),
     'data-arg': name,
   };
 
@@ -219,7 +219,7 @@ function getOpListing(effect, opargs) {
 //   'complex*': complex
 function getProviderListing(effect, opjs) {
   const attrs = {
-    class: "block-output block-edge block-provider",
+    class: "block-output block-edge op-provider",
     'data-drag': "point",
     'data-drag-bind': "#flowchart",
     'data-drag-drop': "bindToTarget",
@@ -451,44 +451,31 @@ async function processOpUpdate(opcall, opCache) {
 // Update the UI of op results.
 // opcall: uuid
 function updateOpResult(opcall, result) {
-  console.log("Updating", opcall, result);
-  return;
   const opElement = get('#' + result.uuid);
   const opOutputs = get('.opgenerated', opElement);
-  let cleaned = false;
 
-  // Check if we're using the same hash as before. Still, update current images
-  // if no src exists.
+  if (opElement.dataset.hash === result.hash) return;
+  opElement.dataset.hash = result.hash;
+
+  opOutputs.innerHTML = '';
+
   for (const output of result.outputs) {
     if (output.type === TYPE.image) {
-      try {
-        const imgs = get('img[data-uuid="' + result.uuid + '"]');
-        for (const img of imgs) {
-          if (img.src === output.path) {
-            // No need to update?
-            return;
-          } else {
-            img.src = output.path;
-          }
-        }
-      } catch (err) {
+      const imgTpl = template('opout-image', {
+        '.opout-image-frame': EL('img', {
+          'data-uuid': result.uuid,
+          class: 'opout-image',
+        })
+      });
+      appendChildren(opOutputs, imgTpl);
+      for (img of getAll('img[data-uuid="' + result.uuid + '"]')) {
+        console.log("img", img, output.path);
+        img.src = output.path;
       }
     } else if (output.type === TYPE.complex) {
+      // TODO: complex output.
     }
   }
 
-  opOutputs.innerHTML = '';
   return;
-
-  const frame = get('.block-image-frame', opElement);
-  frame.innerHTML = '';
-  appendChildren(frame, EL('img', {
-    id: 'gen' + nodejs.hash,
-    class: 'block-image',
-    'data-uuid': nodejs.uuid,
-    src: path,
-  }));
-  for (const large of getAll('.large-image[data-uuid="' + nodejs.uuid + '"]')) {
-    large.src = path;
-  }
 }

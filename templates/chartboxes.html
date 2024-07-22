@@ -12,7 +12,7 @@ Image blocks, for when we drag images onto the flowchart.
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge block-provider" data-idx="0" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-image">
+          <div class="block-output block-edge op-provider" data-idx="0" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-image">
             <span class="vcenter">&#128444;</span>
           </div>
         </div>
@@ -36,7 +36,7 @@ Complex data - edited in JSON.
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge block-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-complex">
+          <div class="block-output block-edge op-provider" data-drag="point" data-drag-bind="#flowchart" data-drag-drop="bindToTarget" data-drag-drop-on=".accept-complex">
             <span class="vcenter">[x]</span>
           </div>
         </div>
@@ -56,8 +56,7 @@ They have:
   - Configurable arguments.
 
 <div id="template-block-op">
-  <div class="block-master block-op" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop" data-drag-move="redrawAllLines">
-    <div class="block-container">
+  <div class="block-master block-op" data-drop-ok=".opdrop" data-drag="move" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop" data-drag-move="redrawAllLines"> <div class="block-container">
       <div class="block-contents">
         <div class="block-input block-edge"></div>
         <div class="block-center">
@@ -68,7 +67,7 @@ They have:
           </div>
         </div>
         <div class="block-out">
-          <div class="block-output block-edge block-provider">
+          <div class="block-output block-edge op-provider">
           </div>
         </div>
       </div>
@@ -81,15 +80,27 @@ They have:
 <div id="template-opout-image">
   <div style="max-height: 7em;" class="block-container opnode" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop">
     <div class="block-contents">
-      <div class="block-input block-edge"></div>
-      <div class="block-center">
-        <span class="drag-start block-head block-drag"></span>
-        <div class="block-image-frame" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
+      <div class="block-input block-edge op-edge"></div>
+      <div class="opout-center">
+        <span class="opout-head"></span>
+        <div class="opout-image-frame" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
         </div>
       </div>
-      <div class="block-out">
-        <div class="block-output block-edge block-provider">
+      <div class="block-output block-edge op-edge"></div>
+    </div>
+  </div>
+</div>
+
+<div id="template-opout-complex">
+  <div style="max-height: 7em;" class="block-container opnode" data-drop-ok=".opdrop" data-drag="trigger" data-drag-bind="#flowchart" data-onmouseover="raiseZIndex" data-zindex="block" data-drag-drop="blockDrop">
+    <div class="block-contents">
+      <div class="block-input block-edge op-edge"></div>
+      <div class="block-center">
+        <span class="opout-head"></span>
+        <div class="block-text-frame" data-onclick="showLargeChildImage" data-drag-click="showLargeChildImage"/>
         </div>
+      </div>
+      <div class="block-output block-edge op-edge">
       </div>
     </div>
   </div>
