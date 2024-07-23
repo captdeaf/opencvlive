@@ -1,5 +1,9 @@
 # types.py
 #
+#  So uh ... turns out JS and JSON are doing all the heavy lifting. The classes
+#  below aren't really needed. Not yet, anyway? Still, the JSDicts are needed
+#  to tell JS what to do.
+#
 ####################################
 #
 # A collection of various types for OpenCV, from vague ("any string") to specific
@@ -230,8 +234,4 @@ T.color = T.bgr
 @T('complex')
 class TComplex(TJSON):
     def fromJSON(self, jsonarg):
-        if type(jsonarg) == str and jsonarg.endswith('.json'):
-            # TODO: load from cache file instead.
-            return jsonarg
-        else:
-            return jsonarg
+        return jsonarg

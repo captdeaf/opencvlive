@@ -138,15 +138,19 @@ function refreshEffectBlocks() {
           return a.displayname.toLowerCase().localeCompare(b.displayname.toLowerCase());
         });
         const custom = [];
+        const high = [];
         const normal = [];
         for (const effect of sorted) {
           if (effect.sort === 'custom') {
             custom.push(buildEffectBlock(effect));
+          } else if (effect.sort === 'high') {
+            high.push(buildEffectBlock(effect));
           } else if (effect.sort !== 'hidden') {
             normal.push(buildEffectBlock(effect));
           }
         }
         appendChildren(parentElement, custom);
+        appendChildren(parentElement, high);
         appendChildren(parentElement, normal);
       },
     }

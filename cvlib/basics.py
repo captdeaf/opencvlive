@@ -12,7 +12,7 @@
 import numpy as np
 from .effects import EF, cv, T
 
-@EF.register("Adaptive Threshold", T.grayscale)
+@EF.register("Threshold (Adaptive)", T.grayscale)
 def adaptiveThreshold(
             image : T.grayscale,
             cmax : T.int(min=0, max=255) = 255,
@@ -31,7 +31,7 @@ thresholdTarget = T.select({
     "ToZero Inverted": cv.THRESH_TOZERO_INV,
 }, title="Threshold target", ctype='int')
 
-@EF.register("Threshold", T.grayscale)
+@EF.register("Threshold (Normal)", T.grayscale)
 def threshold(
             image : T.grayscale,
             cmax : T.int(min=0, max=255) = 255,
@@ -45,13 +45,13 @@ def threshold(
     _, ret = cv.threshold(image, low, high, target)
     return ret
 
-@EF.register("Convert to Grayscale", T.grayscale)
-def grayscale(image : T.grayscale):
+@EF.register("Grayscale", T.grayscale, sort='high')
+def grayscale(image : T.color):
     if not EF.isColor(image):
         return image
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-@EF.register("Grayscale to Color", T.color)
+@EF.register("Colorize", T.color, sort='high')
 def colorize(image : T.grayscale):
     if not EF.isColor(image):
         return cv.cvtColor(image, cv.COLOR_GRAY2BGR)
@@ -65,11 +65,27 @@ def removeColor(
     image[:,:,channel] = 0
     return image
 
-@EF.register("Blur", T.image)
-def blur(
+@EF.register("Blur (Averaging)", T.image)
+def blurAverage(image : T.image, boxSize : T.complex(title="1x2 array such as [2,2]") = [3,3]):
+    return cv.blur(image, boxSize)
+
+@EF.register("Blur (Median)", T.image)
+def blurMedian(
         image : T.image,
         amount : T.int(min=1, step=2, max=255, title="Pixel range to blur (odd number)") = 5):
     return cv.medianBlur(image, amount)
+
+@EF.register("Canny edge detection", T.image)
+def canny(
+        image : T.image,
+        threshold1 : T.float = 50,
+        threshold2 : T.float = 9,
+        apertureSize : T.int = 3,
+        ):
+    # l2gradient : T.bool(title="Use L2 gradient") = False,
+    # Sigh, cv.Canny with all 6 arguments use a different function signature
+    # that requires 16 bit ... So no l2gradient for now.
+    return cv.Canny(image, threshold1, threshold2, apertureSize)
 
 @EF.register("Write text", T.color)
 def writeOn(
@@ -129,7 +145,25 @@ def findCorners(image : T.grayscale):
     corners = np.int0(corners)
     return corners
 
-@EF.register("Blend", T.image)
+@EF.register("Morph (Dilate)", T.image)
+def morphDilate(
+            image : T.image,
+            width : T.byte = 7,
+            height : T.byte = 7,
+            iterations : T.byte = 8,
+            ):
+    return cv.dilate(image, np.ones((height, width)), iterations=iterations)
+
+@EF.register("Morph (Erode)", T.image)
+def morphErode(
+            image : T.image,
+            width : T.byte = 7,
+            height : T.byte = 7,
+            iterations : T.byte = 8,
+            ):
+    return cv.erode(image, np.ones((height, width)), iterations=iterations)
+
+@EF.register("Blend (addWeighted)", T.image)
 def blend(
             imageA : T.image,
             imageB : T.image,
