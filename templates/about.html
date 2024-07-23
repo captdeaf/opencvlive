@@ -10,22 +10,42 @@
         </span>
       </p>
       <p>
-      OpenCV can be a bit complicated to use. This little app aims to:
+        OpenCV can be a bit complicated to use at first. At least, for me.  But
+        even worse, I have no way to visualize how anything flows. People who
+        can go &quot;Yah, you should pipe that image through Grayscale, a
+        gaussian threshold, toss it in canny and get the contours, use that to
+        ...&quot; - all over my head!
+      </p>
+      <p>
+        So this project is aimed at letting me build and visualize effect
+        chains, and see how modifying values earlier in the chain have
+        an impact on the results three, four, ten steps down the chain.  Does
+        changing the blur in the second step improve the edge recognition
+        in step seven? Now I can find out!
+      </p>
+      <p>
         <ol/>
           <li>
-            Let you select one or more images to experiment on. Since this is intended
-            to be run locally in your own python environment, I'm not concerned about
-            the safety of mine ;).
+            Honestly, a lot of this is better explained by just watching the YT
+            demo. (At least until somebody makes a better one than mine!)
+            <a href="https://youtu.be/NReY6d7Pi4M">
+              https://youtu.be/NReY6d7Pi4M
+            </a>
           </li>
           <li>
-            Add a call block. Call blocks act as a tree: top being the
-            original image(s). Add and remove call blocks as needed. Blocks
-            show thumbnails, click the thumbnail to show the original image.
+            Let you select one or more images to experiment on. Since this is
+            intended to be run locally in your own python environment, I'm not
+            concerned about the safety of mine ;).
           </li>
           <li>
-            Most blocks have a single input and single output. Some can have
+            Add an 'op' block - they take images and configuration as input,
+            and generate image outputs. (Or other things, such as polygon
+            coordinates).
+          </li>
+          <li>
+            Most ops have a single input and single output. Some can have
             multiple inputs and/or outputs. That's the main reason this is a
-            map instead of a series. Organization is totes up to you.
+            map instead of a series. Organization is entirely up to you.
           </li>
           <li>
             Many blocks will take any type of image matrix and operate on it.
@@ -38,17 +58,15 @@
             for multiple types.
           </li>
           <li>
-            Create your own python call blocks! This lets you experiment with
-           things we can't easily do in a flexible call block. For example:
-           Find a pair of arucos and draw a line between them? Find a QR code
-           and write its contents on the image? Make your own call blocks!
+            Since it's downloaded onto your machine, you can very easily add
+            your own python wrappers for opencv. Most are only a few lines,
+            of which the bulk is accepted types for that argument!
           </li>
           <li>
-            Call blocks you create can easily use the calls.
-          </li>
-          <li>
-            Replace images as necessary. Copy call block trees. Archive and
-            reload them.
+            Want to share your work with somebody else? Use "View chart JSON"
+            and it will give you a JSON to copy+paste to someone. It removes
+            image references since they're all local, anyway. The recipient can
+            open "Edit raw chart json" and paste your JSON-y gift in there.
           </li>
         </ol>
       </p>
