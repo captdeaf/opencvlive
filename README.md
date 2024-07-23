@@ -12,6 +12,16 @@ images live.
 
 Upload an image, select some effects, and have fun!
 
+## Installation?
+
+It's not an online web service, there's no way I could get a machine that
+runs the heavy loads. Instead, it's a local python web service, using
+Flask, and built on opencv+flask.
+
+- `git checkout https://github.com/captdeaf/opencvlive.git`
+- pip install opencv-python and flask
+- run `./liveserver.py` and connect to http://localhost:8838 on your browser.
+
 ## Why make it?
 
 OpenCVLive is my attempt at reducing the difficulty curve for me to understand
