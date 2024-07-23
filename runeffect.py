@@ -143,6 +143,9 @@ def main(bind, port, test=False):
         thread.start()
 
     try:
+    
+        success = bytes('1', 'utf-8')
+        failure = bytes('0', 'utf-8')
         while RUNNING:
             client, addr = server.accept()
             if test:
@@ -154,11 +157,14 @@ def main(bind, port, test=False):
                 server.close()
                 try:
                     if handle(client):
-                        client.send('1')
+                        client.send(success)
                     else:
-                        client.send('0')
+                        client.send(failure)
+                    client.shutdown(socket.SHUT_WR)
                     client.close()
                 except Exception as err:
+                    client.send(failure)
+                    client.shutdown(socket.SHUT_WR)
                     client.close()
                 sys.exit(0)
             # Close parent's copy.

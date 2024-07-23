@@ -43,8 +43,9 @@
       <span class="closer" data-onclick="hide">close</span>
       <div id="jsonchart" style="width: 500px; height: 300px;"></div>
       <div class="edit-buttons">
-        <button class="edit-save" data-onclick="saveChartEditor">Save</button>
         <button class="edit-close" data-onclick="cancelChartEditor">Cancel</button>
+        <button class="edit-wipe" data-onclick="wipeChartEditor">Wipe</button>
+        <button class="edit-save" data-onclick="saveChartEditor">Save</button>
       </div>
     </div>
     <div id="jsonedit-dialog" class="dialog" style="display: none;" data-drag="move">
@@ -52,8 +53,8 @@
       <span class="closer" data-onclick="hide">close</span>
       <div id="jsoneditor" style="width: 500px; height: 300px;"></div>
       <div class="edit-buttons">
+        <button class="edit-close" data-onclick="cancelEditor">Cancel</button>
         <button class="edit-save" data-onclick="saveEditor">Save</button>
-        <button class="edit-close" data-onclick="stopEditor">Cancel</button>
       </div>
     </div>
     <div id="head" class="cvstyle">
@@ -64,7 +65,7 @@
         </div>
         <div class="header-subtext" class="cachehead">
           Cache Size: <span id='cachesize'>??</span> files.
-          <button id="clearcache" data-onclick="clearCache">Clear</button>
+          <button id="clearcache" data-onclick="clearCache">Clear cache</button>
         </div>
         <div class="header-subtext" class=""ctions>
           Actions:

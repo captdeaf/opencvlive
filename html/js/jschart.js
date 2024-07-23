@@ -43,11 +43,13 @@
 
 // Our demonstration chart. It ... doesn't do much. It also demonstrates
 // the structure of the CHART object.
-const DEMO_CHART = {
+const BLANK_CHART = {
   "ops": {},
   "complexes": {},
   "images": {},
 };
+
+const DEMO_CHART = BLANK_CHART;
 
 const CHARTKEY = 'chart';
 

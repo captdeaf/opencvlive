@@ -42,6 +42,10 @@ addInitializer(() => {
     } catch (err) {}
   });
 
+  addTrigger('wipeChartEditor', () => {
+    JSChartEditor.set(BLANK_CHART);
+  });
+
   addTrigger('cancelChartEditor', () => {
     EL.chartDialog.style.display = 'none';
   });

@@ -29,6 +29,10 @@
   max-width: 14em;
 }
 
+.block-error .block-container {
+  border: 3px solid red;
+}
+
 .block-contents {
   position: absolute;
   top: 0;

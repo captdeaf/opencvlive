@@ -52,7 +52,7 @@ addInitializer(() => {
     EL.editDialog.style.display = 'none';
   });
 
-  addTrigger('stopEditor', () => {
+  addTrigger('cancelEditor', () => {
     JSEditor.editing = undefined;
     JSEditor.set('');
     EL.editDialog.style.display = 'none';

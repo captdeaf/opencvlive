@@ -471,13 +471,27 @@ async function processOpUpdate(opcall, opCache) {
 
   const resp = await fetch(genpath + bargs);
 
-  if (resp.status === 200) {
-    resp.json().then((js) => {
-      updateCacheSize(js.cachesize);
-    });
-  }
+  let good = true;
 
-  updateOpResult(opcall, result);
+  if (resp.status !== 200) { return; }
+
+  const js = await resp.json();
+
+  if (js.success === 0) {
+    good = false;
+  }
+  updateCacheSize(js.cachesize);
+
+  if (good) {
+    updateOpResult(opcall, result);
+  } else {
+    console.log("Good is false for", opcall);
+    const el = get('#' + result.uuid);
+    el.classList.add('block-error');
+    setTimeout(() => {
+      el.classList.remove('block-error');
+    }, 3000);
+  }
 
   return result;
 }
