@@ -66,7 +66,6 @@ def generateCVImage():
     sock.send(bout)
     sock.shutdown(socket.SHUT_WR)
     ret = str(sock.recv(1), 'utf-8')
-    debug("I got: " + ret)
 
     return dict(
         success = int(ret),

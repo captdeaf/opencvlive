@@ -29,7 +29,6 @@ from applib.util import ejson, debug
 from cvlib import INFO, Effects, jsApply, cv
 
 def cvread(filename):
-    debug(f"Reading {filename}")
     if filename.endswith('.json'):
         with open(filename, 'r', encoding='utf-8') as fin:
             return ejson.load(fin)
@@ -37,7 +36,6 @@ def cvread(filename):
     return cv.imread(filename, cv.IMREAD_UNCHANGED)
 
 def cvwrite(img, filename):
-    debug(f"Writing {filename}")
     if filename.endswith('.json'):
         with open(filename, 'w', encoding='utf-8') as fout:
             return ejson.dump(img, fout)
@@ -53,9 +51,6 @@ def handle(client):
         b64input = client.recv(16384)
 
         jsobj = ejson.loads(base64.b64decode(b64input))
-
-        print("We got")
-        print(jsobj)
 
         effect = jsobj['effect']
         args = jsobj['args']
