@@ -13,12 +13,17 @@
 
     <script type="text/javascript" src="thirdparty/spark-md5.min.js"></script>
     <script type="text/javascript" src="thirdparty/jsoneditor.min.js"></script>
+
+    <script type="text/javascript" src="generated/serverdata.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/constants.js"></script>
     <script type="text/javascript" src="js/triggers.js"></script>
     <script type="text/javascript" src="js/ui.js"></script>
-    <script type="text/javascript" src="js/helpers.js"></script>
+    <script type="text/javascript" src="js/params.js"></script>
+    <script type="text/javascript" src="js/newblock.js"></script>
     <script type="text/javascript" src="js/dragndrop.js"></script>
+    <!--
+    <script type="text/javascript" src="js/helpers.js"></script>
     <script type="text/javascript" src="js/keys.js"></script>
     <script type="text/javascript" src="js/jschart.js"></script>
     <script type="text/javascript" src="js/ops.js"></script>
@@ -26,6 +31,7 @@
     <script type="text/javascript" src="js/toolbox.js"></script>
     <script type="text/javascript" src="js/complex.js"></script>
     <script type="text/javascript" src="js/other.js"></script>
+    -->
   </head>
   <body>
     {{about}}
@@ -92,10 +98,10 @@
         <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
       </div>
       <div id="main">
-        <div id="flowtools" class="layer opdrop">
-          <div id="trashit" data-drop="removeElement" class="opdrop">&#x1F5D1;</div>
+        <div id="flowtools" class="layer blockdrop">
+          <div id="trashit" data-drop="removeElement" class="blockdrop">&#x1F5D1;</div>
         </div>
-        <div id="flowchart" class="layer opdrop">
+        <div id="flowchart" class="layer blockdrop">
         </div>
         <svg id="flowlines" class="layer disabled"></svg>
         <svg id="templines" class="layer disabled"></svg>

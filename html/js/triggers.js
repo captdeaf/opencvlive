@@ -116,13 +116,13 @@ function addTriggerFunction(selector, func) {
   MORE_ACTIONS.push({'selector': selector, 'func': func});
 }
 
-function enableTriggers(parentElement, includeParent) {
+function enableTriggers(element) {
   // Add onclick events to all elements with data-click.
   for (const evt of ALL_EVENTS) {
     const datastr = '[data-' + evt +']';
-    const allfound = getAll(datastr, parentElement);
-    if (includeParent && parentElement.matches(datastr)) {
-      allfound.unshift(parentElement);
+    const allfound = findAll(datastr, element);
+    if (element.matches && element.matches(datastr)) {
+      allfound.unshift(element);
     }
     for (const el of allfound) {
       el[evt] = lazyTrigger(el.dataset[evt], el);
@@ -130,52 +130,14 @@ function enableTriggers(parentElement, includeParent) {
   }
 
   for (const act of MORE_ACTIONS) {
-    const allfound = getAll(act.selector, parentElement);
-    if (includeParent && parentElement.matches(act.selector)) {
-      allfound.unshift(parentElement);
+    const allfound = findAll(act.selector, element);
+    if (element.matches && element.matches(act.selector)) {
+      allfound.unshift(element);
     }
     for (const el of allfound) {
       act.func(el);
     }
   }
 
-  return parentElement;
-}
-
-/////////////////////////////////////
-//
-// Straightforward: Initializers to call when everything is loaded.
-//
-// Boot: Fetch data that others depend on.
-// Initializer: Do stuff with data.
-//
-/////////////////////////////////////
-
-const BOOTS = [];
-const INITIALIZERS = [];
-
-function addBoot(func) {
-  BOOTS.push(func);
-}
-
-function addInitializer(func) {
-  INITIALIZERS.push(func);
-}
-
-function runInitializers() {
-  loadConstants();
-
-  for (const boot of BOOTS) {
-    boot();
-  }
-  function waitInit() {
-    if (FETCH_COUNT == 0) {
-      for (const init of INITIALIZERS) {
-        init();
-      }
-    } else {
-      setTimeout(waitInit, 100);
-    }
-  }
-  setTimeout(waitInit, 100);
+  return element;
 }

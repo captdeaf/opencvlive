@@ -7,8 +7,8 @@
 //
 ////////////////////////////////////
 
-function loadConstants() {
-  const all = {
+addInitializer(() => {
+  const allobjects = {
     body: 'body',
     floats: '#floats',
     flowchart: '#flowchart',
@@ -28,7 +28,7 @@ function loadConstants() {
 
     cacheCount: '#cachesize',
   }
-  for (const [k, v] of Object.entries(all)) {
+  for (const [k, v] of Object.entries(allobjects)) {
     EL[k] = get(v);
   }
-}
+}, 50);

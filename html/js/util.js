@@ -11,26 +11,52 @@
 //
 /////////////////////////////////////
 
-// QoL: get(selector, parent=document)
-function get(identifier, par) {
+// QoL: This function creates a constant container / enum that will throw an
+// error if anything is requested that is undefined. For example: STATE.open vs
+// STATE.okay - the latter will error instead of returning undefined.
+
+// QoL: find(selector, parent=document) - wrapper around querySelector.
+//      It ALSO lets parent match itself, unlike querySelector.
+function find(selector, par) {
   if (!par) {
     par = document;
-  } else if (identifier === 'document') {
+  } else if (selector === 'document') {
     return document;
   } else {
-    if (par.matches(identifier)) return par;
+    if (par.matches && par.matches(selector)) return par;
   }
-  const result = par.querySelector(identifier);
-  if (!result) {
-    throw(identifier);
-  }
-  return result;
+  return par.querySelector(selector);
 }
 
-// QoL: getAll(selector, parent=document)
-function getAll(identifier, par) {
+// QoL: wrapper around find that throws an error if it finds nothing. In other
+//      words, if this find fails, it's a bug.
+function get(selector, par) {
+  const ret = find(selector, par);
+  if (!ret) {
+    console.log('Selector not found:', selector, par);
+    throw('Selector "' + selector + '" not found');
+  }
+  return ret;
+}
+
+// Find multiple.
+function findAll(selector, par) {
   if (!par) par = document;
-  return [...par.querySelectorAll(identifier)];
+  const ret = [...par.querySelectorAll(selector)];
+  if (par.matches && par.matches(selector)) {
+    ret.unshift(par);
+  }
+  return ret;
+}
+
+// Again, throw an error if they're not found.
+function getAll(selector, par) {
+  const ret = findAll(selector, par);
+  if (!ret || ret.length === 0) {
+    console.log('Selector not found:', selector, par);
+    throw('Selector "' + selector + '" not found');
+  }
+  return ret;
 }
 
 // Storage: getSaved and setSaved: For local storage. Good for remembering UI
@@ -73,6 +99,177 @@ function EL(name, attrs, ...children) {
   return ret;
 }
 
+// DOM: Populate an element w/ children, but accepting more types of 'children'
+function appendChildren(el, ...children) {
+  if (!children) return;
+  let allChildren = [...children].flat();
+  for (const child of allChildren) {
+    if (typeof(child) === 'string') {
+      el.innerHTML += child;
+    } else if (child) {
+      el.appendChild(child);
+    }
+  }
+  return el;
+}
+
+// DOM/QoL: cloneElement is a deep clone that also calls enableTriggers.
+function cloneElement(el) {
+  const ret = el.cloneNode(true);
+  // NOCOMPAT: Enable trigger actions on children of this element.
+  enableTriggers(EL('div', ret));
+  return ret;
+}
+
+// DOM/QoL: Remove an element from its parent.
+function removeElement(el) {
+  el.replaceWith('');
+}
+
+// DOM: traverse upwards the parent tree from an element until you get an element
+//      matching a selector. If element matches it, it will be returned.
+function findParent(el, sel) {
+  while (el && el.matches) {
+    if (el.matches(sel)) return el;
+    el = el.parentElement;
+  }
+  return undefined;
+}
+
+// Like find, but throws an error if not found.
+function getParent(el, sel) {
+  const par = findParent(el, sel);
+  if (el === undefined) {
+    console.log('Cannot find parent sel "' + sel + '"', el);
+    throw 'Invalid selector "' + sel + '"';
+  }
+  return par;
+}
+
+// Given a list of elements (e.g: from elementsFromPoint), return those
+// of a given selector.
+function listElementsMatching(elements, selector) {
+  elements = [...elements];
+  const ret = [];
+
+  for (const element of elements) {
+    if (element.matches(selector)) {
+      ret.push(element);
+    }
+  }
+  return ret;
+}
+
+////////////////////////////////////
+//
+// DOM: Templates embedded in the HTML, most likely beneath an invisible
+//      <div>. Clones the elements of <div id="template-(name)">.
+//      'contents' is an object of {'selector': children} to add.
+//
+////////////////////////////////////
+const TEMPLATE_CACHE = {};
+function template(tplname, contents) {
+  if (!TEMPLATE_CACHE[tplname]) {
+    TEMPLATE_CACHE[tplname] = get('#template-' + tplname);
+  }
+  const tpl = TEMPLATE_CACHE[tplname].cloneNode(true);
+  if (contents) {
+    if (typeof(contents) !== 'function') {
+      populateElement(tpl, contents);
+    } else {
+      contents(tpl);
+    }
+  }
+
+  if (tpl.children.length === 1) {
+    return tpl.children[0];
+  } else {
+    return tpl.children;
+  }
+}
+
+// DOM/QoL: Mostly for templates, but has other uses: Modifies a passed Element
+//          to populate items matching a selector with new contents.
+function populateElement(tpl, contents) {
+  for (const [sel, children] of Object.entries(contents)) {
+    if (children) {
+      const pars = getAll(sel, tpl);
+      for (const par of pars) {
+        par.innerHTML = '';
+        appendChildren(par, children);
+      }
+    }
+  }
+  return tpl;
+}
+
+// QoL: basename("path/to/foo.img") -> "foo"
+function basename(path) {
+  const m = path.match(/([^\./]+)\.(\w+)?/);
+  if (m) return m[1];
+  return path;
+}
+
+// Cross-browser 'break out of this event stack'
+function pauseEvent(e){
+    if(e.stopPropagation) e.stopPropagation();
+    if(e.preventDefault) e.preventDefault();
+    e.cancelBubble=true;
+    e.returnValue=false;
+    return false;
+}
+
+// QoL: Used for callbacks. mayCall(callbacks.foo, args)
+function mayCall(func, ...args) {
+  if (func) {
+    func(...args);
+  }
+}
+
+////////////////////////////////////
+//
+// easyFetch(uri, opts, callbacks)
+//
+// An AJAX fetch() with callback style I prefer.
+//
+////////////////////////////////////
+async function easyFetch(path, opts, cbs) {
+  if (cbs === undefined) cbs = {};
+
+  // Request
+  let request = fetch(path, opts);
+  mayCall(cbs.request, request)
+
+  // Response
+  const resp = await request;
+  mayCall(cbs.response, resp);
+
+  let result = await resp.text();
+
+  if (cbs.json) {
+    result = JSON.parse(result, resp);
+  }
+
+  if (resp.status === 200) {
+    mayCall(cbs.success, result, resp);
+  } else {
+    mayCall(cbs.fail, result, resp);
+  }
+
+  // Complete
+  mayCall(cbs.complete, resp, request);
+}
+
+// Proxy-based callbacks to errors of undefined names.
+function makeConstants(name, t) {
+  return new Proxy(t, {
+    get(target, prop, receiver) {
+      if (prop in target) return target[prop];
+      throw('Constants "' + name + '" has no value "' + prop + '"');
+    }
+  });
+}
+
 // QoL: is an object iterable? (for all the different collection types.)
 function isSafeIterable(obj) {
   if ((obj == undefined) ||
@@ -92,187 +289,53 @@ function isSafeIterable(obj) {
   return typeof(obj[Symbol.iterator]) === 'function';
 }
 
-// DOM: Populate an element w/ children, but accepting more types of 'children'
-function appendChildren(el, children) {
-  if (!children) return;
-  if (!isSafeIterable(children)) {
-    children = [children];
-  }
-  let allChildren = [...children].flat();
-  for (const child of Object.values(allChildren)) {
-    if (typeof(child) === 'string') {
-      el.innerHTML += child;
+const PROXY = {
+  get(target, prop, receiver) {
+    if (prop === 'toJSON') {
+      return target;
+    }
+    if (!target.hasOwnProperty(prop)) {
+      throw('target has no value "' + prop + '"');
+    }
+    const val = target[prop];
+    if (isSafeIterable(val)) {
+      return nestedProxy(val);
+    }
+    return val;
+  },
+  set(target, prop, value) {
+    if (target.hasOwnProperty(prop)) {
+      target[prop] = value;
     } else {
-      if (child !== null) {
-        el.append(child);
-      }
+      throw("Setting a value in nestedProxy that it shouldn't");
     }
-  }
-  return el;
+  },
+};
+
+function nestedProxy(val) {
+  return new Proxy(val, PROXY);
 }
 
-// DOM/QoL: cloneElement is a deep clone that also calls enableTriggers.
-function cloneElement(el) {
-  const ret = el.cloneNode(true);
-  // NOCOMPAT: Enable trigger actions on children of this element.
-  enableTriggers(EL('div', ret));
-  return ret;
-}
-
-// DOM/QoL: Remove an element from its parent.
-function removeElement(el) {
-  if (el.parentElement) {
-    el.parentElement.removeChild(el);
-  }
-}
-
-// DOM/QoL: Replace an element within its parent. Order not kept.
-//          Uses appendChildren for flexibility.
-function replaceElement(el, children) {
-  const p = el.parentElement;
-  p.remove(el);
-  appendChildren(p, children);
-}
-
-// DOM: traverse upwards the parent tree from an element until you get an element
-//      matching a selector. If element matches it, it will be returned.
-function findParent(el, sel) {
-  while (el) {
-    if (el.matches(sel)) return el;
-    el = el.parentElement;
-  }
-  alertUser("Unable to find parent with selector", sel);
-  return undefined;
-}
-
-// Given a list of elements (e.g: from elementsFromPoint), return those
-// of a given selector.
-function listElementsMatching(elements, selector) {
-  elements = [...elements];
-  const ret = [];
-
-  for (const element of elements) {
-    if (element.matches(selector)) {
-      ret.push(element);
-    }
-  }
-  return ret;
-}
-
-// DOM/QoL: Mostly for templates, but has other uses: Modifies a passed Element
-//          to populate items matching a selector with new contents.
-function populateElement(tpl, contents) {
-  for (const [sel, children] of Object.entries(contents)) {
-    if (children) {
-      const pars = getAll(sel, tpl);
-      if (!pars || pars.length === 0) {
-        alertUser("populateElement: Selector not found", sel);
-      } else {
-        for (const par of pars) {
-          par.innerHTML = '';
-          appendChildren(par, children);
-        }
-      }
-    }
-  }
-  return tpl;
-}
-
-
-// DOM/QoL: Templates embedded in the HTML, most likely beneath an invisible
-//          <div>. Clones the elements of <div id="template-(name)">.
-//          contents is an object of "selector": children. to add.
-TEMPLATE_CACHE = {};
-function template(tplname, contents) {
-  if (!TEMPLATE_CACHE[tplname]) {
-    TEMPLATE_CACHE[tplname] = get('#template-' + tplname);
-  }
-  const tpl = TEMPLATE_CACHE[tplname].cloneNode(true);
-  if (contents) {
-    if (typeof(contents) !== 'function') {
-      populateElement(tpl, contents);
-    } else {
-      contents(tpl);
-    }
-  }
-
-  // NOCOMPAT: Enable trigger actions on children of this element.
-  enableTriggers(tpl);
-  if (tpl.children.length === 1) {
-    return tpl.firstElementChild;
-  } else {
-    return tpl.children;
-  }
-}
-
-// DOM/QoL: Shortcut: Like template(), but replace el's contents with it.
-function templateReplace(el, tplname, contents) {
-  const eltpl = template(tplname, contents);
-  el.innerHTML = '';
-  appendChildren(el, eltpl);
-  return el;
-}
-
-// QoL: basename("path/to/foo.img") -> "foo"
-function basename(path) {
-  const m = path.match(/([^\./]+)\.(\w+)?/);
-  if (m) return m[1];
-  return path;
-}
-
-// QoL: Cross-browser 'break out of this event stack'
-function pauseEvent(e){
-    if(e.stopPropagation) e.stopPropagation();
-    if(e.preventDefault) e.preventDefault();
-    e.cancelBubble=true;
-    e.returnValue=false;
-    return false;
-}
-
-// QoL: Used for callbacks. maybeCall(callbacks.foo, args)
-function maybeCall(func, ...args) {
-  if (func) {
-    func(...args);
-  }
-}
-
-let FETCH_COUNT = 0;
-// A fetcher with callback style I prefer.
-async function easyFetch(path, opts, cbs) {
-  if (cbs === undefined) cbs = {};
-  // Request
-  FETCH_COUNT += 1;
-  let request = fetch(path, opts);
-  if (cbs.request) cbs.request(request);
-
-  // Response
-  let resp = await(request);
-  if (cbs.response) cbs.response(resp);
-
-  // Status-based
-  if (resp.status === 200) {
-    let js = await resp.json();
-    if (cbs.success) cbs.success(js);
-  } else {
-    let text = await resp.text();
-    if (cbs.fail) cbs.fail(resp, text);
-  }
-
-  FETCH_COUNT -= 1;
-
-  // Complete
-  if (cbs.complete) { cbs.complete(resp); }
-}
-
-// This works with both Object.assign() and a deep copy.
-// let x = deepCopy({title: 'foo'}, argdef, etc);
+////////////////////////////////////
+//
+//  Deep copy. I know structuredClone exists, this is just an equivalent of
+//  assign and structuredClone combined.
+//
+////////////////////////////////////
 function deepCopy(...objs) {
   const newobj = Object.assign({}, ...objs);
   return structuredClone(newobj);
 }
 
-// Generate a consistent hash for an object. JSON.stringify isn't consistent
-// in its ordering.
+////////////////////////////////////
+//
+// Generate a consistent hash for an object. JSON.stringify isn't consistent in
+// its ordering, so can't be used to create a consistent hash.
+//
+// This uses SparkMD5 third party library, because crypto.subtle requires
+// https. Also because SparkMD5 doesn't require async.
+//
+////////////////////////////////////
 function hashObject(obj) {
   const stringValues = [];
   function add(v) {
@@ -289,4 +352,24 @@ function hashObject(obj) {
   add(obj);
 
   return SparkMD5.hash(stringValues.join('.'));
+}
+
+////////////////////////////////////
+//
+//  Initializing javascript - in order.
+//
+// Add initializers to run on load, by file. 'order' is optional: If not given,
+// order 1000+n and things run low-high by order. If no order is ever given,
+// they run first-last called.
+//
+////////////////////////////////////
+const INITIALIZERS = [];
+function addInitializer(func, order) {
+  if (order === undefined) order = 1000 + INITIALIZERS.length;
+  INITIALIZERS.push({order: order, func: func});
+}
+
+function runInitializers() {
+  const sorted = INITIALIZERS.sort((a, b) => a.order - b.order);
+  for (const call of sorted) call.func();
 }

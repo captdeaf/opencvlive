@@ -69,7 +69,7 @@ addTrigger('hide', (el, evt) => {
   if (!sel || sel == '') {
     sel = '.dialog';
   }
-  const par = findParent(el, sel);
+  const par = getParent(el, sel);
   par.style.display = 'none';
 });
 
@@ -77,17 +77,24 @@ addTrigger('hide', (el, evt) => {
 // matching the data-target selector.
 addTrigger('remove', (el, evt) => {
   const sel = el.dataset.target;
-  const par = findParent(el, sel);
+  const par = getParent(el, sel);
   removeElement(par);
 });
 
+////////////////////////////////////
+//
 // Raise the Z-index of target item.
+// Only increment if its z-index is lower than the current one.
+//
+////////////////////////////////////
 let currentZeds = {
   floater: 10001,
   block: 800,
 };
 addTrigger('raiseZIndex', (el, evt) => {
   const target = el.dataset.zindex;
-  el.style['z-index'] = currentZeds[target];
-  currentZeds[target] += 1;
+  if (el.style['z-index'] < currentZeds[target] - 1) {
+    el.style['z-index'] = currentZeds[target];
+    currentZeds[target] += 1;
+  }
 });

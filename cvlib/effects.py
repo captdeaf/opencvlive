@@ -97,10 +97,10 @@ def flatten(mess):
 #
 # INFO = dict(
 #
-#   constants = dict('ANY', 'Any image') # Name->desc mapping.
-#
 #   effects = dict('name', dict(...)) # As much information as we can collect
 #                                     #  about an effect.
+#
+#   constants = dict('ANY', 'Any image') # Name->desc mapping.
 #
 #   types = dict('name', dict(...)) # Not used in python, these are used by annotating
 #                                   # effects to allow the web version to make UI
@@ -129,7 +129,7 @@ def C(group, **constants):
 # Type('byte', input='slider', min='0', max='255')
 # Type('str', input='text')
 # etc
-def addType(name, **kwargs):
+def addType(name, **kwergs):
     INFO['types'][name] = kwargs
 
 def jsify(func):
@@ -157,7 +157,7 @@ def addEffectInfo(func, displayname, output, **kwargs):
         name = func.__name__,
         displayname = displayname,
         doc = func.__doc__,
-        args = args,
+        parameters = args,
         output = output,
         **kwargs
     )
@@ -217,8 +217,7 @@ class LazyCaller(object):
         self.output = output
 
 # Add a function to both Effects for direct call, and EF for lazy.
-def register(displayname, *args, **effargs):
-    output = args
+def register(displayname, *output, **effargs):
     def registerfunc(func):
         def lazyApply(*args, **kwargs):
             return LazyCaller(func, args, kwargs, output)

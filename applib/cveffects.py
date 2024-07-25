@@ -42,7 +42,13 @@ def EFLaunchServer(bind, port):
     os.spawnl(os.P_NOWAIT, './runeffect.py', './runeffect.py', 'detach', bind, f"{port}")
     os.wait()
 
-# Fetch a JSON object of all known INFO
+def EFInitialize():
+    with open('html/generated/serverdata.js', 'w', encoding='utf-8') as fout:
+      body = [];
+      body.append(f"const ALL_EFFECTS = {ejson.dumps(INFO['effects'], indent=2)};")
+      fout.write(';\n'.join(body) + ';')
+
+# A wrapper around all known INFO.
 @app.route('/cv/effects.json', methods=['GET'])
 def getCVEffects():
     return ejson.loads(ejson.dumps(INFO))

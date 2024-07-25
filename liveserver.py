@@ -81,7 +81,8 @@ def main():
         browserthread.start()
 
     try:
-        cveffects.EFLaunchServer(args.ebind, args.eport)
+        # cveffects.EFLaunchServer(args.ebind, args.eport)
+        cveffects.EFInitialize()
         app.run(host=args.bind, port=args.port, threaded=True, debug=True, use_reloader=True)
     except KeyboardInterrupt:
         pass
