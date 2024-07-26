@@ -340,6 +340,8 @@ function deepCopy(...objs) {
 //  Clone Node doesn't exactly work all the time. Most notably: 'select'
 //  is always cloned as its original value, regardless of changes.
 //
+//  Also, we remove all title= tags since this is used for dragging.
+//
 ////////////////////////////////////
 function safeCloneNode(el) {
   const clone = el.cloneNode(true);
@@ -348,6 +350,14 @@ function safeCloneNode(el) {
     const cloneSelects = findAll('select', clone);
     for (let i = 0; i < selects.length; i++) {
       cloneSelects[i].value = selects[i].value;
+    }
+  }
+  clone.removeAttribute('title');
+  const allTitled = findAll('[title="*"]', clone);
+  if (allTitled && allTitled.length > 0) {
+    for (const titled of allTitled) {
+      console.log("Removing title from", titled);
+      titled.removeAttribute('title');
     }
   }
   return clone;

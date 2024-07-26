@@ -103,11 +103,9 @@ TYPEDEFS['select'] = {
     const children = [];
     const sattrs = deepCopy(param);
     for (const [k, v] of Object.entries(param.args[0])) {
-      console.log("input", k, v, param.value);
       const oattrs = { value: '' + v };
       children.push(EL('option', oattrs, k));
     }
-    console.log('buildsel', sattrs, ...children);
     delete sattrs['args'];
     const select = EL('select', sattrs, ...children);
     select.value = param.value;
@@ -175,7 +173,6 @@ function makeParamElements(blockjs, effectjs) {
 }
 
 addTrigger('updateParameter', (el, evt) => {
-  console.log("update", el, evt);
   let cname = el.param.cname;
   if (!(cname in TYPEDEFS)) cname = 'string';
   if ('save' in TYPEDEFS[cname]) {

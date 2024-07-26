@@ -1,13 +1,6 @@
 Library container images.
-<div id="template-library-image">
-  <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="addImageAt" data-help="Work with this image">
-    <span></span>
-    <img/>
-  </div>
-</div>
-
 <div id="template-library-complex">
-  <div class="item drag-start" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="addComplexAt" data-help="Create a complex parameter">
+  <div class="item drag-start" data-drag="trigger" data-drag-bind="#flowchart" data-drag-ondrop="addComplexAt" title="Create a complex parameter">
     <span>Complex Data</span>
     <img src="samples/matrixmath.png"/>
   </div>
@@ -15,7 +8,7 @@ Library container images.
 
 Effect container images.
 <div id="template-block-effect">
-  <div class="item drag-start" data-drag-click="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-drop="addOpAt" data-help="Create an effect">
+  <div class="item drag-start" data-drag-onclick="showLargeChildImage" data-drag="trigger" data-drag-bind="#flowchart" data-drag-ondrop="addOpAt" title="Create an effect">
     <span></span>
     <img/>
   </div>

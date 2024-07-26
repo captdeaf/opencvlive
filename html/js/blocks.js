@@ -118,7 +118,6 @@ function newBlock(name, effectName, newBlockjs) {
   for (const v of effect.parameters) {
     newBlockjs.params[v.name] = deepCopy(v);
   }
-  console.log(newBlockjs);
   const block = makeBlockElement(newBlockjs);
   CHART.blocks[newBlockjs.uuid] = newBlockjs;
   appendChildren(get('#flowchart'), block);
