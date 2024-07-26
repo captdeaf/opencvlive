@@ -101,13 +101,15 @@ TYPEDEFS['bool'] = {
 TYPEDEFS['select'] = {
   build: (param) => {
     const children = [];
+    const sattrs = deepCopy(param);
     for (const [k, v] of Object.entries(param.args[0])) {
-      children.push(EL('option', {
-        value: '' + v,
-      }, k));
+      console.log("input", k, v, param.value);
+      const oattrs = { value: '' + v };
+      children.push(EL('option', oattrs, k));
     }
-    console.log('buildsel', param, children);
-    const select = EL('select', param, children);
+    console.log('buildsel', sattrs, ...children);
+    delete sattrs['args'];
+    const select = EL('select', sattrs, ...children);
     select.value = param.value;
     return select
   },
@@ -118,7 +120,7 @@ TYPEDEFS['select'] = {
 
 TYPEDEFS['image'] = {
   build: (param) => {
-   return EL('div', {}, '&#128444;')
+   return EL('img', {src: 'images/clip_image.png'});
   },
   save: (el, param) => {},
 };
@@ -173,6 +175,13 @@ function makeParamElements(blockjs, effectjs) {
 }
 
 addTrigger('updateParameter', (el, evt) => {
-  el.param.value = el.value;
+  console.log("update", el, evt);
+  let cname = el.param.cname;
+  if (!(cname in TYPEDEFS)) cname = 'string';
+  if ('save' in TYPEDEFS[cname]) {
+    el.param.value = TYPEDEFS[cname].save(el, el.param);
+  } else {
+    el.param.value = el.value;
+  }
   saveChart();
 });

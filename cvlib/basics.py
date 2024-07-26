@@ -16,7 +16,7 @@ from .effects import EF, cv, T
 def adaptiveThreshold(
             image : T.grayscale,
             cmax : T.int(min=0, max=255) = 255,
-            method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_GAUSSIAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+            method : T.select({"Gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C, "Mean": cv.ADAPTIVE_THRESH_MEAN_C}) = cv.ADAPTIVE_THRESH_GAUSSIAN_C,
             target : T.select({"BINARY": cv.THRESH_BINARY, "INVERTED": cv.THRESH_BINARY_INV}) = cv.THRESH_BINARY,
             blockSize : T.int(min=1, step=2, title="Must be odd") = 27,
             weight : T.int = 2

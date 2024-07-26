@@ -85,7 +85,6 @@ function alertUser(...args) {
 // DOM/QoL: Add attributes quickly.
 function addAttrs(el, attrs) {
   for (const [k, v] of Object.entries(attrs)) {
-    console.log("addA", attrs, k, v);
     el.setAttribute(k, v);
   }
   return el;
@@ -98,12 +97,11 @@ function EL(name, attrs, ...children) {
     if (typeof(attrs) === 'string' || 'append' in attrs) {
       children.unshift(attrs);
     } else {
-      console.log("attrs", ret, attrs);
       addAttrs(ret, attrs);
     }
   }
   if (children && children.length > 0) {
-    appendChildren(ret, children);
+    appendChildren(ret, children.flat());
   }
   return ret;
 }
@@ -335,6 +333,24 @@ function nestedProxy(val) {
 function deepCopy(...objs) {
   const newobj = Object.assign({}, ...objs);
   return structuredClone(newobj);
+}
+
+////////////////////////////////////
+//
+//  Clone Node doesn't exactly work all the time. Most notably: 'select'
+//  is always cloned as its original value, regardless of changes.
+//
+////////////////////////////////////
+function safeCloneNode(el) {
+  const clone = el.cloneNode(true);
+  const selects = findAll('select', el);
+  if (selects && selects.length > 0) {
+    const cloneSelects = findAll('select', clone);
+    for (let i = 0; i < selects.length; i++) {
+      cloneSelects[i].value = selects[i].value;
+    }
+  }
+  return clone;
 }
 
 ////////////////////////////////////

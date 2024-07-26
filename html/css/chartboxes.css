@@ -99,6 +99,14 @@
   flex-grow: 4;
 }
 
+.block-params label img {
+  display: inline-block;
+  height: 1.5em;
+  width: 2em;
+  padding-right: 3em;
+  flex-grow: 6;
+}
+
 /***********************************
 /
 /  Probably move to styles.css: accept and provide cursors.

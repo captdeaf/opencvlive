@@ -206,7 +206,7 @@ function addMouseDrag(dragMe) {
       };
       lineStart = getRelativePosition(dragMe, svgLines);
     } else {
-      dragged = dragMe.cloneNode(true);
+      dragged = safeCloneNode(dragMe);
       appendChildren(EL.floats, dragged);
     }
 
