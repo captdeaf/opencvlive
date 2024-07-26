@@ -13,6 +13,7 @@ function updateCacheSize(count) {
 
 addTrigger('clearCache', () => {
   easyFetch('/cv/clearCache', {method: 'POST'}, {
+    json: true,
     success: (js) => {
       updateCacheSize(js.cachesize);
     }

@@ -10,12 +10,7 @@
 //
 ////////////////////////////////////
 
-const EMPTY_CHART = {
-  blocks: {},
-  name: "New Chart",
-};
-
-const EMPTY_BLOCK = {
+const BLOCK_EMPTY = {
   uuid: '',
   effectName: '',
   params: {},
@@ -29,22 +24,10 @@ const EMPTY_BLOCK = {
   }
 };
 
-const STATE = makeConstants('state', {
+const STATE = ENUM('state', {
   good: 'good',
   bad: 'bad',
 });
-
-const CHARTKEY = 'chart';
-
-let CHART = deepCopy(EMPTY_CHART);
-
-function loadChart(chart) {
-  CHART = chart;
-  saveChart();
-}
-
-function saveChart() {
-}
 
 // UUID gen, using timestamp in ms and a scrambled string.
 function makeUUID() {
@@ -57,6 +40,11 @@ function makeUUID() {
 // A cache of all block elements.
 let ALL_BLOCK_ELEMENTS = {};
 
+addTrigger('moveChartBlock', (el, evt, fixedPos, parentElement, relativePos) => {
+  el.blockData.layout.pos = relativePos;
+  saveChart();
+});
+
 function makeBlockElement(blockjs) {
   const bmAttrs = {
     'data-uuid': blockjs.uuid,
@@ -64,7 +52,7 @@ function makeBlockElement(blockjs) {
     // Related to dragging this block.
     'data-drag': 'move',
     'data-drag-bind': '#flowchart',
-    'data-drag-ondrop': 'blockDrop',
+    'data-drag-ondrop': 'moveChartBlock',
     // 'data-drag-move': 'redrawAllLines',
 
     // What this triggers when dropped.
@@ -75,6 +63,8 @@ function makeBlockElement(blockjs) {
     // Bring to foreground.
     'data-onmouseover': 'raiseZIndex',
     'data-zindex': 'block',
+
+    'style': 'z-index: 800;',
   };
 
   const blockMaster = EL('div', bmAttrs);
@@ -90,7 +80,6 @@ function makeBlockElement(blockjs) {
   blockMaster.setTitle(blockjs.name);
 
   const paramListing = makeParamElements(blockjs, effectjs);
-  console.log("pL", paramListing);
 
   const outputs = EL('div', {'class': 'outputs'});
 
@@ -100,12 +89,11 @@ function makeBlockElement(blockjs) {
 
   const container = (
     EL('div', {'class': 'block-container'}, 
-      EL('div', {'class': 'block-contents'},
-        EL('div', {'class': 'block-center'},
-          blockHead,
-          ...paramListing,
-        )
-      )
+      EL('div', {'class': 'block-center'},
+        blockHead,
+        EL('div', {'class': 'block-params'}, ...paramListing),
+        EL('div', {'class': 'block-output'}),
+      ),
     )
   );
 
@@ -113,12 +101,16 @@ function makeBlockElement(blockjs) {
 
   ALL_BLOCK_ELEMENTS[blockjs.uuid] = blockMaster;
 
+  const pos = blockjs.layout.pos;
+  blockMaster.style.left = pos.x + 'px';
+  blockMaster.style.top = pos.y + 'px';
+
   return enableTriggers(blockMaster);
 }
 
 function newBlock(name, effectName, newBlockjs) {
   const effect = ALL_EFFECTS[effectName];
-  newBlockjs = Object.assign({}, EMPTY_BLOCK, newBlockjs);
+  newBlockjs = Object.assign({}, BLOCK_EMPTY, newBlockjs);
   newBlockjs.name = name;
   newBlockjs.effectName = effect.name;
   newBlockjs.uuid = makeUUID();
@@ -126,15 +118,13 @@ function newBlock(name, effectName, newBlockjs) {
   for (const v of effect.parameters) {
     newBlockjs.params[v.name] = deepCopy(v);
   }
-  const proxyblock = nestedProxy(newBlockjs)
   console.log(newBlockjs);
-  const block = makeBlockElement(proxyblock);
+  const block = makeBlockElement(newBlockjs);
   CHART.blocks[newBlockjs.uuid] = newBlockjs;
   appendChildren(get('#flowchart'), block);
 }
 
 function loadBlock(blockjs) {
-  const proxyblock = nestedProxy(blockjs)
-  const block = makeBlockElement(proxyblock);
+  const block = makeBlockElement(blockjs);
   appendChildren(get('#flowchart'), block);
 }

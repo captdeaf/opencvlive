@@ -98,3 +98,22 @@ addTrigger('raiseZIndex', (el, evt) => {
     currentZeds[target] += 1;
   }
 });
+
+/////////////////////////////////////
+//
+// Floaters: dialog windows, closable.
+//
+/////////////////////////////////////
+
+// Pop one up with a standard template.
+function showFloater(title, bodytpl, contents) {
+  const body = template(bodytpl, contents);
+  const floater = template('floater', {
+    '.name': title,
+    '.body': body,
+  });
+
+  appendChildren(EL.floats, floater);
+  return floater;
+}
+

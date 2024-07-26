@@ -75,9 +75,17 @@ function setSaved(name, val) {
   return val;
 }
 
+// QoL: alertUser's console.log leaves a backtrace in debug console, alert
+//      doesn't.  So I'm just using this.
+function alertUser(...args) {
+  console.log("Alert", ...args);
+  alert(args.join(' '));
+}
+
 // DOM/QoL: Add attributes quickly.
 function addAttrs(el, attrs) {
   for (const [k, v] of Object.entries(attrs)) {
+    console.log("addA", attrs, k, v);
     el.setAttribute(k, v);
   }
   return el;
@@ -87,9 +95,10 @@ function addAttrs(el, attrs) {
 function EL(name, attrs, ...children) {
   const ret = document.createElement(name);
   if (attrs) {
-    if (typeof(attrs) === 'string' || attrs.append) {
+    if (typeof(attrs) === 'string' || 'append' in attrs) {
       children.unshift(attrs);
     } else {
+      console.log("attrs", ret, attrs);
       addAttrs(ret, attrs);
     }
   }
@@ -261,16 +270,17 @@ async function easyFetch(path, opts, cbs) {
 }
 
 // Proxy-based callbacks to errors of undefined names.
-function makeConstants(name, t) {
-  return new Proxy(t, {
+function ENUM(name, obj) {
+  return new Proxy(Object.freeze(obj), {
     get(target, prop, receiver) {
-      if (prop in target) return target[prop];
-      throw('Constants "' + name + '" has no value "' + prop + '"');
-    }
+      if (target.hasOwnProperty(prop)) return target[prop];
+      throw('Enum "' + name + '" has no value "' + prop + '"!');
+    },
+    set() { throw('Cannot modify ENUM ' + name + '!'); },
   });
 }
 
-// QoL: is an object iterable? (for all the different collection types.)
+// QoL: is an object iterable? (for all the different collection types that we care about.)
 function isSafeIterable(obj) {
   if ((obj == undefined) ||
       (obj == null)) {
@@ -354,13 +364,21 @@ function hashObject(obj) {
   return SparkMD5.hash(stringValues.join('.'));
 }
 
+// A UUID generator also using SparkMD5. This is not intended for security
+// purposes, just for generating random-enough IDs of consistent length.
+function makeUUID() {
+  const hashStr = (Math.random() + 1).toString(36).substring(5);
+  return SparkMD5.hash(hashStr + new Date().getTime().toFixed());
+}
+
 ////////////////////////////////////
 //
 //  Initializing javascript - in order.
 //
 // Add initializers to run on load, by file. 'order' is optional: If not given,
 // order 1000+n and things run low-high by order. If no order is ever given,
-// they run first-last called.
+// they run first-last called. Or in other words, they order they show up in
+// <script> tags.
 //
 ////////////////////////////////////
 const INITIALIZERS = [];

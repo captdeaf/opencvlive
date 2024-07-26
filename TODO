@@ -1,3 +1,17 @@
 TODO for opencvlive:
 
-- add remaining op typedefs.
+- Finish refactor:
+  - Toolbox:
+    - Image Library
+    - Effect Library
+    - CSS
+  - Flowchart:
+    - CSS
+    - Chartboxes:
+      - CSS
+      - i/o
+      - binding
+    - drawLines
+    - output processing
+    - json editing
+    - floater views
