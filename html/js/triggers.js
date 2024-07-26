@@ -98,7 +98,6 @@ function trigger(name, ...args) {
     if (name in TRIGGERS) {
       TRIGGERS[name](...args);
     } else {
-      console.log("Unknown Trigger:", name);
       alertUser("Unknown Trigger:", name);
     }
   }

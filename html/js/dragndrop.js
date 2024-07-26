@@ -117,8 +117,8 @@ function addMouseDrag(dragMe) {
   const method = dragMe.dataset.drag;
 
   callbacks.start = dragMe.dataset.dragStart;
-  callbacks.move = dragMe.dataset.dragMove;
-  callbacks.click = dragMe.dataset.dragClick;
+  callbacks.move = dragMe.dataset.dragOnmove;
+  callbacks.click = dragMe.dataset.dragOnclick;
   callbacks.end = dragMe.dataset.dragOndrop;
 
   let inside = false;

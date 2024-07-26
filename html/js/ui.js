@@ -114,6 +114,6 @@ function showFloater(title, bodytpl, contents) {
   });
 
   appendChildren(EL.floats, floater);
-  return floater;
+  return enableTriggers(floater);
 }
 
