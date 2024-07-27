@@ -50,15 +50,6 @@
   font-size: 70%;
 }
 
-/* Beneath the block-head. Container for what's in the following sections. */
-.block-lower {
-  height: 0;
-  flex-grow: 1;
-  display: flex;
-  flex-flow: row;
-  position: relative;
-}
-
 /* Container for what's in the following sections. */
 .block-center {
   flex: 1 1 auto;
@@ -71,6 +62,11 @@
 
 .block-params {
   padding: 0.5em;
+}
+
+.block-outputs:not(:empty) {
+  border-top: 1px solid black;
+  padding-top: 0.5em;
 }
 
 /***********************************
@@ -141,66 +137,4 @@
 .drag-image {
   max-width: 1.5em;
   max-height: 1.5em;
-}
-
-.opout-center {
-  flex: 1 1 auto;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-}
-
-.opout-head {
-  position: relative;
-  height: 1.3em;
-  width: 100%;
-  left: 0;
-  display: block;
-  text-align: center;
-  vertical-align: middle;
-  flex: 0 0 auto;
-  font-size: 70%;
-}
-
-
-.opout-image-frame {
-  display: block;
-  position: relative;
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  max-height: 6em;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  border: 1px solid black;
-}
-
-.opout-image {
-  display: block;
-  position: absolute;
-  top: -10%;
-  left: -10%;
-  height: 140%;
-}
-
-.opout-text-frame {
-  display: block;
-  position: relative;
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  max-height: 6em;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  border: 1px solid black;
-}
-
-.opout-text {
-  white-space: wrap;
-}
-
-.op-edge {
-  border: none;
 }

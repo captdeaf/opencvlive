@@ -155,7 +155,7 @@ function makeBlockElement(blockjs) {
   blockMaster.setTitle = (text) => { blockHead.innerText = text; };
   blockMaster.setTitle(blockjs.name);
 
-  const outputEl = EL('div', {'class': 'outputs'});
+  const outputEl = EL('div', {'class': 'block-outputs'});
   const paramsEl = EL('div', {'class': 'block-params'});
 
   const container = (
@@ -163,7 +163,6 @@ function makeBlockElement(blockjs) {
       EL('div', {'class': 'block-center'},
         blockHead,
         paramsEl,
-        EL('div', {'class': 'block-output'}),
       ),
       outputEl,
     )
