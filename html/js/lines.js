@@ -88,7 +88,7 @@ function redrawAllLines() {
   for (const blockjs of Object.values(CHART.blocks)) {
     if ('params' in blockjs) {
       for (const param of Object.values(blockjs.params)) {
-        if ('source' in param) {
+        if ('source' in param && param.source.uuid in CHART.blocks) {
           const from = CHART.blocks[param.source.uuid];
           const to = blockjs;
           drawSourceLine(param.source, blockjs, param);

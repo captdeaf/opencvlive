@@ -422,12 +422,13 @@ function makeUUID() {
 //
 ////////////////////////////////////
 const INITIALIZERS = [];
-function addInitializer(func, order) {
+function addInitializer(name, func, order) {
   if (order === undefined) order = 1000 + INITIALIZERS.length;
-  INITIALIZERS.push({order: order, func: func});
+  INITIALIZERS.push({name: name, order: order, func: func});
 }
 
 function runInitializers() {
   const sorted = INITIALIZERS.sort((a, b) => a.order - b.order);
+  console.log("initializers", sorted);
   for (const call of sorted) call.func();
 }

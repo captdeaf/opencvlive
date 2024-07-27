@@ -52,32 +52,39 @@ def handle(client):
 
         jsobj = ejson.loads(base64.b64decode(b64input))
 
-        debug("We got")
-        debug(ejson.dumps(jsobj))
+        # debug("We got: " + ejson.dumps(jsobj))
 
         effect = jsobj['effect']
         args = jsobj['args']
+        outs = jsobj['outputs']
+
+        has = True
+        for out in outs:
+            path = f"{BASE_PATH}/{out['path']}"
+            if not os.path.isfile(path):
+                has = False
+
+        if has:
+            return True
 
         if 'dependencies' in jsobj:
             for k, v in jsobj['dependencies'].items():
-                print(v)
                 path = f"{BASE_PATH}/{v}"
-                print(f"{k}: {path}")
                 args[k] = cvread(path)
         
         results = jsApply(jsobj['effect'], args)
 
-        outs = jsobj['outputs']
-
+        # Because I can't tell if results is an array intended
+        # to be a single result or multiple, I'm using outs.
         if len(outs) > 1:
             for out, result in zip(outs, results):
-                cvwrite(result, 'html/' + out['path'])
+                cvwrite(result, f"{BASE_PATH}/{out['path']}")
         else:
-            cvwrite(results, 'html/' + outs[0]['path'])
+            cvwrite(results, f"{BASE_PATH}/{outs[0]['path']}")
         return True
     except Exception as err:
-        print("error")
-        print(traceback.format_exc())
+        debug("error")
+        debug(traceback.format_exc())
         return False
 
 RUNNING = True

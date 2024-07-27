@@ -162,7 +162,7 @@ function refreshEffectBlocks() {
   enableTriggers(EL.blockselection);
 }
 
-addInitializer(() => {
+addInitializer('toolbox', () => {
   refreshLibrary();
   refreshEffectBlocks();
 });

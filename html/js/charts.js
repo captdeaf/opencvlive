@@ -5,13 +5,17 @@
 ////////////////////////////////////
 
 const SAVEKEYS = ENUM("SAVEKEYS", {
-  charts: 'chartkey',
+  chart: 'chartkey',
   selected: 'chartselected',
 });
 
+const CHART_EMPTY = {
+  blocks: {},
+  name: 'New Chart',
+};
+
 let RAWCHART;
 let CHART;
-let CHARTS = {};
 
 function newChart(name) {
   const ret = {
@@ -19,22 +23,34 @@ function newChart(name) {
     name: name,
     uuid: makeUUID(),
   };
-  CHARTS[ret.uuid] = ret;
   return ret;
 }
 
 function setChart(chart) {
   RAWCHART = chart;
-  CHART = nestedProxy(RAWCHART);
+  setSaved(SAVEKEYS.chart, chart);
+  loadChart();
 }
 
-setChart({});
-
 function saveChart() {
-  setSaved(SAVEKEYS.charts, CHARTS);
+  setSaved(SAVEKEYS.chart, RAWCHART);
 }
 
 function loadChart() {
+  RAWCHART = getSaved(SAVEKEYS.chart);
+  if (!RAWCHART) {
+    RAWCHART = deepCopy(CHART_EMPTY);
+    setSaved(SAVEKEYS.chart, RAWCHART);
+  }
+  if (!('blocks' in RAWCHART)) {
+    RAWCHART.blocks = {};
+    setSaved(SAVEKEYS.chart, RAWCHART);
+  }
+  CHART = nestedProxy(RAWCHART);
+  redrawChart();
+}
+
+function redrawChart() {
   EL.flowchart.innerHTML = '';
   for (const blockjs of Object.values(CHART.blocks)) {
     loadBlock(blockjs);
@@ -42,40 +58,6 @@ function loadChart() {
   refreshOutputs();
 }
 
-// Load the charts on init. If we have a selected one saved,
-// use that one. If we don't match a selected uuid, then
-// use the first uuid we find. If we don't have any, then
-// start afresh.
-function startCharts() {
-  CHARTS = getSaved(SAVEKEYS.charts, {});
-  let chart;
-  let chartUUID = getSaved(SAVEKEYS.selected, 'default');
-
-  if (chartUUID in CHARTS) {
-    setChart(CHARTS[chartUUID]);
-    return;
-  }
-
-  const chartUUIDs = Object.keys(CHARTS);
-
-  if (chartUUIDs.length > 0 && chartUUIDs[0] in CHARTS) {
-    chartUUID = chartUUIDs[0];
-    setSaved(SAVEKEYS.selected, chartUUID);
-    setChart(CHARTS[chartUUID]);
-    return;
-  }
-
-  const myChart = newChart('New Chart');
-  CHARTS[newChart.uuid] = myChart;
-  chart = myChart;
-  setSaved(SAVEKEYS.selected, myChart.uuid);
-  saveChart();
-
-  setChart(chart);
-  return;
-}
-
-addInitializer(() => {
-  startCharts();
+addInitializer('charts', () => {
   loadChart();
 }, 100);

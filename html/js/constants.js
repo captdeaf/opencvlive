@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////
 
-addInitializer(() => {
+addInitializer('constants', () => {
   const allobjects = {
     body: 'body',
     floats: '#floats',

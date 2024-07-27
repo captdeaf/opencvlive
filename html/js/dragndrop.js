@@ -346,7 +346,7 @@ addTriggerFunction('[data-drag]', addMouseDrag);
 
 // We depend on overriding onmouseup, onmouseleave, onmousemove, so do that on
 // startup.
-addInitializer(function() {
+addInitializer('dragndrop', function() {
   // Override all non-button mouse actions 
   document.onmouseleave = endMouseAction;
   document.onmouseup   = endMouseAction;

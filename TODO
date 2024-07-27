@@ -5,8 +5,6 @@ TODO for opencvlive:
   - Finish refactor:
     - Adding complex outputs via renderBlockOutputs().
       - Need individual type renderers. - Complex
-    - Flowchart:
-      - drawLines
   - new features:
     - Complex / json input values.
     - changeable block names?
@@ -19,6 +17,7 @@ Done?
   - floater views
     - Update floater images on change.
   - Flowchart:
+    - drawLines
     - Chartboxes
       - output processing
       - i/o

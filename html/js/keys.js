@@ -28,4 +28,4 @@ function flushFloater() {
   return false;
 }
 
-addInitializer(bindKeys);
+addInitializer('bindkeys', bindKeys);
