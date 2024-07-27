@@ -45,11 +45,21 @@ addTrigger('moveChartBlock', (el, evt, fixedPos, parentElement, relativePos) => 
   saveChart();
 });
 
-function renderOutput(output, idx) {
+function updateOtherOutputs(sel, uuid, idx, fn) {
+  const others = findAll(sel + '[data-uuid="' + uuid + '"][data-idx="' + idx + '"]');
+  if (others && others.length > 0) {
+    for (const other of others) {
+      fn(other);
+    }
+  }
+}
+
+function renderOutput(output, uuid, idx) {
   const attrs = {
     'class': 'drag-start',
     'data-name': basename(output.path),
     'data-idx': idx,
+    'data-uuid': uuid,
     'data-drag': 'trigger-image',
     'data-drag-bind': '#flowchart',
     'data-drag-ondrop': 'bindToInput',
@@ -60,6 +70,9 @@ function renderOutput(output, idx) {
   if (output.cname === 'image') {
     attrs.src = output.path;
     outputElement = EL('img', attrs);
+    updateOtherOutputs('img', uuid, idx, (img) => {
+      img.src = output.path;
+    });
   } else if (output.cname === 'complex') {
     outputElement = EL('p', attrs, "TBD");
   } else {
@@ -81,7 +94,7 @@ function renderBlockOutputs(blockmaster, outputs) {
   const children = [];
   let idx = 0;
   for (const output of outputs) {
-    children.push(renderOutput(output, idx));
+    children.push(renderOutput(output, blockmaster.blockData.uuid, idx));
     idx++;
   }
   appendChildren(outputEl, children);

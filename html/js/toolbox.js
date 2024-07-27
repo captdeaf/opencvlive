@@ -115,6 +115,7 @@ addTrigger('showLargeChildImage', function(el) {
     const large = get('img', el);
     large.src = img.src;
     large.dataset.uuid = img.dataset.uuid;
+    large.dataset.idx = img.dataset.idx;
   });
 });
 
