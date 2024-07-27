@@ -134,15 +134,16 @@ TYPEDEFS['imagepath'] = {
 
 TYPEDEFS['image'] = {
   build: (param) => {
-    let src = 'images/clip_image.png';
+    const attrs = {
+      src: 'images/clip_image.png',
+    }
     const output = getSourceOutput(param);
-    if (output) src = output.path;
-    console.log('imgout', output);
-    return EL('img', {
-      src: src,
-      'data-uuid': output.uuid,
-      'data-idx': output.idx,
-    });
+    if (output) {
+      attrs.src = output.path;
+      attrs['data-uuid'] = output.uuid;
+      attrs['data-idx'] = output.idx;
+    }
+    return EL('img', attrs);
   },
   save: (el, param) => {},
 };
