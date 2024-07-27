@@ -1,21 +1,14 @@
 Left off at:
 
-  - Adding complex outputs via renderBlockOutputs().
-    - Need individual type renderers. - Complex
-
 TODO for opencvlive:
 
   - Finish refactor:
-    - removeElement (trashit)
-      - Is source clearing needed?
+    - Adding complex outputs via renderBlockOutputs().
+      - Need individual type renderers. - Complex
     - Flowchart:
-      - Chartboxes:
-        - i/o
-        - binding
       - drawLines
-      - output processing
-      - Complex / json input values.
   - new features:
+    - Complex / json input values.
     - changeable block names?
 
 Done?
@@ -26,8 +19,13 @@ Done?
   - floater views
   - Flowchart:
     - Chartboxes
+      - output processing
+      - i/o
+      - binding
       - CSS
   - bindToTarget
     - Show image thumbnail instead of clipart when bound.
   - dragndrop
     - Just finished trigger-image
+  - removeElement (trashit)
+    - Sources handle themselves.

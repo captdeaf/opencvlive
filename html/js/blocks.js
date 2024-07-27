@@ -67,12 +67,12 @@ function renderOutput(output, idx) {
   }
 
   outputElement.output = output;
-  return EL('div', {
+  return enableTriggers(EL('div', {
       'class': 'blockout-frame',
       'data-onclick': 'showLargeChildImage',
     },
     outputElement,
-  );
+  ));
 }
 
 function renderBlockOutputs(blockmaster, outputs) {
@@ -182,12 +182,16 @@ function newBlock(name, effectName, newBlockjs) {
   newBlockjs.name = name;
   newBlockjs.effectName = effect.name;
   newBlockjs.uuid = makeUUID();
-  newBlockjs.params = {};
-  for (const v of effect.parameters) {
-    newBlockjs.params[v.name] = deepCopy(v);
+  if (!('params' in newBlockjs)) {
+    newBlockjs.params = {};
   }
-  const block = makeBlockElement(newBlockjs);
+  for (const v of effect.parameters) {
+    if (!(v.name in newBlockjs.params)) {
+      newBlockjs.params[v.name] = deepCopy(v);
+    }
+  }
   CHART.blocks[newBlockjs.uuid] = newBlockjs;
+  const block = makeBlockElement(nestedProxy(newBlockjs));
   appendChildren(get('#flowchart'), block);
   saveChart();
   return block;
@@ -209,13 +213,23 @@ function loadBlock(blockjs) {
 //
 ////////////////////////////////////
 function bindOutputToParameter(blockfrom, output, blockto, paramto) {
-  paramto.source = {uuid: blockfrom.dataset.uuid, idx: output.idx, path: output.path};
+  paramto.source = {
+    uuid: blockfrom.dataset.uuid,
+    idx: output.idx,
+    path: output.path,
+  };
   saveChart();
 
   redrawBlockParams(get('#block' + blockto.dataset.uuid));
   // TODO: redraw lines
+  refreshOutputs();
 }
 
+////////////////////////////////////
+//
+//  A wrapper around bindOutputToParameter
+//
+////////////////////////////////////
 addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
   const blockfrom = getParent(sourceEl, '.block-master');
   const output = sourceEl.output;
@@ -225,16 +239,50 @@ addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
   bindOutputToParameter(blockfrom, output, blockto, param);
 });
 
+////////////////////////////////////
+//
+//  Remove block. Straightforward, since sources are invalidated and ignored.
+//
+////////////////////////////////////
+addTrigger('removeBlock', (el) => {
+  delete CHART.blocks[el.blockData.uuid];
+  saveChart();
+  loadChart();
+  removeElement(el);
+});
+
+////////////////////////////////////
+//
+//  Drop an image from toolbox library onto the flowchart.
+//
+////////////////////////////////////
 addTrigger('addImageAt', (libraryElement, evt, fixedPos, parentElement, relativePos) => {
   const imagejs = {
-    outputs: [{
-      idx: 0,
-      cname: 'image',
-      path: libraryElement.dataset.path,
-    }],
+    params: {
+      imgPath: {
+        cname: 'imagepath',
+        name: 'imgPath',
+        value: libraryElement.dataset.path,
+        test: 'hi',
+      },
+    },
     layout: {pos: relativePos},
   };
-  newBlock(libraryElement.dataset.name, 'useImage', imagejs);
+  const block = newBlock(libraryElement.dataset.name, 'useImage', imagejs);
+  refreshOutputs();
+});
+
+
+////////////////////////////////////
+//
+//  Drop an effect from toolbox library onto the flowchart.
+//
+////////////////////////////////////
+addTrigger('addEffectAt', (libraryElement, evt, fixedPos, parentElement, relativePos) => {
+  const imagejs = {
+    layout: {pos: relativePos},
+  };
+  newBlock(libraryElement.dataset.name, libraryElement.dataset.effectName, imagejs);
 });
 
 

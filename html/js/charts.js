@@ -39,6 +39,7 @@ function loadChart() {
   for (const blockjs of Object.values(CHART.blocks)) {
     loadBlock(blockjs);
   }
+  refreshOutputs();
 }
 
 // Load the charts on init. If we have a selected one saved,

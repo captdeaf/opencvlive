@@ -127,11 +127,16 @@ TYPEDEFS['select'] = {
   },
 };
 
+TYPEDEFS['imagepath'] = {
+  hidden: true,
+  save: (el, param) => param.value,
+};
+
 TYPEDEFS['image'] = {
   build: (param) => {
     let src = 'images/clip_image.png';
-    const source = getSource(param);
-    if (source) src = source.path;
+    const output = getSourceOutput(param);
+    if (output) src = output.path;
     return EL('img', {src: src});
   },
   save: (el, param) => {},
@@ -154,9 +159,19 @@ TYPEDEFS['complex'] = {
 ////////////////////////////////////
 function getSource(param) {
   if ('source' in param && 'uuid' in param.source) {
-    const blockfrom = CHART.blocks[param.source.uuid];
+    if (param.source.uuid in CHART.blocks) {
+      return param.source;
+    }
+  }
+  return undefined;
+}
+
+function getSourceOutput(param) {
+  const source = getSource(param);
+  if (source) {
+    const blockfrom = CHART.blocks[source.uuid];
     if (blockfrom && 'outputs' in blockfrom) {
-      const output = blockfrom.outputs[param.source.idx];
+      const output = blockfrom.outputs[source.idx];
       if (output) {
         return output;
       }
@@ -177,13 +192,15 @@ function getSource(param) {
 function makeParamElement(param, effectparam) {
   const classes = ['param-input'];
   const cname = param.cname;
+
+  const typedef = TYPEDEFS[cname];
+  if ('hidden' in typedef && typedef.hidden) return undefined;
+
   classes.unshift('accept-' + cname);
 
   const labelAttrs = {
     'class': classes.join(' '),
   };
-
-  const typedef = TYPEDEFS[cname];
 
   const builtInput = TYPEDEFS[cname].build(param);
 
@@ -212,7 +229,10 @@ function makeParamElements(blockjs, effectjs) {
   const listing = [];
   for (const param of effectjs.parameters) {
     if (param.name in blockjs.params) {
-      listing.push(makeParamElement(blockjs.params[param.name], param))
+      const paramEl = makeParamElement(blockjs.params[param.name], param);
+      if (paramEl) {
+        listing.push(paramEl);
+      }
     }
   }
   return listing
@@ -226,4 +246,5 @@ addTrigger('updateParameter', (el, evt) => {
     el.param.value = TYPEDEFAULT.save(el.value);
   }
   saveChart();
+  refreshOutputs();
 });

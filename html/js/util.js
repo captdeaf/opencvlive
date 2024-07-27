@@ -325,6 +325,9 @@ const PROXY = {
       target[prop] = value;
     }
   },
+  deleteProperty(target, prop) {
+    delete target[prop];
+  }
 };
 
 function nestedProxy(val) {

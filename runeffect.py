@@ -52,6 +52,9 @@ def handle(client):
 
         jsobj = ejson.loads(base64.b64decode(b64input))
 
+        debug("We got")
+        debug(ejson.dumps(jsobj))
+
         effect = jsobj['effect']
         args = jsobj['args']
 
