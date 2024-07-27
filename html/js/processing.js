@@ -120,6 +120,7 @@ async function beginBlockProcessing(process) {
   }
 
   // redrawAllLines();
+  saveChart();
 }
 
 // Process a single block action.

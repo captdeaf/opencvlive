@@ -137,7 +137,12 @@ TYPEDEFS['image'] = {
     let src = 'images/clip_image.png';
     const output = getSourceOutput(param);
     if (output) src = output.path;
-    return EL('img', {src: src});
+    console.log('imgout', output);
+    return EL('img', {
+      src: src,
+      'data-uuid': output.uuid,
+      'data-idx': output.idx,
+    });
   },
   save: (el, param) => {},
 };
@@ -200,6 +205,7 @@ function makeParamElement(param, effectparam) {
 
   const labelAttrs = {
     'class': classes.join(' '),
+    'data-name': param.name,
   };
 
   const builtInput = TYPEDEFS[cname].build(param);
@@ -217,7 +223,7 @@ function makeParamElement(param, effectparam) {
   label.param = param;
   label.effectparam = effectparam;
 
-  return label;
+  return enableTriggers(label);
 }
 
 ////////////////////////////////////

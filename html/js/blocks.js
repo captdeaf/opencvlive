@@ -174,6 +174,8 @@ function makeBlockElement(blockjs) {
   blockMaster.outputEl = outputEl;
   blockMaster.paramsEl = paramsEl;
 
+  enableTriggers(blockMaster);
+
   redrawBlockParams(blockMaster)
 
   if (blockjs.outputs && blockjs.outputs.length > 0) {
@@ -186,12 +188,12 @@ function makeBlockElement(blockjs) {
   blockMaster.style.left = pos.x + 'px';
   blockMaster.style.top = pos.y + 'px';
 
-  return enableTriggers(blockMaster);
+  return blockMaster;
 }
 
 function newBlock(name, effectName, newBlockjs) {
   const effect = ALL_EFFECTS[effectName];
-  newBlockjs = Object.assign({}, BLOCK_EMPTY, newBlockjs);
+  newBlockjs = deepCopy(BLOCK_EMPTY, newBlockjs);
   newBlockjs.name = name;
   newBlockjs.effectName = effect.name;
   newBlockjs.uuid = makeUUID();
@@ -249,6 +251,7 @@ addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
 
   const blockto = getParent(targetEls[0], '.block-master');
   const param = targetEls[0].param;
+  console.log("bti", param.name, blockto.blockData.toJSON);
   bindOutputToParameter(blockfrom, output, blockto, param);
 });
 
@@ -292,10 +295,10 @@ addTrigger('addImageAt', (libraryElement, evt, fixedPos, parentElement, relative
 //
 ////////////////////////////////////
 addTrigger('addEffectAt', (libraryElement, evt, fixedPos, parentElement, relativePos) => {
-  const imagejs = {
+  const effectjs = deepCopy({
     layout: {pos: relativePos},
-  };
-  newBlock(libraryElement.dataset.name, libraryElement.dataset.effectName, imagejs);
+  });
+  newBlock(libraryElement.dataset.name, libraryElement.dataset.effectName, effectjs);
 });
 
 

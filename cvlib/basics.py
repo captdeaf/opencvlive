@@ -195,5 +195,5 @@ def saveComplex(inp: T.complex):
 # should return it as is just to be written.
 @EF.register("useImage", T.image, sort="hidden")
 def useImage(imgPath : T.string(cname='imagepath')):
-    fullpath = 'html/' + imgPath;
-    return cv.imread(fullpath);
+    fullpath = 'html/' + imgPath
+    return cv.imread(fullpath, cv.IMREAD_UNCHANGED)

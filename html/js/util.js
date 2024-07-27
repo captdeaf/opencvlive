@@ -342,11 +342,11 @@ function nestedProxy(val) {
 //
 ////////////////////////////////////
 function deepCopy(...objs) {
-  const assigns = [{}];
+  const assigns = [];
   for (const obj of [objs].flat()) {
     assigns.push(JSON.parse(JSON.stringify(obj)));
   }
-  return Object.assign(...assigns);
+  return Object.assign({}, ...assigns);
 }
 
 ////////////////////////////////////
