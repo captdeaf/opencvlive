@@ -8,8 +8,8 @@
 // Drag & Drop in JS.
 //
 // Different types of "drag"s:
-//     "trigger" (drags clone, clears, calls callback)
-//     "point" (draws line, clears, calls callback)
+//     "trigger" (drags clone or image, clears, calls callback)
+//     "point" (drags clone or image, draws line, clears, calls callback)
 //     "copy" (drags clone, copies into new parent, and calls callback)
 //     "move"  (hides orig, drags clone, moves original, and calls callback)
 //     "reposition" (drags orig, and calls callback)
@@ -196,6 +196,18 @@ function addMouseDrag(dragMe) {
     if (method === 'point') {
       dragged = EL('div', {class: 'drag-pointer'}, "( )");
       dragged.innerHTML = "&bull;";
+      appendChildren(EL.floats, dragged);
+      const pointerRect = dragged.getBoundingClientRect();
+      mouseOff = {
+        left: pointerRect.width/2,
+        top: pointerRect.height/2,
+        right: -pointerRect.width/2,
+        bottom: -pointerRect.height/2,
+      };
+      lineStart = getRelativePosition(dragMe, svgLines);
+    } else if (method === 'trigger-image') {
+      dragged = safeCloneNode(get('img', dragMe));
+      dragged.classList.add('drag-image');
       appendChildren(EL.floats, dragged);
       const pointerRect = dragged.getBoundingClientRect();
       mouseOff = {

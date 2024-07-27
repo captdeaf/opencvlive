@@ -299,10 +299,17 @@ function isSafeIterable(obj) {
 
 const PROXY = {
   get(target, prop, receiver) {
+    if (prop === Symbol.iterator) {
+      return target[Symbol.iterator];
+    }
+    if (typeof(prop) === 'symbol') {
+      prop = prop.description;
+    }
     if (prop === 'toJSON') {
       return target;
     }
     if (!target.hasOwnProperty(prop)) {
+      console.log('target has no value "' + prop + '"', target);
       throw('target has no value "' + prop + '"');
     }
     const val = target[prop];
@@ -312,10 +319,10 @@ const PROXY = {
     return val;
   },
   set(target, prop, value) {
-    if (target.hasOwnProperty(prop)) {
-      target[prop] = value;
+    if (typeof(prop) === 'symbol') {
+      target[prop.description] = value;
     } else {
-      throw("Setting a value in nestedProxy that it shouldn't");
+      target[prop] = value;
     }
   },
 };
@@ -327,12 +334,16 @@ function nestedProxy(val) {
 ////////////////////////////////////
 //
 //  Deep copy. I know structuredClone exists, this is just an equivalent of
-//  assign and structuredClone combined.
+//  assign and structuredClone() combined. This also works with Proxy objects,
+//  which structuredClone() does not.
 //
 ////////////////////////////////////
 function deepCopy(...objs) {
-  const newobj = Object.assign({}, ...objs);
-  return structuredClone(newobj);
+  const assigns = [{}];
+  for (const obj of [objs].flat()) {
+    assigns.push(JSON.parse(JSON.stringify(obj)));
+  }
+  return Object.assign(...assigns);
 }
 
 ////////////////////////////////////

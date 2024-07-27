@@ -9,6 +9,7 @@ const SAVEKEYS = ENUM("SAVEKEYS", {
   selected: 'chartselected',
 });
 
+let RAWCHART;
 let CHART;
 let CHARTS = {};
 
@@ -22,15 +23,12 @@ function newChart(name) {
   return ret;
 }
 
-function clearChart(chart) {
-  CHART = deepCopy(EMPTY_CHART);
-  saveChart();
+function setChart(chart) {
+  RAWCHART = chart;
+  CHART = nestedProxy(RAWCHART);
 }
 
-function selectChart(uuid) {
-  CHART = CHARTS[uuid];
-  setSaved(SAVEKEYS.selected, uuid);
-}
+setChart({});
 
 function saveChart() {
   setSaved(SAVEKEYS.charts, CHARTS);
@@ -49,10 +47,11 @@ function loadChart() {
 // start afresh.
 function startCharts() {
   CHARTS = getSaved(SAVEKEYS.charts, {});
+  let chart;
   let chartUUID = getSaved(SAVEKEYS.selected, 'default');
 
   if (chartUUID in CHARTS) {
-    CHART = CHARTS[chartUUID];
+    setChart(CHARTS[chartUUID]);
     return;
   }
 
@@ -60,16 +59,18 @@ function startCharts() {
 
   if (chartUUIDs.length > 0 && chartUUIDs[0] in CHARTS) {
     chartUUID = chartUUIDs[0];
-    CHART = CHARTS[chartUUID];
     setSaved(SAVEKEYS.selected, chartUUID);
+    setChart(CHARTS[chartUUID]);
     return;
   }
 
   const myChart = newChart('New Chart');
   CHARTS[newChart.uuid] = myChart;
-  CHART = myChart;
+  chart = myChart;
   setSaved(SAVEKEYS.selected, myChart.uuid);
   saveChart();
+
+  setChart(chart);
   return;
 }
 

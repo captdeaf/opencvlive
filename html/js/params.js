@@ -17,11 +17,10 @@
 //
 // Structure:
 //
-// name: {
-//   cname: 'int',
-//
-//   build: (function),
-//   save: (function),
+// cname: {
+//   // An image to render when this parameter has a source.
+//   build: (param),
+//   save: (element, param),
 // }
 //
 // 'build' function converts an (args) into a renderable html template.
@@ -32,7 +31,19 @@
 //
 ////////////////////////////////////
 
-const TYPEDEFS = {}
+const TYPEDEFS = nestedProxy({});
+
+TYPEDEFAULT = {
+  build: (param) => {
+    return EL('input', {
+      type: 'string',
+      ...param
+    });
+  },
+  save: (el, param) => {
+    return el.value;
+  },
+};
 
 // I'm making them individually instead of one giant object because some will
 // just reuse earlier build/parse methods.
@@ -118,7 +129,10 @@ TYPEDEFS['select'] = {
 
 TYPEDEFS['image'] = {
   build: (param) => {
-   return EL('img', {src: 'images/clip_image.png'});
+    let src = 'images/clip_image.png';
+    const source = getSource(param);
+    if (source) src = source.path;
+    return EL('img', {src: src});
   },
   save: (el, param) => {},
 };
@@ -132,6 +146,34 @@ TYPEDEFS['complex'] = {
   },
 };
 
+////////////////////////////////////
+//
+//  Safely get a source. The source block may have been removed,
+//  or there is no source.
+//
+////////////////////////////////////
+function getSource(param) {
+  if ('source' in param && 'uuid' in param.source) {
+    const blockfrom = CHART.blocks[param.source.uuid];
+    if (blockfrom && 'outputs' in blockfrom) {
+      const output = blockfrom.outputs[param.source.idx];
+      if (output) {
+        return output;
+      }
+    }
+  }
+  return undefined;
+}
+
+////////////////////////////////////
+//
+//  Render a single parameter
+//
+//    - If no value or source, a default input or image.
+//    - If a source, either the image or an icon.
+//    - Rendered input from TYPEDEFs.
+//
+////////////////////////////////////
 function makeParamElement(param, effectparam) {
   const classes = ['param-input'];
   const cname = param.cname;
@@ -141,13 +183,9 @@ function makeParamElement(param, effectparam) {
     'class': classes.join(' '),
   };
 
-  let builtInput;
+  const typedef = TYPEDEFS[cname];
 
-  if (cname in TYPEDEFS) {
-    builtInput = TYPEDEFS[cname].build(param);
-  } else {
-    builtInput = TYPEDEFS['string'].build(param);
-  }
+  const builtInput = TYPEDEFS[cname].build(param);
 
   builtInput.dataset.onchange = 'updateParameter';
   builtInput.param = param;
@@ -159,9 +197,17 @@ function makeParamElement(param, effectparam) {
     builtInput
   );
 
+  label.param = param;
+  label.effectparam = effectparam;
+
   return label;
 }
 
+////////////////////////////////////
+//
+//  Render all the parameters section of a block.
+//
+////////////////////////////////////
 function makeParamElements(blockjs, effectjs) {
   const listing = [];
   for (const param of effectjs.parameters) {
@@ -173,12 +219,11 @@ function makeParamElements(blockjs, effectjs) {
 }
 
 addTrigger('updateParameter', (el, evt) => {
-  let cname = el.param.cname;
-  if (!(cname in TYPEDEFS)) cname = 'string';
-  if ('save' in TYPEDEFS[cname]) {
-    el.param.value = TYPEDEFS[cname].save(el, el.param);
+  let typedef = TYPEDEFS[el.param.cname];
+  if ('save' in typedef) {
+    el.param.value = typedef.save(el, el.param);
   } else {
-    el.param.value = el.value;
+    el.param.value = TYPEDEFAULT.save(el.value);
   }
   saveChart();
 });

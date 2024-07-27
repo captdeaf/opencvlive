@@ -93,10 +93,8 @@ let currentZeds = {
 };
 addTrigger('raiseZIndex', (el, evt) => {
   const target = el.dataset.zindex;
-  if (el.style['z-index'] < currentZeds[target] - 1) {
-    el.style['z-index'] = currentZeds[target];
-    currentZeds[target] += 1;
-  }
+  el.style['z-index'] = currentZeds[target];
+  currentZeds[target] += 1;
 });
 
 /////////////////////////////////////

@@ -45,8 +45,75 @@ addTrigger('moveChartBlock', (el, evt, fixedPos, parentElement, relativePos) => 
   saveChart();
 });
 
+function renderOutput(output, idx) {
+  const attrs = {
+    'class': 'drag-start',
+    'data-name': basename(output.path),
+    'data-idx': idx,
+    'data-drag': 'trigger-image',
+    'data-drag-bind': '#flowchart',
+    'data-drag-ondrop': 'bindToInput',
+    'data-drag-drop-on': '.accept-image',
+    'data-drag-onclick': 'showLargeChildImage',
+  };
+  let outputElement;
+  if (output.cname === 'image') {
+    attrs.src = output.path;
+    outputElement = EL('img', attrs);
+  } else if (output.cname === 'complex') {
+    outputElement = EL('p', attrs, "TBD");
+  } else {
+    outputElement = EL('p', attrs, "What");
+  }
+
+  outputElement.output = output;
+  return EL('div', {
+      'class': 'blockout-frame',
+      'data-onclick': 'showLargeChildImage',
+    },
+    outputElement,
+  );
+}
+
+function renderBlockOutputs(blockmaster, outputs) {
+  const outputEl = blockmaster.outputEl;
+  outputEl.innerHTML = '';
+  const children = [];
+  let idx = 0;
+  for (const output of outputs) {
+    children.push(renderOutput(output, idx));
+    idx++;
+  }
+  appendChildren(outputEl, children);
+}
+
+////////////////////////////////////
+//
+//  Redraw the parameters section of a block.
+//
+//  (Copied from params.js)
+//
+//    - If no value or source, a default input or image.
+//    - If a source, either the image or an icon.
+//    - Rendered input from TYPEDEFs.
+//
+////////////////////////////////////
+function redrawBlockParams(block) {
+  const blockjs = block.blockData;
+  const effectjs = block.effectjs;
+
+  const paramListing = makeParamElements(blockjs, effectjs);
+
+  block.paramsEl.innerHTML = '';
+  appendChildren(block.paramsEl, paramListing);
+}
+
 function makeBlockElement(blockjs) {
   const bmAttrs = {
+    'class': 'block-master',
+    'style': 'z-index: 800;',
+    'id': 'block' + blockjs.uuid,
+
     'data-uuid': blockjs.uuid,
 
     // Related to dragging this block.
@@ -58,13 +125,9 @@ function makeBlockElement(blockjs) {
     // What this triggers when dropped.
     'data-drop-ok': '.blockdrop',
 
-    'class': 'block-master',
-
     // Bring to foreground.
     'data-onmouseover': 'raiseZIndex',
     'data-zindex': 'block',
-
-    'style': 'z-index: 800;',
   };
 
   const blockMaster = EL('div', bmAttrs);
@@ -79,25 +142,30 @@ function makeBlockElement(blockjs) {
   blockMaster.setTitle = (text) => { blockHead.innerText = text; };
   blockMaster.setTitle(blockjs.name);
 
-  const paramListing = makeParamElements(blockjs, effectjs);
-
-  const outputs = EL('div', {'class': 'outputs'});
-
-  blockMaster.updateResults = (results) => {
-    setBlockOutputs(blockMaster, outputs, results);
-  }
+  const outputEl = EL('div', {'class': 'outputs'});
+  const paramsEl = EL('div', {'class': 'block-params'});
 
   const container = (
     EL('div', {'class': 'block-container'}, 
       EL('div', {'class': 'block-center'},
         blockHead,
-        EL('div', {'class': 'block-params'}, ...paramListing),
+        paramsEl,
         EL('div', {'class': 'block-output'}),
       ),
+      outputEl,
     )
   );
 
-  appendChildren(blockMaster, container, outputs);
+  appendChildren(blockMaster, container);
+
+  blockMaster.outputEl = outputEl;
+  blockMaster.paramsEl = paramsEl;
+
+  redrawBlockParams(blockMaster)
+
+  if (blockjs.outputs && blockjs.outputs.length > 0) {
+    renderBlockOutputs(blockMaster, blockjs.outputs);
+  }
 
   ALL_BLOCK_ELEMENTS[blockjs.uuid] = blockMaster;
 
@@ -121,9 +189,52 @@ function newBlock(name, effectName, newBlockjs) {
   const block = makeBlockElement(newBlockjs);
   CHART.blocks[newBlockjs.uuid] = newBlockjs;
   appendChildren(get('#flowchart'), block);
+  saveChart();
+  return block;
 }
 
 function loadBlock(blockjs) {
   const block = makeBlockElement(blockjs);
   appendChildren(get('#flowchart'), block);
 }
+
+////////////////////////////////////
+//
+//  Bind an output of one block to the input of another. Outputs are in order:
+//
+//  Structure within CHART:
+//    blockto.params[name].source = {uuid: uuid, output: idx}
+//
+//  Redraw tojs afterwards.
+//
+////////////////////////////////////
+function bindOutputToParameter(blockfrom, output, blockto, paramto) {
+  paramto.source = {uuid: blockfrom.dataset.uuid, idx: output.idx, path: output.path};
+  saveChart();
+
+  redrawBlockParams(get('#block' + blockto.dataset.uuid));
+  // TODO: redraw lines
+}
+
+addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
+  const blockfrom = getParent(sourceEl, '.block-master');
+  const output = sourceEl.output;
+
+  const blockto = getParent(targetEls[0], '.block-master');
+  const param = targetEls[0].param;
+  bindOutputToParameter(blockfrom, output, blockto, param);
+});
+
+addTrigger('addImageAt', (libraryElement, evt, fixedPos, parentElement, relativePos) => {
+  const imagejs = {
+    outputs: [{
+      idx: 0,
+      cname: 'image',
+      path: libraryElement.dataset.path,
+    }],
+    layout: {pos: relativePos},
+  };
+  newBlock(libraryElement.dataset.name, 'useImage', imagejs);
+});
+
+

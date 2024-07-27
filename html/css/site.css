@@ -13,7 +13,7 @@ body {
 }
 
 #head {
-  padding: 0em 0em 0em 0em;
+  padding: 0.4em;
   flex: 0 0 content;
   border-bottom: 2px solid black;
   display: flex;

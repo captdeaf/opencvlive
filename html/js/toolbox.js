@@ -19,6 +19,8 @@ function rebuildLibrary(paths) {
       {
         'class': 'item drag-start',
         'title': path,
+        'data-name': name,
+        'data-path': path,
         'data-drag': 'trigger-image',
         'data-drag-bind': '#flowchart',
         'data-drag-ondrop': 'addImageAt',
@@ -27,7 +29,6 @@ function rebuildLibrary(paths) {
       EL('span', {}, name),
       img,
     );
-
     children.push(pane);
   }
 
@@ -60,7 +61,7 @@ addTrigger('showUploadDialog', (el, evt) => {
 });
 
 addTrigger('fileDialogChange', (el, evt) => {
-  const uploadDiv = findParent(el, '[data-upload]');
+  const uploadDiv = getParent(el, '[data-upload]');
   if (!uploadDiv) return;
 
   const fileList = get('#upload-list', uploadDiv);

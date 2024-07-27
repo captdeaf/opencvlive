@@ -190,3 +190,9 @@ def drawPoly(
 @EF.register("saveComplex", T.complex, sort="hidden")
 def saveComplex(inp: T.complex):
     return inp
+
+# Register a way for complex to save itself. In theory, it
+# should return it as is just to be written.
+@EF.register("useImage", T.image, sort="hidden")
+def useImage():
+    pass
