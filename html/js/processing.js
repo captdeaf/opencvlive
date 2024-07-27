@@ -71,7 +71,14 @@ function getClearBlocks(process) {
 
   function checkClear(uuid) {
     if (clear[uuid]) { return true; }
-    if (seen[uuid]) { return false; }
+    if (seen[uuid]) {
+      const el = get('#block' + uuid);
+      el.classList.add('block-error-loop');
+      setTimeout(() => {
+        el.classList.remove('block-error-loop');
+      }, 3000);
+      return false;
+    }
 
     seen[uuid] = true;
     if (!(uuid in sourceCache)) return false;
@@ -119,7 +126,7 @@ async function beginBlockProcessing(process) {
     blockCache[call.uuid] = result.deps;
   }
 
-  // redrawAllLines();
+  redrawAllLines();
   saveChart();
 }
 

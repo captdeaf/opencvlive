@@ -1,6 +1,6 @@
 // newblock.js
 //
-// Block and Element management. Sort of a mini-framework.
+// Block and Element management.
 //
 ////////////////////////////////////
 //
@@ -133,7 +133,7 @@ function makeBlockElement(blockjs) {
     'data-drag': 'move',
     'data-drag-bind': '#flowchart',
     'data-drag-ondrop': 'moveChartBlock',
-    // 'data-drag-move': 'redrawAllLines',
+    'data-drag-onmove': 'redrawAllLines',
 
     // What this triggers when dropped.
     'data-drop-ok': '.blockdrop',
@@ -231,6 +231,7 @@ function bindOutputToParameter(blockfrom, output, blockto, paramto) {
     uuid: blockfrom.dataset.uuid,
     idx: output.idx,
     path: output.path,
+    color: pickLineColor(),
   };
   saveChart();
 
@@ -250,7 +251,6 @@ addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
 
   const blockto = getParent(targetEls[0], '.block-master');
   const param = targetEls[0].param;
-  console.log("bti", param.name, blockto.blockData.toJSON);
   bindOutputToParameter(blockfrom, output, blockto, param);
 });
 

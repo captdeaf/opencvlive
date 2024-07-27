@@ -177,7 +177,7 @@ function addMouseDrag(dragMe) {
   let lineStart;
 
   actions.start = function() {
-    // Track time, if this is < 200ms, we consider it a click.
+    // Track time, if this is < 100ms, we consider it a click.
     clickStart = new Date().getTime();
 
     // Track mouse differences. For dragging around.
@@ -247,7 +247,7 @@ function addMouseDrag(dragMe) {
 
     moveIt(dragged, bounds);
 
-    if (method === 'point') {
+    if (method === 'point' || method === 'trigger-image') {
       const flowchart = EL.flowchart;
       const flowchartBox = flowchart.getBoundingClientRect();
 
@@ -277,7 +277,7 @@ function addMouseDrag(dragMe) {
   // return True to stop
   actions.end = function(evt) {
     // Check for pseudo-click
-    if ((new Date().getTime() - clickStart) < 200) {
+    if ((new Date().getTime() - clickStart) < 100) {
       trigger(callbacks.click, dragMe, evt, MOUSE.pos);
       cleanUp();
       return false;

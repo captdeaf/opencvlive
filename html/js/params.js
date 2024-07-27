@@ -136,6 +136,7 @@ TYPEDEFS['image'] = {
   build: (param) => {
     const attrs = {
       src: 'images/clip_image.png',
+      draggable: 'false',
     }
     const output = getSourceOutput(param);
     if (output) {

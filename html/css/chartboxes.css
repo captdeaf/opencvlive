@@ -33,6 +33,10 @@
   border: 3px solid red;
 }
 
+.block-error-loop .block-container {
+  border: 3px solid pink;
+}
+
 /* Draggable header */
 .block-head {
   position: relative;
