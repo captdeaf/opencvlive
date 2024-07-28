@@ -7,8 +7,8 @@ function rebuildLibrary(paths) {
   library.innerHTML = '';
 
   const children = [];
-  const paneComplex = template('library-complex');
-  children.push(paneComplex);
+  // const paneComplex = template('library-complex');
+  // children.push(paneComplex);
 
   for (const path of paths) {
     const name = basename(path);

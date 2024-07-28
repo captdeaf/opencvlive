@@ -150,8 +150,20 @@ TYPEDEFS['image'] = {
 };
 
 TYPEDEFS['complex'] = {
+  label: (labelAttrs) => {
+    labelAttrs['data-onclick'] = 'editElementJSON';
+  },
   build: (param) => {
-    return EL('div', {}, '[.]')
+    const attrs = {
+      src: 'images/clip_complex.png',
+      draggable: 'false',
+    }
+    const output = getSourceOutput(param);
+    if (output) {
+      attrs['data-uuid'] = output.uuid;
+      attrs['data-idx'] = output.idx;
+    }
+    return EL('img', attrs);
   },
   save: (el, param) => {
     return el.blockData.json;
@@ -212,7 +224,11 @@ function makeParamElement(param, effectparam) {
     'data-name': param.name,
   };
 
-  const builtInput = TYPEDEFS[cname].build(param);
+  if ('label' in typedef) {
+    typedef.label(labelAttrs);
+  }
+
+  const builtInput = typedef.build(param);
 
   builtInput.dataset.onchange = 'updateParameter';
   builtInput.param = param;
