@@ -33,7 +33,7 @@ function find(selector, par) {
 function get(selector, par) {
   const ret = find(selector, par);
   if (!ret) {
-    console.log('Selector not found:', selector, par);
+    console.log('get() Selector not found:', selector, par);
     throw('Selector "' + selector + '" not found');
   }
   return ret;
@@ -53,7 +53,7 @@ function findAll(selector, par) {
 function getAll(selector, par) {
   const ret = findAll(selector, par);
   if (!ret || ret.length === 0) {
-    console.log('Selector not found:', selector, par);
+    console.log('getAll() Selector not found:', selector, par);
     throw('Selector "' + selector + '" not found');
   }
   return ret;
@@ -370,7 +370,6 @@ function safeCloneNode(el) {
   const allTitled = findAll('[title="*"]', clone);
   if (allTitled && allTitled.length > 0) {
     for (const titled of allTitled) {
-      console.log("Removing title from", titled);
       titled.removeAttribute('title');
     }
   }
@@ -429,6 +428,5 @@ function addInitializer(name, func, order) {
 
 function runInitializers() {
   const sorted = INITIALIZERS.sort((a, b) => a.order - b.order);
-  console.log("initializers", sorted);
   for (const call of sorted) call.func();
 }

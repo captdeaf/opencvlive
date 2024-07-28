@@ -211,8 +211,6 @@ class TBool(TJSON):
 
 @T('select')
 class TSelect(TString):
-    def fromJSON(self, jsonarg):
-        debug(f'{type(jsonarg)} - {jsonarg}')
     pass
 
 T.colorChannel = T.select({
@@ -234,5 +232,4 @@ T.color = T.bgr
 @T('complex')
 class TComplex(TJSON):
     def fromJSON(self, jsonarg):
-        print("Complex fromJSON")
         return jsonarg

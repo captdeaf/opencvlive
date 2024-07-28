@@ -104,7 +104,6 @@ addTrigger('raiseZIndex', (el, evt) => {
 /////////////////////////////////////
 function showFloater(title, bodytpl, contents, overlay) {
   const body = template(bodytpl, contents);
-  console.log("showFloater", body, contents, overlay);
   const floater = template('floater', {
     '.name': title,
     '.body': body,

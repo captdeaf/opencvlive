@@ -20,8 +20,8 @@ function bindKeys() {
 
 function flushFloater() {
   const floats = EL.floats;
-  const kid = floats.lastChild;
-  if (kid && kid.append) {
+  const kid = floats.lastElementChild;
+  if (kid) {
     removeElement(kid);
     return true;
   }
