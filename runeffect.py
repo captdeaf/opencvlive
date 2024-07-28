@@ -26,7 +26,7 @@ if cwd not in sys.path:
     sys.path.append(cwd)
 
 from applib.util import ejson, debug
-from cvlib import INFO, Effects, jsApply, cv
+from cvlib import INFO, Effects, jsApply, cv, TYPE_DECODERS
 
 def cvread(filename):
     if filename.endswith('.json'):
@@ -58,21 +58,29 @@ def handle(client):
         args = jsobj['args']
         outs = jsobj['outputs']
 
-        has = True
+        cached = True
         for out in outs:
             path = f"{BASE_PATH}/{out['path']}"
             if not os.path.isfile(path):
-                has = False
+                cached = False
 
-        if has:
+        if cached:
             return None
 
         if 'dependencies' in jsobj:
             for k, v in jsobj['dependencies'].items():
                 path = f"{BASE_PATH}/{v}"
                 args[k] = cvread(path)
+
+        # debug("Comparison: " + ejson.dumps(INFO['effects'][effect]['parameters']))
+
+        mappedArgs = dict()
+
+        for desc in INFO['effects'][effect]['parameters']:
+            decoder = TYPE_DECODERS[desc['cname']]
+            mappedArgs[desc['name']] = decoder.fromJSON(args[desc['name']])
         
-        results = jsApply(jsobj['effect'], args)
+        results = jsApply(jsobj['effect'], mappedArgs)
 
         # Because I can't tell if results is an array intended
         # to be a single result or multiple, I'm using outs.

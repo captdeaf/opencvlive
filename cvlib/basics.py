@@ -93,7 +93,7 @@ def writeOn(
             text : T.string = 'demo',
             xpct : T.percent = 0.2,
             ypct : T.percent = 0.8,
-            color : T.color = [255, 255, 255],
+            color : T.complex = [255, 255, 255],
             size : T.int(min=1, max=255) = 4,
             weight : T.int(min=1, max=255) = 10
         ):

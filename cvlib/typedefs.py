@@ -234,4 +234,5 @@ T.color = T.bgr
 @T('complex')
 class TComplex(TJSON):
     def fromJSON(self, jsonarg):
+        print("Complex fromJSON")
         return jsonarg
