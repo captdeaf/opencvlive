@@ -203,7 +203,7 @@ function populateElement(tpl, contents) {
       const pars = getAll(sel, tpl);
       for (const par of pars) {
         par.innerHTML = '';
-        appendChildren(par, ...children);
+        appendChildren(par, children);
       }
     }
   }

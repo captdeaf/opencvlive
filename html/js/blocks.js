@@ -18,10 +18,6 @@ const BLOCK_EMPTY = {
   layout: {
     pos: {x: 40, y: 40},
   },
-  status: {
-    state: 'unknown',
-    hash: '',
-  }
 };
 
 const STATE = ENUM('state', {
@@ -256,11 +252,38 @@ addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
 
 ////////////////////////////////////
 //
+//  Clean up sources: If we remove or replace the chart via json editor,
+//  some sources might be stale.
+//
+////////////////////////////////////
+function cleanupSources(chart) {
+  let removed = true;
+  if ('blocks' in chart) {
+    for (const block of Object.values(chart.blocks)) {
+      if ('params' in block) {
+        for (const param of Object.values(block.params)) {
+          if ('source' in param) {
+            if (!(param.source.uuid in chart.blocks)) {
+              delete param.source;
+              block.outputs = [];
+              removed = false;
+            }
+          }
+        }
+      }
+    }
+  }
+  return removed;
+}
+
+////////////////////////////////////
+//
 //  Remove block. Straightforward, since sources are invalidated and ignored.
 //
 ////////////////////////////////////
 addTrigger('removeBlock', (el) => {
-  delete CHART.blocks[el.blockData.uuid];
+  delete RAWCHART.blocks[el.blockData.uuid];
+  cleanupSources(RAWCHART);
   saveChart();
   loadChart();
   removeElement(el);

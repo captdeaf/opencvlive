@@ -35,9 +35,10 @@ addInitializer('jschart editor', () => {
       const json = JSChartEditor.get();
       if (JSON.parse(JSON.stringify(json))) {
         RAWCHART = json;
+        cleanupSources(RAWCHART);
         CHART = nestedProxy(RAWCHART);
         saveChart();
-        renderAllBlocks(CHART);
+        loadChart();
         EL.chartDialog.style.display = 'none';
       }
   });
@@ -56,11 +57,13 @@ addInitializer('jschart editor', () => {
 // View the JS for the page without images. For sharing.
 addTrigger("viewImagelessJSON", () => {
   const copy = deepCopy(CHART);
+  /*
   for (const [uuid, block] of Object.entries(copy.blocks)) {
     if (block.effectName === 'useImage') {
       delete copy.blocks[uuid];
     }
   }
+  */
   showJSONFloater("Chart JSON without images", copy);
 });
 

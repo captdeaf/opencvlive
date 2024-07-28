@@ -203,6 +203,12 @@ async function processBlockUpdate(blockCall, blockCache) {
     updateBlockResult(blockCall, result);
   } else {
     const el = get('#block' + result.uuid);
+    if (blockCall.uuid in CHART.blocks) {
+      const block = CHART.blocks[blockCall.uuid];
+      showFloater('Block Error for ' + block.name, 'block-error', {
+        '.error-message': js.message,
+      }, el);
+    }
     el.classList.add('block-error');
     setTimeout(() => {
       el.classList.remove('block-error');

@@ -65,7 +65,7 @@ def handle(client):
                 has = False
 
         if has:
-            return True
+            return None
 
         if 'dependencies' in jsobj:
             for k, v in jsobj['dependencies'].items():
@@ -81,11 +81,10 @@ def handle(client):
                 cvwrite(result, f"{BASE_PATH}/{out['path']}")
         else:
             cvwrite(results, f"{BASE_PATH}/{outs[0]['path']}")
-        return True
+        return None
     except Exception as err:
-        debug("error")
-        debug(traceback.format_exc())
-        return False
+        print('err', file=sys.stderr)
+        return err.args[0]
 
 RUNNING = True
 RESTART = False
@@ -154,17 +153,21 @@ def main(bind, port, test=False):
         while RUNNING:
             client, addr = server.accept()
             if test:
-                handle(client)
+                msg = handle(client)
                 client.close()
+                if (msg):
+                    print("Error", file=sys.stderr)
+                    print(msg, file=sys.stderr)
                 return
             kid = os.fork()
             if kid == 0:
                 server.close()
                 try:
-                    if handle(client):
+                    msg = handle(client)
+                    if not msg:
                         client.send(success)
                     else:
-                        client.send(failure)
+                        client.send(bytes(msg, 'utf-8'))
                     client.shutdown(socket.SHUT_WR)
                     client.close()
                 except Exception as err:

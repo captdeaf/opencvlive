@@ -102,16 +102,20 @@ addTrigger('raiseZIndex', (el, evt) => {
 // Floaters: dialog windows, closable.
 //
 /////////////////////////////////////
-
-// Pop one up with a standard template.
-function showFloater(title, bodytpl, contents) {
+function showFloater(title, bodytpl, contents, overlay) {
   const body = template(bodytpl, contents);
+  console.log("showFloater", body, overlay);
   const floater = template('floater', {
     '.name': title,
     '.body': body,
   });
 
   appendChildren(EL.floats, floater);
+  if (overlay) {
+    const rect = overlay.getBoundingClientRect();
+    floater.style.left = (rect.left + 30) + 'px';
+    floater.style.top = (rect.top + 30) + 'px';
+  }
   return enableTriggers(floater);
 }
 

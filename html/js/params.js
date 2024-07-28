@@ -178,9 +178,11 @@ function getSourceOutput(param) {
   if (source) {
     const blockfrom = CHART.blocks[source.uuid];
     if (blockfrom && 'outputs' in blockfrom) {
-      const output = blockfrom.outputs[source.idx];
-      if (output) {
-        return output;
+      if (blockfrom.outputs.length > 0) {
+        const output = blockfrom.outputs[source.idx];
+        if (output) {
+          return output;
+        }
       }
     }
   }
@@ -219,7 +221,7 @@ function makeParamElement(param, effectparam) {
 
   const label = EL('label', labelAttrs,
     EL('span', param.name),
-    builtInput
+    builtInput,
   );
 
   label.param = param;

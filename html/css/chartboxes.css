@@ -33,6 +33,13 @@
   border: 3px solid red;
 }
 
+.error-message {
+  width: 200px;
+  height: 200px;
+  overflow-x: wrap;
+  overflow-y: scroll;
+}
+
 .block-error-loop .block-container {
   border: 3px solid pink;
 }
@@ -101,8 +108,8 @@
 
 .block-params label img {
   display: inline-block;
-  height: 1.5em;
-  width: 2em;
+  max-height: 1.5em;
+  max-width: 2em;
   padding-right: 3em;
   flex-grow: 6;
 }

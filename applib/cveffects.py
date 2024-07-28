@@ -71,9 +71,19 @@ def generateCVImage():
     bout = bytes(b64input, 'utf-8')
     sock.send(bout)
     sock.shutdown(socket.SHUT_WR)
-    ret = str(sock.recv(1), 'utf-8')
+    msg = str(sock.recv(1024), 'utf-8')
 
-    return dict(
-        success = int(ret),
+    resp = dict(
         cachesize = len(glob('html/cached/*')),
     )
+
+    debug("Got " + msg)
+
+    if msg == '1':
+        resp['success'] = 1
+        resp['message'] = 'success'
+    else:
+        resp['success'] = 0
+        resp['message'] = msg
+
+    return resp

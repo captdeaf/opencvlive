@@ -59,10 +59,10 @@ function drawSourceLine(source, tojs, param) {
   let idx = source.idx;
   if (!idx) idx = 0;
 
-  const opProviders = getAll('.blockout-frame', fromBlock);
-  if (!opProviders || opProviders.length === 0) return;
+  const paramProviders = findAll('.blockout-frame', fromBlock);
+  if (!paramProviders || paramProviders.length === 0) return;
 
-  const provider = opProviders[idx];
+  const provider = paramProviders[idx];
 
   // Now to find the actual points.
   const fromPos = calculateLinePoint(provider, 'div', 0.5, 0.5);
