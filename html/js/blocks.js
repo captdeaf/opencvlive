@@ -51,9 +51,13 @@ function updateOtherOutputs(sel, uuid, idx, fn) {
 }
 
 function renderOutput(output, uuid, idx) {
+  let name = basename(output.path);
+  if (uuid in CHART.blocks) {
+    name = CHART.blocks[uuid].name;
+  }
   const attrs = {
     'class': 'drag-start',
-    'data-name': basename(output.path),
+    'data-name': name,
     'data-idx': idx,
     'data-uuid': uuid,
     'data-drag': 'trigger-image',
@@ -125,6 +129,9 @@ function makeBlockElement(blockjs) {
 
     'data-uuid': blockjs.uuid,
 
+    // Rename it when our draggable (head) is double clicked.
+    'data-drag-onclick': 'tryRenameThis',
+
     // Related to dragging this block.
     'data-drag': 'move',
     'data-drag-bind': '#flowchart',
@@ -149,6 +156,12 @@ function makeBlockElement(blockjs) {
   // Head and title
   const blockHead = EL('span', {'class': 'drag-start block-head'});
   blockMaster.setTitle = (text) => { blockHead.innerText = text; };
+  blockMaster.changeTitle = (text) => {
+    blockjs.name = text;
+    saveChart();
+    renderBlockOutputs(blockMaster, blockjs.outputs);
+    blockHead.innerText = text;
+  };
   blockMaster.setTitle(blockjs.name);
 
   const outputEl = EL('div', {'class': 'block-outputs'});
@@ -185,6 +198,32 @@ function makeBlockElement(blockjs) {
 
   return blockMaster;
 }
+
+// tryRenameThis needs to fake its own double click.
+const RENAMER = {
+  uuid: null,
+  time: 0,
+};
+addTrigger('tryRenameThis', (el) => {
+  const uuid = el.blockData.uuid;
+  const now = new Date().getTime();
+  if (uuid !== RENAMER.uuid) {
+    RENAMER.uuid = uuid;
+    RENAMER.time = now;
+    return;
+  }
+
+  if ((now - RENAMER.now) < 700) {
+    const newname = prompt("New name", el.blockData.name);
+    if (newname !== null && newname.length > 0) {
+      el.changeTitle(newname);
+    }
+    RENAMER.now = 0;
+    return;
+  }
+
+  RENAMER.now = now;
+});
 
 function newBlock(name, effectName, newBlockjs) {
   const effect = ALL_EFFECTS[effectName];
@@ -231,9 +270,7 @@ function bindOutputToParameter(blockfrom, output, blockto, paramto) {
   };
   saveChart();
 
-  redrawBlockParams(get('#block' + blockto.dataset.uuid));
-  // TODO: redraw lines
-  refreshOutputs();
+  refreshOutputs(true);
 }
 
 ////////////////////////////////////
@@ -272,7 +309,6 @@ function cleanupSources(chart) {
       }
       if (cleanup) {
         block.outputs = [];
-        redrawBlockParams(get('#block' + block.uuid));
       }
     }
   }
@@ -289,6 +325,7 @@ addTrigger('removeBlock', (el) => {
   cleanupSources(RAWCHART);
   saveChart();
   loadChart();
+  refreshOutputs(true);
   removeElement(el);
 });
 
@@ -310,7 +347,7 @@ addTrigger('addImageAt', (libraryElement, evt, fixedPos, parentElement, relative
     layout: {pos: relativePos},
   };
   const block = newBlock(libraryElement.dataset.name, 'useImage', imagejs);
-  refreshOutputs();
+  refreshOutputs(true);
 });
 
 
@@ -324,6 +361,5 @@ addTrigger('addEffectAt', (libraryElement, evt, fixedPos, parentElement, relativ
     layout: {pos: relativePos},
   });
   newBlock(libraryElement.dataset.name, libraryElement.dataset.effectName, effectjs);
+  refreshOutputs(true);
 });
-
-

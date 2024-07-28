@@ -55,12 +55,13 @@ addInitializer('jschart editor', () => {
 });
 
 // View the JS for the page without images. For sharing.
-addTrigger("viewImagelessJSON", () => {
+addTrigger("viewSharedJSON", () => {
   const copy = deepCopy(CHART);
   for (const [uuid, block] of Object.entries(copy.blocks)) {
     if (block.effectName === 'useImage') {
       delete copy.blocks[uuid];
     }
+    block.outputs = [];
   }
   showJSONFloater("Chart JSON without images", copy);
 });

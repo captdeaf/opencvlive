@@ -91,7 +91,6 @@ function getClearBlocks(process) {
     if (!checkClear(blockuuid)) {
       CHART.blocks[blockuuid].outputs = [];
       const el = get('#block' + blockuuid);
-      redrawBlockParams(el);
       get('.block-outputs', el).innerHTML = '';
     }
   }
@@ -99,7 +98,7 @@ function getClearBlocks(process) {
   process.readyCalls = ready.map((r) => process.calls[r])
 }
 
-function refreshOutputs() {
+function refreshOutputs(redrawParams) {
   const process = {
     sourceCache: {},
     calls: {},
@@ -110,10 +109,10 @@ function refreshOutputs() {
   getClearBlocks(process);
 
   // Now we enter async. Fire and forget.
-  beginBlockProcessing(process);
+  beginBlockProcessing(process, redrawParams);
 };
 
-async function beginBlockProcessing(process) {
+async function beginBlockProcessing(process, redrawParams) {
   // 'blockCache' is a cache (updated by processBlockUpdate) of hashes and values
   // passed along. As 'ready' is ordered, any dependencies will be in it.
   // It also contains the information of images and complexes.
@@ -124,8 +123,17 @@ async function beginBlockProcessing(process) {
     blockCache[call.uuid] = result.deps;
   }
 
-  redrawAllLines();
+  redrawAllLines(false);
   saveChart();
+
+  if (redrawParams) {
+    for (const uuid of Object.keys(CHART.blocks)) {
+      const block = find('#block' + uuid);
+      if (block) {
+        redrawBlockParams(block);
+      }
+    }
+  }
 }
 
 // Process a single block action.
@@ -201,7 +209,6 @@ async function processBlockUpdate(blockCall, blockCache) {
     updateBlockResult(blockCall, result);
   } else {
     const el = get('#block' + result.uuid);
-    redrawBlockParams(el);
     if (blockCall.uuid in CHART.blocks) {
       const block = CHART.blocks[blockCall.uuid];
       showFloater('Block Error for ' + block.name, 'block-error', {
@@ -221,8 +228,6 @@ async function processBlockUpdate(blockCall, blockCache) {
 // blockCall: uuid
 function updateBlockResult(blockCall, result) {
   const blockElement = get('#block' + result.uuid);
-
-  redrawBlockParams(blockElement);
 
   blockElement.blockData.outputs = result.outputs;
 
