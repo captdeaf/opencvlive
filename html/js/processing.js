@@ -201,6 +201,7 @@ async function processBlockUpdate(blockCall, blockCache) {
     updateBlockResult(blockCall, result);
   } else {
     const el = get('#block' + result.uuid);
+    redrawBlockParams(el);
     if (blockCall.uuid in CHART.blocks) {
       const block = CHART.blocks[blockCall.uuid];
       showFloater('Block Error for ' + block.name, 'block-error', {
@@ -220,6 +221,8 @@ async function processBlockUpdate(blockCall, blockCache) {
 // blockCall: uuid
 function updateBlockResult(blockCall, result) {
   const blockElement = get('#block' + result.uuid);
+
+  redrawBlockParams(blockElement);
 
   blockElement.blockData.outputs = result.outputs;
 
