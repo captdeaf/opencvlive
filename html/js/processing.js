@@ -206,7 +206,7 @@ async function processBlockUpdate(blockCall, blockCache) {
     if (blockCall.uuid in CHART.blocks) {
       const block = CHART.blocks[blockCall.uuid];
       showFloater('Block Error for ' + block.name, 'block-error', {
-        '.error-message': js.message,
+        '.error-message': getErrorMessage(js.message),
       }, el);
     }
     el.classList.add('block-error');
@@ -231,4 +231,15 @@ function updateBlockResult(blockCall, result) {
   blockElement.dataset.hash = result.hash;
 
   return;
+}
+
+const ERROR_REGEXPS = [
+  [/OpenCV.*-209:/, "Sizes of inputs do not match."],
+];
+
+function getErrorMessage(jsmessage) {
+  for (const pat of ERROR_REGEXPS) {
+    if (pat[0].test(jsmessage)) return pat[1];
+  }
+  return jsmessage;
 }
