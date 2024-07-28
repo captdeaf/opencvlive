@@ -37,13 +37,15 @@ function pickLineColor() {
 
 // Draw a node line between a source and a target, using their
 // arrow and bullseye locations.
-function drawLineSVG(spoint, tpoint, color) {
-  EL.flowlines.append(EL('line', {
+function drawLineSVG(spoint, tpoint, color, dashed) {
+  const attrs = {
     x1: spoint.x, y1: spoint.y,
     x2: tpoint.x, y2: tpoint.y,
     stroke: color,
     'stroke-width': 4,
-  }));
+  };
+  if (dashed) attrs['stroke-dasharray'] = '2';
+  EL.flowlines.append(EL('line', attrs));
 }
 
 function drawSourceLine(source, tojs, param) {
@@ -59,10 +61,14 @@ function drawSourceLine(source, tojs, param) {
   let idx = source.idx;
   if (!idx) idx = 0;
 
-  const paramProviders = findAll('.blockout-frame', fromBlock);
-  if (!paramProviders || paramProviders.length === 0) return;
+  let provider = fromBlock;
+  let dashed = true;
 
-  const provider = paramProviders[idx];
+  const paramProviders = findAll('.blockout-frame', fromBlock);
+  if (paramProviders && paramProviders.length > 0) {
+    provider = paramProviders[idx];
+    dashed = false;
+  }
 
   // Now to find the actual points.
   const fromPos = calculateLinePoint(provider, 'div', 0.5, 0.5);
@@ -74,7 +80,7 @@ function drawSourceLine(source, tojs, param) {
     source.color = color;
     saveChart();
   }
-  drawLineSVG(fromPos, toPos, color);
+  drawLineSVG(fromPos, toPos, color, dashed);
 }
 
 function redrawAllLines() {

@@ -232,7 +232,7 @@ function updateBlockResult(blockCall, result) {
 }
 
 const ERROR_REGEXPS = [
-  [/OpenCV.*-209:/, "Shapes of inputs do not match. (either x, y, or color depth)"],
+  [/OpenCV.*-209:/, "Array shapes of inputs do not match. (Usually size, or color vs grayscale)"],
 ];
 
 function getErrorMessage(jsmessage) {

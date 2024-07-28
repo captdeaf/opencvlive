@@ -93,14 +93,10 @@ def writeOn(
             text : T.string = 'demo',
             xpct : T.percent = 0.2,
             ypct : T.percent = 0.8,
-            # color : T.color = [0, 255, 255],
+            color : T.color = [255, 255, 255],
             size : T.int(min=1, max=255) = 4,
             weight : T.int(min=1, max=255) = 10
         ):
-
-    # TODO: When we have a good color color picker,
-    #       make this an op arg.
-    color = [255, 255, 255]
 
     font = cv.FONT_HERSHEY_SIMPLEX
     weight= 10
