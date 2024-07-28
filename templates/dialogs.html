@@ -1,0 +1,27 @@
+    <div id="upload-dialog" data-upload="/upload" class="dialog" style="display: none;" data-drag="move">
+      <form>
+      <h3 class="drag-start" >Upload Images</h3>
+      <span class="closer" data-onclick="hide">X</span>
+      <input type="file" name="image" multiple data-onchange="fileDialogChange">
+      <ul id="upload-list"></ul>
+      </form>
+    </div>
+    <div id="jsonchart-dialog" class="dialog" style="display: none;" data-drag="move">
+      <h3 class="drag-start">Raw JSON for the flowchart</h3>
+      <span class="closer" data-onclick="hide">close</span>
+      <div id="jsonchart" style="width: 500px; height: 300px;"></div>
+      <div class="edit-buttons">
+        <button class="edit-close" data-onclick="cancelChartEditor">Cancel</button>
+        <button class="edit-wipe" data-onclick="wipeChartEditor">Wipe</button>
+        <button class="edit-save" data-onclick="saveChartEditor">Save</button>
+      </div>
+    </div>
+    <div id="jsonedit-dialog" class="dialog" style="display: none;" data-drag="move">
+      <h3 class="drag-start">Editing <span id="json-editing">Nothing</span></h3>
+      <span class="closer" data-onclick="hide">close</span>
+      <div id="jsoneditor" style="width: 500px; height: 300px;"></div>
+      <div class="edit-buttons">
+        <button class="edit-close" data-onclick="cancelEditor">Cancel</button>
+        <button class="edit-save" data-onclick="saveEditor">Save</button>
+      </div>
+    </div>

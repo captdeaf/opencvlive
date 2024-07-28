@@ -2,8 +2,8 @@ Left off at:
 
 TODO for opencvlive:
 
-  - Finish refactor:
-    - Adding complex outputs via renderBlockOutputs().
   - new features:
-    - Complex / json input values.
     - changeable block names?
+    - Switch library to a categorized dropdown?
+    - OpenCV:
+      - name: ...

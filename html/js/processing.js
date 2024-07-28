@@ -71,14 +71,7 @@ function getClearBlocks(process) {
 
   function checkClear(uuid) {
     if (clear[uuid]) { return true; }
-    if (seen[uuid]) {
-      const el = get('#block' + uuid);
-      el.classList.add('block-error-loop');
-      setTimeout(() => {
-        el.classList.remove('block-error-loop');
-      }, 3000);
-      return false;
-    }
+    if (seen[uuid]) return false;
 
     seen[uuid] = true;
     if (!(uuid in sourceCache)) return false;
@@ -95,7 +88,12 @@ function getClearBlocks(process) {
   }
 
   for (const blockuuid of Object.keys(sourceCache)) {
-    checkClear(blockuuid);
+    if (!checkClear(blockuuid)) {
+      CHART.blocks[blockuuid].outputs = [];
+      const el = get('#block' + blockuuid);
+      redrawBlockParams(el);
+      get('.block-outputs', el).innerHTML = '';
+    }
   }
 
   process.readyCalls = ready.map((r) => process.calls[r])
@@ -234,7 +232,7 @@ function updateBlockResult(blockCall, result) {
 }
 
 const ERROR_REGEXPS = [
-  [/OpenCV.*-209:/, "Sizes of inputs do not match."],
+  [/OpenCV.*-209:/, "Shapes of inputs do not match. (either x, y, or color depth)"],
 ];
 
 function getErrorMessage(jsmessage) {

@@ -32,34 +32,7 @@
   </head>
   <body>
     {{about}}
-    <!-- -->
-    <div id="upload-dialog" data-upload="/upload" class="dialog" style="display: none;" data-drag="move">
-      <form>
-      <h3 class="drag-start" >Upload Images</h3>
-      <span class="closer" data-onclick="hide">X</span>
-      <input type="file" name="image" multiple data-onchange="fileDialogChange">
-      <ul id="upload-list"></ul>
-      </form>
-    </div>
-    <div id="jsonchart-dialog" class="dialog" style="display: none;" data-drag="move">
-      <h3 class="drag-start">Raw JSON for the flowchart</h3>
-      <span class="closer" data-onclick="hide">close</span>
-      <div id="jsonchart" style="width: 500px; height: 300px;"></div>
-      <div class="edit-buttons">
-        <button class="edit-close" data-onclick="cancelChartEditor">Cancel</button>
-        <button class="edit-wipe" data-onclick="wipeChartEditor">Wipe</button>
-        <button class="edit-save" data-onclick="saveChartEditor">Save</button>
-      </div>
-    </div>
-    <div id="jsonedit-dialog" class="dialog" style="display: none;" data-drag="move">
-      <h3 class="drag-start">Editing <span id="json-editing">Nothing</span></h3>
-      <span class="closer" data-onclick="hide">close</span>
-      <div id="jsoneditor" style="width: 500px; height: 300px;"></div>
-      <div class="edit-buttons">
-        <button class="edit-close" data-onclick="cancelEditor">Cancel</button>
-        <button class="edit-save" data-onclick="saveEditor">Save</button>
-      </div>
-    </div>
+    {{dialogs}}
     <div id="head" class="cvstyle">
       <div id="topbar">
         <div id="title" class="header-subtext" data-onclick="toggle" data-target="#about">
@@ -85,14 +58,12 @@
           <button data-onclick="showUploadDialog">Upload</button>
         </h3>
         <hr/>
-        <div class="collection-scroll" data-hover="scrollup" data-target="#library">&uarr;</div>
+        <input type="text" class="collection-search" data-onchange="searchCollection" data-onkeyup="searchCollection" data-search-target="images" placeholder="<search>"/>
         <div class="collection" id="library"></div>
-        <div class="collection-scroll" data-hover="scrolldown" data-target="#library">&darr;</div>
         <h3>Blocks Available</h3>
-        <div class="collection-scroll" data-hover="scrollup" data-target="#block-selection">&uarr;</div>
+        <input type="text" class="collection-search" data-onchange="searchCollection" data-onkeyup="searchCollection" data-search-target="effects" placeholder="<search>"/>
         <div class="collection" id="block-selection">
         </div>
-        <div class="collection-scroll" data-hover="scrolldown" data-target="#block-selection">&darr;</div>
       </div>
       <div id="main">
         <div id="flowtools" class="layer blockdrop">

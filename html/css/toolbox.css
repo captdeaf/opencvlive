@@ -43,14 +43,15 @@
   margin: 0;
 }
 
-#toolbox .collection-scroll {
-  width: 40%;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  height: 1em;
-  background-color: #ececec;
-  border: 1px solid #aaa;
+#toolbox .collection-search {
+  font-size: 140%;
+  width: 90%;
+  margin: 5px;
+}
+
+::placeholder {
+  opacity: 0.3;
+  color: #aaa;
 }
 
 #toolbox .collection {

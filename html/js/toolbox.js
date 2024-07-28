@@ -2,9 +2,12 @@
 //
 // UI management for left-side toolbox.
 
+let LIBRARY_SEARCH = {};
+
 function rebuildLibrary(paths) {
   const library = EL.library;
   library.innerHTML = '';
+  LIBRARY_SEARCH = {};
 
   const children = [];
   // const paneComplex = template('library-complex');
@@ -29,6 +32,7 @@ function rebuildLibrary(paths) {
       EL('span', {}, name),
       img,
     );
+    LIBRARY_SEARCH[name] = pane;
     children.push(pane);
   }
 
@@ -107,9 +111,9 @@ addTrigger('showLargeJSON', function(el) {
   showJSONFloater("Raw Complex JSON", json);
 });
 
-addTrigger('showLargeChildImage', function(el) {
-  const img = get('img', el);
-  let name = el.dataset.name;
+addTrigger('showLargeChildImage', function(cont) {
+  const img = get('img', cont);
+  let name = cont.dataset.name;
   if (!name) { name = img.dataset.name; }
   showFloater(name, 'large-image', (el) => {
     const large = get('img', el);
@@ -137,8 +141,11 @@ function buildEffectBlock(effect) {
   return block;
 }
 
+let EFFECT_SEARCH = {};
+
 function refreshEffectBlocks() {
   const parentElement = EL.blockselection;
+  EFFECT_SEARCH = {};
   parentElement.innerHTML = '';
   let sorted = Object.values(ALL_EFFECTS);
   sorted = sorted.sort(function(a, b) {
@@ -148,12 +155,14 @@ function refreshEffectBlocks() {
   const high = [];
   const normal = [];
   for (const effect of sorted) {
+    const effectBlock = buildEffectBlock(effect);
+    EFFECT_SEARCH[effect.displayname] = effectBlock;
     if (effect.sort === 'custom') {
-      custom.push(buildEffectBlock(effect));
+      custom.push(effectBlock);
     } else if (effect.sort === 'high') {
-      high.push(buildEffectBlock(effect));
+      high.push(effectBlock);
     } else if (effect.sort !== 'hidden') {
-      normal.push(buildEffectBlock(effect));
+      normal.push(effectBlock);
     }
   }
   appendChildren(parentElement, custom);
@@ -161,6 +170,33 @@ function refreshEffectBlocks() {
   appendChildren(parentElement, normal);
   enableTriggers(EL.blockselection);
 }
+
+const SEARCHBOXES = {
+  images: {
+    get: () => LIBRARY_SEARCH,
+    cachee: '',
+  },
+  effects: {
+    get: () => EFFECT_SEARCH,
+    cache: '',
+  },
+};
+
+addTrigger('searchCollection', (el) => {
+  const collection = SEARCHBOXES[el.dataset.searchTarget];
+  const searchtext = el.value;
+  if (searchtext !== collection.cache) {
+    const x = new RegExp(searchtext, 'i');
+    for (const [k, v] of Object.entries(collection.get())) {
+      if (x.test(k)) {
+        v.style.display = 'block';
+      } else {
+        v.style.display = 'none';
+      }
+    }
+    collection.cache = searchtext;
+  }
+});
 
 addInitializer('toolbox', () => {
   refreshLibrary();

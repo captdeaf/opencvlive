@@ -191,7 +191,7 @@ function template(tplname, contents) {
   if (tpl.children.length === 1) {
     return tpl.children[0];
   } else {
-    return tpl.children;
+    return [...tpl.children];
   }
 }
 

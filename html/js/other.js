@@ -32,15 +32,15 @@ addInitializer('jschart editor', () => {
   });
 
   addTrigger('saveChartEditor', () => {
-      const json = JSChartEditor.get();
-      if (JSON.parse(JSON.stringify(json))) {
-        RAWCHART = json;
-        cleanupSources(RAWCHART);
-        CHART = nestedProxy(RAWCHART);
-        saveChart();
-        loadChart();
-        EL.chartDialog.style.display = 'none';
-      }
+    const json = JSChartEditor.get();
+    try {
+      const newchart = JSON.parse(JSON.stringify(json));
+      RAWCHART = cleanupSources(newchart);
+      CHART = nestedProxy(RAWCHART);
+      saveChart();
+      loadChart();
+      EL.chartDialog.style.display = 'none';
+    } catch (err) {}
   });
 
   addTrigger('wipeChartEditor', () => {
@@ -57,13 +57,11 @@ addInitializer('jschart editor', () => {
 // View the JS for the page without images. For sharing.
 addTrigger("viewImagelessJSON", () => {
   const copy = deepCopy(CHART);
-  /*
   for (const [uuid, block] of Object.entries(copy.blocks)) {
     if (block.effectName === 'useImage') {
       delete copy.blocks[uuid];
     }
   }
-  */
   showJSONFloater("Chart JSON without images", copy);
 });
 

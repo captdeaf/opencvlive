@@ -233,7 +233,9 @@ function makeParamElement(param, effectparam) {
   builtInput.dataset.onchange = 'updateParameter';
   builtInput.param = param;
 
-  if (title in param) { labelAttrs.title = param.title; }
+  if ('title' in effectparam) {
+    labelAttrs.title = effectparam.title;
+  }
 
   const label = EL('label', labelAttrs,
     EL('span', param.name),

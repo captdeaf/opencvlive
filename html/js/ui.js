@@ -104,14 +104,14 @@ addTrigger('raiseZIndex', (el, evt) => {
 /////////////////////////////////////
 function showFloater(title, bodytpl, contents, overlay) {
   const body = template(bodytpl, contents);
-  console.log("showFloater", body, overlay);
+  console.log("showFloater", body, contents, overlay);
   const floater = template('floater', {
     '.name': title,
     '.body': body,
   });
 
   appendChildren(EL.floats, floater);
-  if (overlay) {
+  if (overlay !== undefined) {
     const rect = overlay.getBoundingClientRect();
     floater.style.left = (rect.left + 30) + 'px';
     floater.style.top = (rect.top + 30) + 'px';

@@ -177,7 +177,7 @@ function addMouseDrag(dragMe) {
   let lineStart;
 
   actions.start = function() {
-    // Track time, if this is < 100ms, we consider it a click.
+    // Track time, if this is < 200ms, we consider it a click.
     clickStart = new Date().getTime();
 
     // Track mouse differences. For dragging around.
@@ -277,7 +277,7 @@ function addMouseDrag(dragMe) {
   // return True to stop
   actions.end = function(evt) {
     // Check for pseudo-click
-    if ((new Date().getTime() - clickStart) < 100) {
+    if ((new Date().getTime() - clickStart) < 200) {
       trigger(callbacks.click, dragMe, evt, MOUSE.pos);
       cleanUp();
       return false;
@@ -352,52 +352,3 @@ addInitializer('dragndrop', function() {
   document.onmouseup   = endMouseAction;
   document.onmousemove = moveMouseAction;
 });
-
-/////////////////////////////////////
-//
-// data-hover: mouse handling.
-//
-/////////////////////////////////////
-
-// Added data-onhover, which triggers whenever a mouse enters, or stays in
-// for longer than 100 millis. Try and do it smoothly.
-function addHoverTracker(el) {
-  const timeout = 100;
-  const triggerName = el.dataset.hover;
-  const target = get(el.dataset.target);
-  const scrollDiff = 15;
-
-  let count = 5;
-  let mouseon = false;
-  let lastScroll = 0;
-
-  function doHoverOver(evt) {
-    let now = new Date().getTime();
-    if (mouseon && lastScroll < (now - (timeout - 20))) {
-      trigger(triggerName, target, evt, scrollDiff * (count/5));
-      lastScroll = now;
-      setTimeout(doHoverOver, timeout);
-      count = count + 1;
-    }
-  }
-
-  el.onmouseenter = (evt) => {
-    mouseon = true;
-    doHoverOver(evt);
-  };
-
-  el.onmouseleave = (evt) => {
-    mouseon = false;
-    count = 5;
-  };
-}
-
-addTrigger('scrollup', (el, evt, amt) => {
-  el.scrollTop = el.scrollTop - amt;
-});
-
-addTrigger('scrolldown', (el, evt, amt) => {
-  el.scrollTop = el.scrollTop + amt;
-});
-
-addTriggerFunction('[data-hover]', addHoverTracker);

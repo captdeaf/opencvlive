@@ -257,23 +257,26 @@ addTrigger('bindToInput', (sourceEl, evt, fixedPos, targetEls, relativePos) => {
 //
 ////////////////////////////////////
 function cleanupSources(chart) {
-  let removed = true;
   if ('blocks' in chart) {
     for (const block of Object.values(chart.blocks)) {
+      let cleanup = false;
       if ('params' in block) {
         for (const param of Object.values(block.params)) {
           if ('source' in param) {
             if (!(param.source.uuid in chart.blocks)) {
+              cleanup = true;
               delete param.source;
-              block.outputs = [];
-              removed = false;
             }
           }
         }
       }
+      if (cleanup) {
+        block.outputs = [];
+        redrawBlockParams(get('#block' + block.uuid));
+      }
     }
   }
-  return removed;
+  return chart;
 }
 
 ////////////////////////////////////
