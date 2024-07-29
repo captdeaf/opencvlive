@@ -34,7 +34,6 @@ thresholdTarget = T.select({
 @EF.register("Threshold (Normal)", T.grayscale)
 def threshold(
             image : T.grayscale,
-            cmax : T.int(min=0, max=255) = 255,
             low : T.byte(title="Below this is black") = 128,
             high : T.byte(title="Above this is white") = 255,
             target : thresholdTarget = cv.THRESH_BINARY,
@@ -135,7 +134,7 @@ def grayToColor(
 def invert(image : T.image):
     return 255 - image
 
-@EF.register("Find Corners", [T.complex])
+@EF.register("Find Corners", T.complex)
 def findCorners(image : T.grayscale):
     corners = cv.goodFeaturesToTrack(image, 25, 0.01, 10)
     corners = np.int0(corners)
@@ -169,16 +168,17 @@ def blend(
         ):
     return cv.addWeighted(imageA, weightA, imageB, weightB, gamma)
 
-@EF.register("Draw Polygon", T.image)
+@EF.register("Draw Polylines", T.image)
 def drawPoly(
             image : T.image,
             poly  : T.complex(title="2D Polygon array"),
             color : T.complex(title="color [255, 255, 0]") = [255, 255, 0],
             close : T.bool(title="Auto-close?") = True,
+            thickness : T.int(min=1, title="How thick should the line be?") = 3,
         ):
     pts = np.array(poly);
     pts = pts.reshape((-1, 1, 2))
-    cv.polylines(image, [pts], close, color)
+    cv.polylines(image, [pts], close, color, thickness)
     return image
 
 # Register a way for complex to save itself. In theory, it

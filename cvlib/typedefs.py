@@ -200,6 +200,8 @@ T.byte = T.int(min=0, max=255)
 @T('float')
 class TFloat(TInt): pass
 
+T.double = T.float
+
 @T('percent')
 class TPercent(TFloat):
     min=0.0

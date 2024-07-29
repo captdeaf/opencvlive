@@ -136,6 +136,7 @@
   max-height: 7em;
   overflow: hidden;
   padding-bottom: 2em;
+  text-align: center;
 }
 
 .blockout-frame img {
@@ -143,6 +144,12 @@
   height: 84%;
   margin-left: 8%;
   margin-right: 8%;
+}
+
+.blockout-frame img.complex-output {
+  margin-top: 1em;
+  max-width: 2em;
+  max-height: 2em;
 }
 
 .drag-image {

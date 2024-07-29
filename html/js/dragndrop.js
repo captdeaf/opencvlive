@@ -278,8 +278,8 @@ function addMouseDrag(dragMe) {
   actions.end = function(evt) {
     // Check for pseudo-click
     if ((new Date().getTime() - clickStart) < 200) {
-      trigger(callbacks.click, dragMe, evt, MOUSE.pos);
       cleanUp();
+      trigger(callbacks.click, dragMe, evt, MOUSE.pos);
       return false;
     }
 

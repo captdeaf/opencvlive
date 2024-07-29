@@ -30,7 +30,11 @@ addInitializer('complex editor', () => {
     function startEditing() {
       get('#json-editing').innerText = pel.param.name;
       JSEditor.editing = pel.param;
-      JSEditor.set(pel.param.value);
+      if ('value' in pel.param) {
+        JSEditor.set(pel.param.value);
+      } else {
+        JSEditor.set([]);
+      }
       EL.editDialog.style.display = 'block';
     }
     if (JSEditor.editing !== undefined) {

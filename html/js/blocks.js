@@ -55,37 +55,38 @@ function renderOutput(output, uuid, idx) {
   if (uuid in CHART.blocks) {
     name = CHART.blocks[uuid].name;
   }
+  const classes = ['drag-start', 'blockout-frame'];
   const attrs = {
-    'class': 'drag-start',
     'data-name': name,
     'data-idx': idx,
     'data-uuid': uuid,
     'data-drag': 'trigger-image',
     'data-drag-bind': '#flowchart',
     'data-drag-ondrop': 'bindToInput',
-    'data-drag-drop-on': '.accept-image',
-    'data-drag-onclick': 'showLargeChildImage',
   };
   let outputElement;
   if (output.cname === 'image') {
-    attrs.src = output.path;
-    outputElement = EL('img', attrs);
+    attrs['data-drag-drop-on'] = '.accept-image';
+    attrs['data-drag-onclick'] = 'showLargeChildImage';
+    outputElement = EL('img', {src: output.path});
     updateOtherOutputs('img', uuid, idx, (img) => {
       img.src = output.path;
     });
   } else if (output.cname === 'complex') {
-    outputElement = EL('p', attrs, "TBD");
+    attrs['data-drag-drop-on'] = '.accept-complex';
+    attrs['data-drag-onclick'] = 'showLargeJSON';
+    classes.push(' complex-output');
+    outputElement = EL('img', {
+      src: 'images/clip_complex.png',
+    });
   } else {
-    outputElement = EL('p', attrs, "What");
+    outputElement = EL('p', {}, "What");
   }
 
-  outputElement.output = output;
-  return enableTriggers(EL('div', {
-      'class': 'blockout-frame',
-      'data-onclick': 'showLargeChildImage',
-    },
-    outputElement,
-  ));
+  attrs.class = classes.join(' ');
+  const outframe = enableTriggers(EL('div', attrs, outputElement));
+  outframe.output = output;
+  return outframe;
 }
 
 function renderBlockOutputs(blockmaster, outputs) {
@@ -262,12 +263,18 @@ function loadBlock(blockjs) {
 //
 ////////////////////////////////////
 function bindOutputToParameter(blockfrom, output, blockto, paramto) {
-  paramto.source = {
-    uuid: blockfrom.dataset.uuid,
-    idx: output.idx,
-    path: output.path,
-    color: pickLineColor(),
-  };
+  if ('source' in paramto && 'uuid' in paramto.source
+      && paramto.source.uuid === blockfrom.dataset.uuid
+      && paramto.source.idx === output.idx) {
+    delete paramto['source'];
+  } else {
+    paramto.source = {
+      uuid: blockfrom.dataset.uuid,
+      idx: output.idx,
+      path: output.path,
+      color: pickLineColor(),
+    };
+  }
   saveChart();
 
   refreshOutputs(true);

@@ -107,8 +107,13 @@ addTrigger('fileDialogChange', (el, evt) => {
 });
 
 addTrigger('showLargeJSON', function(el) {
-  const json = get('code', el).innerText;
-  showJSONFloater("Raw Complex JSON", json);
+  const uri = el.output.path;
+  easyFetch(uri, {}, {
+    json: true,
+    success: (json) => {
+      showJSONFloater("Raw Complex JSON", json);
+    }
+  });
 });
 
 addTrigger('showLargeChildImage', function(cont) {
